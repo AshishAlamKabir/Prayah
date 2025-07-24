@@ -39,20 +39,28 @@ The application follows a modern full-stack architecture with clear separation b
 ## Key Components
 
 ### Data Models
-The application manages six primary entity types:
-- **Users**: Authentication and user management with roles (user, admin, moderator)
+The application manages eight primary entity types:
+- **Users**: Authentication and user management with roles (user, admin, moderator), subscription status
+- **User Sessions**: Secure session management with token-based authentication
 - **Community Posts**: User-submitted content with approval workflow (pending, approved, rejected)
-- **Schools**: Educational institution profiles with programs, contact info, and statistics
-- **Culture Categories**: Arts and cultural program categorization with icons and descriptions
-- **Books**: Digital and physical book catalog with e-commerce features and PDF downloads
-- **Published Works**: Organization's published materials and literature
+- **Schools**: Educational institution profiles with programs, contact info, statistics, and media galleries
+- **Culture Categories**: Arts and cultural program categorization with YouTube channel integration
+- **Books**: Digital and physical book catalog with e-commerce features, PDF downloads, and subscription controls
+- **Published Works**: Organization's published materials with admin approval workflow
+- **Orders**: E-commerce order management with subscription tracking
 
 ### Frontend Pages
 - **Home**: Organization overview with hero section, stats, features, and community submission form
 - **Schools**: Directory of educational institutions with search functionality
+- **School Detail**: Individual school pages with media galleries, programs, achievements, and contact information
 - **Culture**: Art and culture programs showcase with categorized displays
-- **Books**: E-commerce platform for revolutionary literature with search and filtering
-- **Admin**: Content moderation dashboard for managing community posts and platform statistics
+- **Music**: Dedicated music programs page with YouTube channel integration
+- **Fine Arts**: Visual arts programs with gallery and workshop information
+- **Dance/Drama/Poems**: Performing arts section with video galleries and poetry corner
+- **Books**: Public book catalog with basic information and search
+- **Store**: Full e-commerce platform with subscription model and PDF access
+- **Login/Register**: Authentication pages with form validation
+- **Admin**: Content moderation dashboard for managing community posts, published works approval, and platform statistics
 
 ### UI Components
 - Complete shadcn/ui component library with custom revolutionary theming
@@ -120,6 +128,18 @@ The application manages six primary entity types:
 The architecture prioritizes developer experience, type safety, and maintainability while supporting the organization's revolutionary mission through carefully designed user interfaces and comprehensive content management capabilities.
 
 ## Recent Changes
+
+### Major Feature Enhancement (July 24, 2025)
+✓ Implemented comprehensive authentication system with bcrypt password hashing
+✓ Added user registration and login with session management
+✓ Created detailed school pages with media galleries, programs, and contact information
+✓ Built specialized art & culture sections (Music, Fine Arts, Dance/Drama/Poems) with YouTube integration
+✓ Developed full e-commerce functionality for books with PDF access and subscription model
+✓ Added admin approval workflow for published works
+✓ Enhanced database schema with users, sessions, orders, and subscription management
+✓ Implemented premium subscription system with access controls
+✓ Updated header with authentication controls and user management
+✓ Created comprehensive routing system for all new features
 
 ### Database Connection Fix (July 24, 2025)
 ✓ Fixed WebSocket connection issues with Neon Database

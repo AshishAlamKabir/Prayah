@@ -1,10 +1,123 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCommunityPostSchema, insertSchoolSchema, insertCultureCategorySchema, insertBookSchema, insertPublishedWorkSchema } from "@shared/schema";
+import { 
+  insertCommunityPostSchema, 
+  insertSchoolSchema, 
+  insertCultureCategorySchema, 
+  insertBookSchema, 
+  insertPublishedWorkSchema,
+  insertUserSchema,
+  insertOrderSchema
+} from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { 
+  authMiddleware, 
+  adminMiddleware, 
+  optionalAuthMiddleware,
+  generateSessionToken, 
+  hashPassword, 
+  verifyPassword 
+} from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication endpoints
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { password, ...userData } = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email) || await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists with this email or username" });
+      }
+
+      const hashedPassword = await hashPassword(password);
+      const user = await storage.createUser({ ...userData, password: hashedPassword });
+
+      // Create session
+      const token = generateSessionToken();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+      await storage.createUserSession({
+        userId: user.id,
+        token,
+        expiresAt,
+      });
+
+      const { password: _, ...userWithoutPassword } = user;
+      res.status(201).json({ user: userWithoutPassword, token });
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error registering user:", error);
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { identifier, password } = req.body; // identifier can be email or username
+      
+      if (!identifier || !password) {
+        return res.status(400).json({ message: "Email/username and password are required" });
+      }
+
+      // Try to find user by email or username
+      let user = await storage.getUserByEmail(identifier);
+      if (!user) {
+        user = await storage.getUserByUsername(identifier);
+      }
+
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const isValidPassword = await verifyPassword(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Create session
+      const token = generateSessionToken();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+      await storage.createUserSession({
+        userId: user.id,
+        token,
+        expiresAt,
+      });
+
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword, token });
+    } catch (error) {
+      console.error("Error logging in user:", error);
+      res.status(500).json({ message: "Failed to log in" });
+    }
+  });
+
+  app.post("/api/auth/logout", authMiddleware, async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (token) {
+        await storage.deleteUserSession(token);
+      }
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      res.status(500).json({ message: "Failed to log out" });
+    }
+  });
+
+  app.get("/api/auth/me", authMiddleware, async (req, res) => {
+    const { password, ...userWithoutPassword } = req.user;
+    res.json(userWithoutPassword);
+  });
+
   // Statistics endpoint
   app.get("/api/stats", async (req, res) => {
     try {
@@ -31,6 +144,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/community-posts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
       const post = await storage.getCommunityPost(id);
       if (!post) {
         return res.status(404).json({ message: "Community post not found" });
@@ -204,17 +320,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/published-works", async (req, res) => {
     try {
       const featured = req.query.featured === "true";
-      const works = featured 
-        ? await storage.getFeaturedPublishedWorks()
-        : await storage.getPublishedWorks();
-      res.json(works);
+      const status = req.query.status as string;
+      
+      if (featured) {
+        const works = await storage.getFeaturedPublishedWorks();
+        res.json(works);
+      } else {
+        const works = await storage.getPublishedWorks(status || 'approved');
+        res.json(works);
+      }
     } catch (error) {
       console.error("Error fetching published works:", error);
       res.status(500).json({ message: "Failed to fetch published works" });
     }
   });
 
-  app.post("/api/published-works/:id/download", async (req, res) => {
+  app.post("/api/published-works", authMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertPublishedWorkSchema.parse(req.body);
+      const work = await storage.createPublishedWork(validatedData);
+      res.status(201).json(work);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating published work:", error);
+      res.status(500).json({ message: "Failed to create published work" });
+    }
+  });
+
+  app.patch("/api/published-works/:id/status", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      
+      if (!["pending", "approved", "rejected"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+      }
+      
+      const work = await storage.updatePublishedWorkStatus(id, status, req.user.id);
+      if (!work) {
+        return res.status(404).json({ message: "Published work not found" });
+      }
+      res.json(work);
+    } catch (error) {
+      console.error("Error updating published work status:", error);
+      res.status(500).json({ message: "Failed to update published work status" });
+    }
+  });
+
+  app.post("/api/published-works/:id/download", optionalAuthMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       await storage.incrementDownloadCount(id);
@@ -222,6 +378,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error incrementing download count:", error);
       res.status(500).json({ message: "Failed to increment download count" });
+    }
+  });
+
+  // E-commerce endpoints
+  app.get("/api/books", optionalAuthMiddleware, async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      const featured = req.query.featured === "true";
+      
+      let books;
+      if (category) {
+        books = await storage.getBooksByCategory(category);
+      } else {
+        books = await storage.getBooks();
+      }
+
+      // Filter subscription-only books for non-subscribers
+      if (!req.user?.isSubscribed) {
+        books = books.filter(book => !book.subscriptionOnly);
+      }
+
+      if (featured) {
+        books = books.filter(book => book.featured);
+      }
+
+      res.json(books);
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      res.status(500).json({ message: "Failed to fetch books" });
+    }
+  });
+
+  app.post("/api/orders", authMiddleware, async (req, res) => {
+    try {
+      const orderData = {
+        ...insertOrderSchema.parse(req.body),
+        userId: req.user.id
+      };
+      
+      const order = await storage.createOrder(orderData);
+      
+      // If it's a subscription order, update user subscription
+      if (orderData.isSubscription) {
+        const subscriptionExpiry = new Date();
+        subscriptionExpiry.setFullYear(subscriptionExpiry.getFullYear() + 1); // 1 year
+        await storage.updateUserSubscription(req.user.id, true, subscriptionExpiry);
+      }
+      
+      res.status(201).json(order);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating order:", error);
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
+  app.get("/api/orders", authMiddleware, async (req, res) => {
+    try {
+      const orders = await storage.getOrdersByUser(req.user.id);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  app.post("/api/subscribe", authMiddleware, async (req, res) => {
+    try {
+      const subscriptionExpiry = new Date();
+      subscriptionExpiry.setFullYear(subscriptionExpiry.getFullYear() + 1); // 1 year
+      
+      const user = await storage.updateUserSubscription(req.user.id, true, subscriptionExpiry);
+      
+      // Create subscription order record
+      await storage.createOrder({
+        userId: req.user.id,
+        isSubscription: true,
+        amount: "99.99", // Annual subscription price
+        status: "completed",
+        paymentMethod: "card"
+      });
+
+      const { password, ...userWithoutPassword } = user!;
+      res.json({ user: userWithoutPassword, message: "Subscription activated successfully" });
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      res.status(500).json({ message: "Failed to create subscription" });
     }
   });
 

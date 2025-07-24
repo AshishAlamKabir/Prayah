@@ -5,6 +5,8 @@ import {
   cultureCategories,
   books,
   publishedWorks,
+  userSessions,
+  orders,
   type User,
   type InsertUser,
   type CommunityPost,
@@ -17,9 +19,13 @@ import {
   type InsertBook,
   type PublishedWork,
   type InsertPublishedWork,
+  type UserSession,
+  type InsertUserSession,
+  type Order,
+  type InsertOrder,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, gt } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -27,6 +33,17 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserSubscription(id: number, isSubscribed: boolean, expiry?: Date): Promise<User | undefined>;
+  
+  // Authentication operations
+  createUserSession(session: InsertUserSession): Promise<UserSession>;
+  getUserBySessionToken(token: string): Promise<User | undefined>;
+  deleteUserSession(token: string): Promise<boolean>;
+  
+  // Order operations
+  createOrder(order: InsertOrder): Promise<Order>;
+  getOrdersByUser(userId: number): Promise<Order[]>;
+  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -58,11 +75,12 @@ export interface IStorage {
   deleteBook(id: number): Promise<boolean>;
 
   // Published work operations
-  getPublishedWorks(): Promise<PublishedWork[]>;
+  getPublishedWorks(status?: string): Promise<PublishedWork[]>;
   getPublishedWork(id: number): Promise<PublishedWork | undefined>;
   getFeaturedPublishedWorks(): Promise<PublishedWork[]>;
   createPublishedWork(work: InsertPublishedWork): Promise<PublishedWork>;
   updatePublishedWork(id: number, work: Partial<InsertPublishedWork>): Promise<PublishedWork | undefined>;
+  updatePublishedWorkStatus(id: number, status: string, approvedBy?: number): Promise<PublishedWork | undefined>;
   incrementDownloadCount(id: number): Promise<void>;
   deletePublishedWork(id: number): Promise<boolean>;
 
@@ -236,7 +254,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Published work operations
-  async getPublishedWorks(): Promise<PublishedWork[]> {
+  async getPublishedWorks(status?: string): Promise<PublishedWork[]> {
+    if (status) {
+      return await db.select().from(publishedWorks).where(eq(publishedWorks.status, status)).orderBy(desc(publishedWorks.createdAt));
+    }
     return await db.select().from(publishedWorks).orderBy(desc(publishedWorks.createdAt));
   }
 
@@ -279,6 +300,87 @@ export class DatabaseStorage implements IStorage {
   async deletePublishedWork(id: number): Promise<boolean> {
     const result = await db.delete(publishedWorks).where(eq(publishedWorks.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  // User subscription operations
+  async updateUserSubscription(id: number, isSubscribed: boolean, expiry?: Date): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        isSubscribed, 
+        subscriptionExpiry: expiry,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  // Authentication operations
+  async createUserSession(insertSession: InsertUserSession): Promise<UserSession> {
+    const [session] = await db
+      .insert(userSessions)
+      .values(insertSession)
+      .returning();
+    return session;
+  }
+
+  async getUserBySessionToken(token: string): Promise<User | undefined> {
+    const [session] = await db
+      .select()
+      .from(userSessions)
+      .where(and(eq(userSessions.token, token), gt(userSessions.expiresAt, new Date())));
+    
+    if (!session) return undefined;
+    
+    return await this.getUser(session.userId);
+  }
+
+  async deleteUserSession(token: string): Promise<boolean> {
+    const result = await db.delete(userSessions).where(eq(userSessions.token, token));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Order operations
+  async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    const [order] = await db
+      .insert(orders)
+      .values(insertOrder)
+      .returning();
+    return order;
+  }
+
+  async getOrdersByUser(userId: number): Promise<Order[]> {
+    return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return order || undefined;
+  }
+
+  // Enhanced published work operations
+  async updatePublishedWorkStatus(id: number, status: string, approvedBy?: number): Promise<PublishedWork | undefined> {
+    const updateData: any = { 
+      status, 
+      updatedAt: new Date() 
+    };
+    
+    if (status === 'approved' && approvedBy) {
+      updateData.approvedBy = approvedBy;
+      updateData.approvedAt = new Date();
+    }
+
+    const [work] = await db
+      .update(publishedWorks)
+      .set(updateData)
+      .where(eq(publishedWorks.id, id))
+      .returning();
+    return work || undefined;
   }
 
   // Statistics

@@ -6,9 +6,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Schools from "@/pages/schools";
+import SchoolDetail from "@/pages/SchoolDetail";
 import Culture from "@/pages/culture";
+import Music from "@/pages/culture/Music";
+import FineArts from "@/pages/culture/FineArts";
+import DanceDramaPoems from "@/pages/culture/DanceDramaPoems";
 import Books from "@/pages/books";
+import BooksStore from "@/pages/BooksStore";
 import Admin from "@/pages/admin";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -20,9 +27,16 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/schools" component={Schools} />
+          <Route path="/schools/:id" component={SchoolDetail} />
           <Route path="/culture" component={Culture} />
+          <Route path="/culture/music" component={Music} />
+          <Route path="/culture/fine-arts" component={FineArts} />
+          <Route path="/culture/dance-drama-poems" component={DanceDramaPoems} />
           <Route path="/books" component={Books} />
+          <Route path="/store" component={BooksStore} />
           <Route path="/admin" component={Admin} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
           <Route component={NotFound} />
         </Switch>
       </main>
