@@ -143,3 +143,11 @@ export type InsertBook = z.infer<typeof insertBookSchema>;
 
 export type PublishedWork = typeof publishedWorks.$inferSelect;
 export type InsertPublishedWork = z.infer<typeof insertPublishedWorkSchema>;
+
+// Stats type
+export interface Stats {
+  totalSchools: number;
+  totalPosts: number;
+  totalBooks: number;
+  totalMembers: number;
+}

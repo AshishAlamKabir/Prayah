@@ -48,8 +48,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const post = await storage.createCommunityPost(validatedData);
       res.status(201).json(post);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error creating community post:", error);
@@ -122,8 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const school = await storage.createSchool(validatedData);
       res.status(201).json(school);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error creating school:", error);
@@ -148,8 +148,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const category = await storage.createCultureCategory(validatedData);
       res.status(201).json(category);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error creating culture category:", error);
@@ -191,8 +191,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const book = await storage.createBook(validatedData);
       res.status(201).json(book);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error creating book:", error);

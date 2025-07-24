@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Zap } from "lucide-react";
+import { Menu } from "lucide-react";
+import prayasLogo from "@assets/WhatsApp Image 2025-07-24 at 14.36.01_4d13e1cd_1753348055164.jpg";
 
 export default function Header() {
   const [location] = useLocation();
@@ -29,8 +30,12 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           <Link href="/">
             <div className="flex items-center space-x-3 cursor-pointer">
-              <Zap className="h-8 w-8" />
-              <h1 className="text-2xl font-bold">Prayas</h1>
+              <img 
+                src={prayasLogo} 
+                alt="Prayas Logo" 
+                className="h-8 w-8 object-contain"
+              />
+              <h1 className="text-2xl font-bold">প্রয়াস</h1>
             </div>
           </Link>
           

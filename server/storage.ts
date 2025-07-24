@@ -132,7 +132,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCommunityPost(id: number): Promise<boolean> {
     const result = await db.delete(communityPosts).where(eq(communityPosts.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // School operations
@@ -164,7 +164,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSchool(id: number): Promise<boolean> {
     const result = await db.delete(schools).where(eq(schools.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Culture category operations
@@ -196,7 +196,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCultureCategory(id: number): Promise<boolean> {
     const result = await db.delete(cultureCategories).where(eq(cultureCategories.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Book operations
@@ -232,7 +232,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBook(id: number): Promise<boolean> {
     const result = await db.delete(books).where(eq(books.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Published work operations
@@ -267,15 +267,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async incrementDownloadCount(id: number): Promise<void> {
-    await db
-      .update(publishedWorks)
-      .set({ downloadCount: publishedWorks.downloadCount + 1 })
-      .where(eq(publishedWorks.id, id));
+    const [work] = await db.select().from(publishedWorks).where(eq(publishedWorks.id, id));
+    if (work) {
+      await db
+        .update(publishedWorks)
+        .set({ downloadCount: (work.downloadCount || 0) + 1 })
+        .where(eq(publishedWorks.id, id));
+    }
   }
 
   async deletePublishedWork(id: number): Promise<boolean> {
     const result = await db.delete(publishedWorks).where(eq(publishedWorks.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Statistics

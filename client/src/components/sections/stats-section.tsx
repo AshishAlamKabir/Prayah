@@ -2,9 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, FileText, Book, Users } from "lucide-react";
+import type { Stats } from "@shared/schema";
 
 export default function StatsSection() {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading } = useQuery<Stats>({
     queryKey: ["/api/stats"],
   });
 
