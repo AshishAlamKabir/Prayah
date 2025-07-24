@@ -1,0 +1,89 @@
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, Zap } from "lucide-react";
+
+export default function Header() {
+  const [location] = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navigation = [
+    { name: "Home", href: "/" },
+    { name: "Schools", href: "/schools" },
+    { name: "Art & Culture", href: "/culture" },
+    { name: "Books", href: "/books" },
+    { name: "Admin", href: "/admin" },
+  ];
+
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return location === "/";
+    }
+    return location.startsWith(href);
+  };
+
+  return (
+    <header className="bg-red-800 text-white shadow-lg sticky top-0 z-50">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-4">
+          <Link href="/">
+            <div className="flex items-center space-x-3 cursor-pointer">
+              <Zap className="h-8 w-8" />
+              <h1 className="text-2xl font-bold">Prayas</h1>
+            </div>
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-8">
+            {navigation.map((item) => (
+              <Link key={item.name} href={item.href}>
+                <span 
+                  className={`hover:text-gray-200 transition-colors cursor-pointer ${
+                    isActive(item.href) ? "text-yellow-300 font-semibold" : ""
+                  }`}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <Button className="bg-green-600 hover:bg-green-700 hidden sm:block">
+              Join Movement
+            </Button>
+            
+            {/* Mobile Menu */}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden text-white">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="bg-red-800 text-white border-red-700">
+                <div className="flex flex-col space-y-4 mt-8">
+                  {navigation.map((item) => (
+                    <Link key={item.name} href={item.href}>
+                      <span 
+                        className={`block py-2 px-4 rounded-lg hover:bg-red-700 transition-colors cursor-pointer ${
+                          isActive(item.href) ? "bg-red-700 text-yellow-300 font-semibold" : ""
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.name}
+                      </span>
+                    </Link>
+                  ))}
+                  <Button className="bg-green-600 hover:bg-green-700 mt-4" onClick={() => setIsOpen(false)}>
+                    Join Movement
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </nav>
+    </header>
+  );
+}
