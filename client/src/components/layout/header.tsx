@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import prayasLogo from "@assets/WhatsApp Image 2025-07-24 at 14.36.01_4d13e1cd_1753348055164.jpg";
+import prayasLogo from "@assets/WhatsApp Image 2025-07-24 at 14.36.01_4d13e1cd_1753348314691.jpg";
 
 export default function Header() {
   const [location] = useLocation();
@@ -33,7 +33,7 @@ export default function Header() {
               <img 
                 src={prayasLogo} 
                 alt="Prayas Logo" 
-                className="h-8 w-8 object-contain"
+                className="h-10 w-10 object-contain rounded-sm"
               />
               <h1 className="text-2xl font-bold">প্রয়াস</h1>
             </div>
