@@ -69,7 +69,7 @@ export default function Culture() {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
                 {/* Music Category */}
                 <Link href="/culture/music">
                   <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
@@ -170,25 +170,7 @@ export default function Culture() {
                   </Card>
                 </Link>
                 
-                {/* Combined Overview Category */}
-                <Link href="/culture/dance-drama-poems">
-                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="text-red-800 text-3xl mb-4">🎭</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Dance, Drama & Poems</h3>
-                    <p className="text-gray-600 text-sm mb-4">Performing arts that tell stories of revolution and hope</p>
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">• Traditional Dance Forms</p>
-                        <p className="text-xs text-gray-600">• Revolutionary Theater</p>
-                        <p className="text-xs text-gray-600">• Spoken Word Poetry</p>
-                      </div>
-                    </div>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                      Learn More
-                    </Button>
-                  </Card>
-                </Link>
+
               </div>
 
               {/* Featured Programs Section */}
