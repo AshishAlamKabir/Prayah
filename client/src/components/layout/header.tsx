@@ -62,13 +62,13 @@ export default function Header() {
             {!isAuthenticated ? (
               <>
                 <Link href="/login">
-                  <Button variant="ghost" className="text-white hover:bg-red-700 hidden sm:block">
+                  <Button variant="ghost" className="text-white hover:bg-red-700">
                     Login
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="bg-green-600 hover:bg-green-700 hidden sm:block">
-                    Join Us
+                  <Button className="bg-green-600 hover:bg-green-700">
+                    Register
                   </Button>
                 </Link>
               </>
@@ -138,9 +138,67 @@ export default function Header() {
                       </span>
                     </Link>
                   ))}
-                  <Button className="bg-green-600 hover:bg-green-700 mt-4" onClick={() => setIsOpen(false)}>
-                    Join Movement
-                  </Button>
+                  
+                  {!isAuthenticated ? (
+                    <div className="mt-6 space-y-3">
+                      <Link href="/login">
+                        <Button 
+                          variant="outline" 
+                          className="w-full text-white border-white hover:bg-white hover:text-red-800" 
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Login
+                        </Button>
+                      </Link>
+                      <Link href="/register">
+                        <Button 
+                          className="w-full bg-green-600 hover:bg-green-700" 
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Register
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-6 space-y-3">
+                      <div className="text-center py-2">
+                        <p className="text-sm">Logged in as</p>
+                        <p className="font-semibold">{user?.firstName || user?.username}</p>
+                        <p className="text-xs opacity-75">({user?.role})</p>
+                      </div>
+                      {user?.role === "admin" ? (
+                        <Link href="/admin-dashboard">
+                          <Button 
+                            variant="outline" 
+                            className="w-full text-white border-white hover:bg-white hover:text-red-800" 
+                            onClick={() => setIsOpen(false)}
+                          >
+                            Admin Dashboard
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Link href="/user-dashboard">
+                          <Button 
+                            variant="outline" 
+                            className="w-full text-white border-white hover:bg-white hover:text-red-800" 
+                            onClick={() => setIsOpen(false)}
+                          >
+                            My Dashboard
+                          </Button>
+                        </Link>
+                      )}
+                      <Button 
+                        variant="destructive" 
+                        className="w-full" 
+                        onClick={() => {
+                          logout();
+                          setIsOpen(false);
+                        }}
+                      >
+                        Logout
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
