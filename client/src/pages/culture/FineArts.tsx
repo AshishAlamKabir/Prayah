@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Palette, Eye, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
+import fineArtsLogo from "@assets/fine arts logo_1753444165685.jpg";
 
 export default function FineArts() {
   const { data: fineArtsCategory, isLoading } = useQuery({
@@ -30,8 +31,12 @@ export default function FineArts() {
           
           <div className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="p-4 bg-green-100 dark:bg-green-900 rounded-full">
-                <Palette className="w-12 h-12 text-green-600 dark:text-green-400" />
+              <div className="p-4 bg-white rounded-full shadow-lg">
+                <img 
+                  src={fineArtsLogo} 
+                  alt="Fine Arts Logo"
+                  className="w-20 h-20 object-contain"
+                />
               </div>
             </div>
             <h1 className="text-4xl font-bold text-green-600 dark:text-green-400 mb-4">

@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Palette, Music, Film, Users, Theater } from "lucide-react";
 import { Link } from "wouter";
 import type { CultureCategory } from "@shared/schema";
+import fineArtsLogo from "@assets/fine arts logo_1753444165685.jpg";
 
 const iconMap = {
   "theater-masks": Theater,
@@ -93,7 +94,13 @@ export default function Culture() {
                 {/* Fine Arts Category */}
                 <Link href="/culture/fine-arts">
                   <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="text-red-800 text-3xl mb-4">🎨</div>
+                    <div className="flex justify-center mb-4">
+                      <img 
+                        src={fineArtsLogo} 
+                        alt="Fine Arts Logo"
+                        className="w-12 h-12 object-contain"
+                      />
+                    </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-3">Fine Arts Programs</h3>
                     <p className="text-gray-600 text-sm mb-4">Visual arts programs where creativity meets activism</p>
                     <div className="mb-4">
