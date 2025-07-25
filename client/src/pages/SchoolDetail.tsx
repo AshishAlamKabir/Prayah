@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Phone, Mail, Globe, Star, Award } from "lucide-react";
 import { Link } from "wouter";
+import mohuramukh_logo from "@assets/mohura mukh logo_1753439814424.jpg";
+import brahmaputra_logo from "@assets/brahmaputra logo_1753439814424.jpg";
+import bokaghat_logo from "@assets/b j b logo_1753439981026.jpg";
 
 export default function SchoolDetail() {
   const [match, params] = useRoute("/schools/:id");
@@ -14,6 +17,19 @@ export default function SchoolDetail() {
     queryKey: ["/api/schools", schoolId],
     enabled: !!schoolId,
   });
+
+  const getSchoolLogo = (schoolName: string) => {
+    switch (schoolName) {
+      case "Mohuramukh Jatiya Vidyalai":
+        return mohuramukh_logo;
+      case "Brahmaputra Jatiya Vidyalai":
+        return brahmaputra_logo;
+      case "Bokaghat Jatiya Vidyalai":
+        return bokaghat_logo;
+      default:
+        return null;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -55,10 +71,10 @@ export default function SchoolDetail() {
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
                   <div className="p-6 text-white">
-                    {school.logo && (
+                    {getSchoolLogo(school.name) && (
                       <div className="mb-4">
                         <img 
-                          src={school.logo} 
+                          src={getSchoolLogo(school.name)!} 
                           alt={`${school.name} logo`}
                           className="h-16 w-16 object-contain bg-white rounded-lg p-2"
                         />
@@ -76,10 +92,10 @@ export default function SchoolDetail() {
             
             {!school.imageUrl && (
               <div className="p-6 border-b">
-                {school.logo && (
+                {getSchoolLogo(school.name) && (
                   <div className="flex justify-center mb-4">
                     <img 
-                      src={school.logo} 
+                      src={getSchoolLogo(school.name)!} 
                       alt={`${school.name} logo`}
                       className="h-24 w-24 object-contain"
                     />

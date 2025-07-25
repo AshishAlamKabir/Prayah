@@ -5,7 +5,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, MapPin, Users, Search } from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
 import type { School } from "@shared/schema";
+import mohuramukh_logo from "@assets/mohura mukh logo_1753439814424.jpg";
+import brahmaputra_logo from "@assets/brahmaputra logo_1753439814424.jpg";
+import bokaghat_logo from "@assets/b j b logo_1753439981026.jpg";
 
 export default function Schools() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,6 +17,19 @@ export default function Schools() {
   const { data: schools, isLoading } = useQuery<School[]>({
     queryKey: ["/api/schools"],
   });
+
+  const getSchoolLogo = (schoolName: string) => {
+    switch (schoolName) {
+      case "Mohuramukh Jatiya Vidyalai":
+        return mohuramukh_logo;
+      case "Brahmaputra Jatiya Vidyalai":
+        return brahmaputra_logo;
+      case "Bokaghat Jatiya Vidyalai":
+        return bokaghat_logo;
+      default:
+        return null;
+    }
+  };
 
   const filteredSchools = schools?.filter((school) =>
     school.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,9 +113,9 @@ export default function Schools() {
                 {filteredSchools.map((school) => (
                   <Card key={school.id} className="revolutionary-card bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                     <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-                      {school.logo ? (
+                      {getSchoolLogo(school.name) ? (
                         <img 
-                          src={school.logo} 
+                          src={getSchoolLogo(school.name)!} 
                           alt={`${school.name} logo`}
                           className="h-32 w-32 object-contain"
                         />
