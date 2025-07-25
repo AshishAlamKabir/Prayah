@@ -121,12 +121,14 @@ export const cartItems = pgTable("cart_items", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Orders table for e-commerce - Enhanced with multiple books support
+// Orders table for e-commerce - Enhanced with multiple books support and shipping
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
   orderItems: jsonb("order_items").notNull(), // Array of {bookId, quantity, price, title}
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  shippingAmount: decimal("shipping_amount", { precision: 10, scale: 2 }).default("0").notNull(),
+  shippingRegion: text("shipping_region"), // northeast, west-bengal, rest-of-india
   status: text("status").default("pending"), // pending, completed, cancelled
   paymentMethod: text("payment_method"),
   paymentLink: text("payment_link"), // Generated payment link

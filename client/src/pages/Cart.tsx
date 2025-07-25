@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Truck } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { getShippingRegion, calculateShipping, SHIPPING_RATES } from "@shared/shippingUtils";
 
 interface CartItem {
   id: number;
@@ -35,6 +36,8 @@ interface OrderData {
     title: string;
   }>;
   totalAmount: number;
+  shippingAmount: number;
+  shippingRegion: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
@@ -51,6 +54,7 @@ export default function Cart() {
     email: user?.email || "",
     phone: "",
     address: "",
+    region: "rest-of-india",
   });
 
   const { data: cartItems = [], isLoading } = useQuery<CartItem[]>({
@@ -95,7 +99,8 @@ export default function Cart() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: OrderData) => {
-      return await apiRequest("POST", "/api/orders", orderData);
+      const response = await apiRequest("POST", "/api/orders", orderData);
+      return response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
@@ -119,10 +124,14 @@ export default function Cart() {
     },
   });
 
-  const totalAmount = cartItems.reduce(
+  const subtotal = cartItems.reduce(
     (sum, item) => sum + parseFloat(item.book.price) * item.quantity,
     0
   );
+
+  const shippingRegion = getShippingRegion(customerInfo.address);
+  const shippingAmount = calculateShipping(shippingRegion);
+  const totalAmount = subtotal + shippingAmount;
 
   const handleQuantityChange = (id: number, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -151,6 +160,8 @@ export default function Cart() {
         title: item.book.title,
       })),
       totalAmount,
+      shippingAmount,
+      shippingRegion,
       customerName: customerInfo.name,
       customerEmail: customerInfo.email,
       customerPhone: customerInfo.phone || undefined,
@@ -270,8 +281,19 @@ export default function Cart() {
                       <span>₹{(parseFloat(item.book.price) * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
-                  <div className="border-t pt-2 mt-4">
-                    <div className="flex justify-between font-bold text-lg">
+                  <div className="border-t pt-2 mt-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal</span>
+                      <span>₹{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="flex items-center gap-1">
+                        <Truck className="w-4 h-4" />
+                        Shipping ({SHIPPING_RATES.find(r => r.region === shippingRegion)?.description || "Rest of India"})
+                      </span>
+                      <span>₹{shippingAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total</span>
                       <span>₹{totalAmount.toFixed(2)}</span>
                     </div>
@@ -322,9 +344,16 @@ export default function Cart() {
                     id="address"
                     value={customerInfo.address}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Enter your shipping address"
+                    placeholder="Enter your complete shipping address (include state/region for accurate shipping charges)"
                     rows={3}
                   />
+                  <div className="mt-2 p-3 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-sm mb-2">Shipping Rates:</h4>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <div>• Northeast India & West Bengal: ₹80</div>
+                      <div>• Rest of India: ₹150</div>
+                    </div>
+                  </div>
                 </div>
 
                 <Button

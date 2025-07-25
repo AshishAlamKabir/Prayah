@@ -603,13 +603,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const order = await storage.createOrder(orderData);
       
-      // If it's a subscription order, update user subscription
-      if (orderData.isSubscription) {
-        const subscriptionExpiry = new Date();
-        subscriptionExpiry.setFullYear(subscriptionExpiry.getFullYear() + 1); // 1 year
-        await storage.updateUserSubscription(req.user.id, true, subscriptionExpiry);
-      }
-      
       res.status(201).json(order);
     } catch (error) {
       if (error instanceof Error && error.name === "ZodError") {
@@ -641,10 +634,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create subscription order record
       await storage.createOrder({
         userId: req.user.id,
-        isSubscription: true,
-        amount: "99.99", // Annual subscription price
+        orderItems: [{ bookId: 0, quantity: 1, price: 99.99, title: "Annual Subscription" }],
+        totalAmount: "99.99", // Annual subscription price
+        shippingAmount: "0",
+        shippingRegion: "none",
         status: "completed",
-        paymentMethod: "card"
+        paymentMethod: "card",
+        customerName: user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : "Subscriber",
+        customerEmail: user?.email || ""
       });
 
       const { password, ...userWithoutPassword } = user!;
