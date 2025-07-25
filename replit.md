@@ -131,6 +131,15 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 
 ## Recent Changes
 
+### Two-Tier Authentication System Implementation (July 25, 2025)
+✓ **Dual Account Types**: Implemented separate login flows for regular users and admin accounts
+✓ **Regular User Account**: Created "testuser" account (testuser123) with user-level access and dashboard
+✓ **Admin Account**: Enhanced "Prayasadmin" account (Prayas2025!) with full operational privileges
+✓ **Role-Based Redirection**: Login automatically redirects to appropriate dashboard based on user role
+✓ **Authentication Fixes**: Resolved token storage inconsistencies and logout functionality issues
+✓ **Header Navigation**: Updated with visible Login/Register buttons and role-specific dropdown menus
+✓ **Access Control**: Admin dashboard restricted to admin-only accounts, user dashboard for regular users
+
 ### Admin Account Creation & Enhancement (July 25, 2025)
 ✓ Created dedicated admin account "Prayasadmin" with operational privileges
 ✓ Enhanced admin dashboard with 4 specialized tabs: Publications, Book Management, Content Management, Analytics

@@ -42,13 +42,15 @@ export default function Register() {
       return response.json();
     },
     onSuccess: (data) => {
-      localStorage.setItem("auth-token", data.token);
+      localStorage.setItem("auth_token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       toast({
         title: "Welcome to Prayas!",
         description: "Your account has been created successfully.",
       });
-      setLocation("/");
+      
+      // Redirect based on user role (new users are always regular users)
+      setLocation("/user-dashboard");
     },
     onError: (error: Error) => {
       toast({
@@ -71,7 +73,7 @@ export default function Register() {
             Join Prayas
           </CardTitle>
           <CardDescription className="text-center">
-            Create your account to access revolutionary content
+            Create your account to access books and resources
           </CardDescription>
         </CardHeader>
         <CardContent>

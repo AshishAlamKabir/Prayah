@@ -29,19 +29,24 @@ export function useAuth() {
     enabled: !localUser, // Only fetch if no local user
   });
 
-  const logoutMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/auth/logout"),
-    onSuccess: () => {
-      localStorage.removeItem("user");
-      localStorage.removeItem("auth_token");
-      setLocalUser(null);
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-      window.location.href = "/";
-    },
-  });
-
   const logout = () => {
-    logoutMutation.mutate();
+    // Clear local storage immediately
+    localStorage.removeItem("user");
+    localStorage.removeItem("auth_token");
+    setLocalUser(null);
+    queryClient.clear();
+    
+    // Try to logout from server (optional, won't fail if no auth)
+    try {
+      apiRequest("POST", "/api/auth/logout").catch(() => {
+        // Ignore server logout errors since we've already cleared locally
+      });
+    } catch (error) {
+      // Ignore errors
+    }
+    
+    // Redirect to home
+    window.location.href = "/";
   };
 
   const user = localUser || serverUser;
