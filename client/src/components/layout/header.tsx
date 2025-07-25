@@ -16,6 +16,7 @@ export default function Header() {
     { name: "Home", href: "/" },
     { name: "Schools", href: "/schools" },
     { name: "Art & Culture", href: "/culture" },
+    { name: "Community", href: "/community" },
     { name: "Books", href: "/books" },
     { name: "Store", href: "/store" },
     ...(isAdmin ? [{ name: "Admin", href: "/admin" }] : []),

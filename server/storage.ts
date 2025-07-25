@@ -159,10 +159,19 @@ export class DatabaseStorage implements IStorage {
     return post;
   }
 
-  async updateCommunityPostStatus(id: number, status: string): Promise<CommunityPost | undefined> {
+  async updateCommunityPostStatus(id: number, status: string, rejectionReason?: string): Promise<CommunityPost | undefined> {
+    const updateData: any = { status, updatedAt: new Date() };
+    if (status === "rejected" && rejectionReason) {
+      updateData.rejectionReason = rejectionReason;
+    }
+    if (status === "approved") {
+      updateData.approvedAt = new Date();
+      // TODO: Add approvedBy when we have user context
+    }
+    
     const [post] = await db
       .update(communityPosts)
-      .set({ status, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(communityPosts.id, id))
       .returning();
     return post || undefined;

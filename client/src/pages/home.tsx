@@ -2,6 +2,7 @@ import HeroSection from "@/components/sections/hero-section";
 import StatsSection from "@/components/sections/stats-section";
 import FeaturesSection from "@/components/sections/features-section";
 import PublicationsSection from "@/components/sections/publications-section";
+import CommunitySection from "@/components/sections/community-section";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -34,6 +35,7 @@ export default function Home() {
       <HeroSection />
       <StatsSection />
       <FeaturesSection />
+      <CommunitySection />
       
       {/* About Prayas Section */}
       <section className="bg-red-800 text-white py-20">

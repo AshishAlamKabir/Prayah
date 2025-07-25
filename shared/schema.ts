@@ -17,7 +17,7 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Community posts table
+// Community posts table - Enhanced with media support
 export const communityPosts = pgTable("community_posts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -25,7 +25,13 @@ export const communityPosts = pgTable("community_posts", {
   category: text("category").notNull(),
   authorName: text("author_name").notNull(),
   authorEmail: text("author_email").notNull(),
+  userId: integer("user_id"), // Optional: link to registered user
+  mediaFiles: jsonb("media_files").default([]), // Array of media file URLs/paths
+  tags: text("tags").array(), // Optional tags for categorization
   status: text("status").default("pending"), // pending, approved, rejected
+  approvedBy: integer("approved_by"), // Admin user who approved
+  approvedAt: timestamp("approved_at"),
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -217,6 +223,8 @@ export const insertBookStockSchema = createInsertSchema(bookStock).omit({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type CommunityPost = typeof communityPosts.$inferSelect;
+export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;
 
 export type CommunityPost = typeof communityPosts.$inferSelect;
 export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;

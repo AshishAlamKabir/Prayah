@@ -1,57 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle, XCircle, Clock, Users, FileText, BarChart3, Settings, Upload, BookOpen, School, Palette, ShoppingBag } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Users, FileText, BarChart3, BookOpen, School, Palette, ShoppingBag } from "lucide-react";
 import BookManagement from "@/components/admin/BookManagement";
 import OrderManagement from "@/components/admin/OrderManagement";
+import CommunityManagement from "@/components/admin/CommunityManagement";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
-import type { CommunityPost } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState("overview");
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["/api/stats"],
   });
-
-  const { data: pendingPosts, isLoading: postsLoading } = useQuery<CommunityPost[]>({
-    queryKey: ["/api/community-posts"],
-    queryFn: () => fetch("/api/community-posts?status=pending").then(res => res.json()),
-  });
-
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      await apiRequest("PATCH", `/api/community-posts/${id}/status`, { status });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/community-posts"] });
-      toast({
-        title: "Success",
-        description: "Post status updated successfully",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to update post status: ${error.message}`,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleStatusUpdate = (id: number, status: string) => {
-    updateStatusMutation.mutate({ id, status });
-  };
 
   if (!user || user.role !== "admin") {
     return (
@@ -60,7 +24,7 @@ export default function AdminDashboard() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Admin Access Required</h2>
           <p className="text-gray-600 mb-4">You need admin privileges to access this area.</p>
           <Link href="/">
-            <Button>Go to Home</Button>
+            <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Go to Home</button>
           </Link>
         </div>
       </div>
@@ -74,13 +38,12 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Admin Control Panel</h1>
-              <p className="text-xl opacity-90">Manage Prayas Platform Operations</p>
+              <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+              <p className="text-xl text-red-100">Welcome back, {user.firstName || user.username}!</p>
             </div>
             <div className="text-right">
-              <Badge variant="secondary" className="text-lg px-4 py-2 bg-yellow-500 text-black">
-                Administrator
-              </Badge>
+              <p className="text-red-100">Role: Administrator</p>
+              <p className="text-red-100">{new Date().toLocaleDateString()}</p>
             </div>
           </div>
         </div>
@@ -89,50 +52,57 @@ export default function AdminDashboard() {
       {/* Dashboard Content */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Quick Stats */}
-          <div className="grid md:grid-cols-4 gap-6 mb-12">
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <Users className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalUsers || 0}</div>
-                <div className="text-gray-600">Total Users</div>
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Schools</CardTitle>
+                <School className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.totalSchools || 0}</div>
               </CardContent>
             </Card>
             
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <FileText className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalPosts || 0}</div>
-                <div className="text-gray-600">Community Posts</div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Community Posts</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.totalPosts || 0}</div>
               </CardContent>
             </Card>
             
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <BarChart3 className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalSchools || 0}</div>
-                <div className="text-gray-600">Active Schools</div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Books Available</CardTitle>
+                <BookOpen className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.totalBooks || 0}</div>
               </CardContent>
             </Card>
             
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <Clock className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-red-800 mb-2">{pendingPosts?.length || 0}</div>
-                <div className="text-gray-600">Pending Reviews</div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.totalMembers || 0}</div>
               </CardContent>
             </Card>
           </div>
 
           {/* Admin Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="publications">Publications</TabsTrigger>
+              <TabsTrigger value="publications">Community</TabsTrigger>
               <TabsTrigger value="books">Books</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
               <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -151,15 +121,6 @@ export default function AdminDashboard() {
                           <p className="text-sm text-gray-600">System statistics refreshed</p>
                         </div>
                       </div>
-                      {pendingPosts && pendingPosts.length > 0 && (
-                        <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-                          <Clock className="h-5 w-5 text-yellow-600" />
-                          <div>
-                            <p className="font-medium">{pendingPosts.length} Posts Pending Review</p>
-                            <p className="text-sm text-gray-600">Community submissions awaiting approval</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -171,40 +132,37 @@ export default function AdminDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
-                      <Button 
-                        className="h-20 flex flex-col items-center justify-center bg-green-600 hover:bg-green-700"
+                      <button 
+                        className="h-20 flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded"
                         onClick={() => setSelectedTab("books")}
                       >
-                        <Upload className="h-6 w-6 mb-2" />
-                        Upload Book
-                      </Button>
+                        <BookOpen className="h-6 w-6 mb-2" />
+                        Manage Books
+                      </button>
                       
-                      <Button 
-                        variant="outline" 
-                        className="h-20 flex flex-col items-center justify-center"
+                      <button 
+                        className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
                         onClick={() => setSelectedTab("publications")}
                       >
                         <FileText className="h-6 w-6 mb-2" />
                         Review Posts
-                      </Button>
+                      </button>
                       
-                      <Button 
-                        variant="outline" 
-                        className="h-20 flex flex-col items-center justify-center"
+                      <button 
+                        className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
                         onClick={() => setSelectedTab("content")}
                       >
                         <School className="h-6 w-6 mb-2" />
                         Manage Schools
-                      </Button>
+                      </button>
                       
-                      <Button 
-                        variant="outline" 
-                        className="h-20 flex flex-col items-center justify-center"
+                      <button 
+                        className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
                         onClick={() => setSelectedTab("content")}
                       >
                         <Palette className="h-6 w-6 mb-2" />
                         Culture Programs
-                      </Button>
+                      </button>
                     </div>
                   </CardContent>
                 </Card>
@@ -212,74 +170,7 @@ export default function AdminDashboard() {
             </TabsContent>
 
             <TabsContent value="publications" className="space-y-6">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Publication Management</h3>
-                <p className="text-gray-600">Review and approve community submissions and published works.</p>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-yellow-600" />
-                    Pending Review ({pendingPosts?.length || 0})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {postsLoading ? (
-                    <div className="space-y-4">
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="border rounded-lg p-4">
-                          <Skeleton className="h-6 w-3/4 mb-2" />
-                          <Skeleton className="h-4 w-1/2 mb-3" />
-                          <Skeleton className="h-16 w-full mb-4" />
-                          <Skeleton className="h-10 w-20" />
-                        </div>
-                      ))}
-                    </div>
-                  ) : pendingPosts && pendingPosts.length === 0 ? (
-                    <div className="text-center py-8">
-                      <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">All caught up!</h3>
-                      <p className="text-gray-600">No posts are currently pending review.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {pendingPosts?.map((post) => (
-                        <div key={post.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{post.title}</h3>
-                            <Badge variant="secondary">Pending</Badge>
-                          </div>
-                          <div className="text-sm text-gray-600 mb-2">
-                            <span className="font-medium">{post.authorName}</span> • {post.authorEmail} • {post.category}
-                          </div>
-                          <p className="text-gray-700 mb-4 line-clamp-3">{post.content}</p>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700"
-                              onClick={() => handleStatusUpdate(post.id, "approved")}
-                              disabled={updateStatusMutation.isPending}
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Approve
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleStatusUpdate(post.id, "rejected")}
-                              disabled={updateStatusMutation.isPending}
-                            >
-                              <XCircle className="h-4 w-4 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <CommunityManagement />
             </TabsContent>
 
             <TabsContent value="books" className="space-y-6">
@@ -308,13 +199,13 @@ export default function AdminDashboard() {
                     <div className="space-y-4">
                       <p className="text-gray-600">Add new schools, update information, upload media files, and manage programs.</p>
                       <div className="flex gap-2">
-                        <Button className="bg-green-600 hover:bg-green-700">
-                          <School className="h-4 w-4 mr-2" />
+                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                          <School className="h-4 w-4 mr-2 inline" />
                           Add New School
-                        </Button>
-                        <Button variant="outline">
+                        </button>
+                        <button className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded">
                           Manage Existing Schools
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   </CardContent>
@@ -331,37 +222,14 @@ export default function AdminDashboard() {
                     <div className="space-y-4">
                       <p className="text-gray-600">Update music, fine arts, dance, drama, and poetry programs with new content.</p>
                       <div className="flex gap-2 flex-wrap">
-                        <Button variant="outline" size="sm">Manage Music</Button>
-                        <Button variant="outline" size="sm">Manage Fine Arts</Button>
-                        <Button variant="outline" size="sm">Manage Performances</Button>
+                        <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm">Manage Music</button>
+                        <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm">Manage Fine Arts</button>
+                        <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm">Manage Performances</button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-6">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">System Settings</h3>
-                <p className="text-gray-600">Configure platform settings and administrative options.</p>
-              </div>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5 text-gray-600" />
-                    Platform Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Settings className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">System Configuration</h3>
-                    <p className="text-gray-600">Advanced platform settings will be available here.</p>
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
           </Tabs>
         </div>

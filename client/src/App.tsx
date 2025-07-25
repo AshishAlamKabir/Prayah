@@ -17,6 +17,7 @@ import DanceDramaPoems from "@/pages/culture/DanceDramaPoems";
 import Books from "@/pages/books";
 import BooksStore from "@/pages/BooksStore";
 import Cart from "@/pages/Cart";
+import Community from "@/pages/Community";
 import Admin from "@/pages/admin";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -44,6 +45,7 @@ function Router() {
           <Route path="/books" component={Books} />
           <Route path="/store" component={BooksStore} />
           <Route path="/cart" component={Cart} />
+          <Route path="/community" component={Community} />
           <Route path="/admin" component={Admin} />
           <Route path="/user-dashboard" component={UserDashboard} />
           <Route path="/admin-dashboard" component={AdminDashboard} />

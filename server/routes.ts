@@ -354,13 +354,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/community-posts/:id/status", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { status } = req.body;
+      const { status, rejectionReason } = req.body;
       
       if (!["pending", "approved", "rejected"].includes(status)) {
         return res.status(400).json({ message: "Invalid status value" });
       }
       
-      const post = await storage.updateCommunityPostStatus(id, status);
+      const post = await storage.updateCommunityPostStatus(id, status, rejectionReason);
       if (!post) {
         return res.status(404).json({ message: "Community post not found" });
       }
@@ -374,11 +374,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/community-posts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
       const success = await storage.deleteCommunityPost(id);
       if (!success) {
         return res.status(404).json({ message: "Community post not found" });
       }
-      res.status(204).send();
+      
+      res.json({ message: "Community post deleted successfully" });
     } catch (error) {
       console.error("Error deleting community post:", error);
       res.status(500).json({ message: "Failed to delete community post" });
