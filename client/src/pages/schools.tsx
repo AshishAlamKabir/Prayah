@@ -7,9 +7,9 @@ import { GraduationCap, MapPin, Users, Search } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import type { School } from "@shared/schema";
-import mohuramukh_logo from "@assets/mohura mukh logo_1753439814424.jpg";
-import brahmaputra_logo from "@assets/brahmaputra logo_1753439814424.jpg";
-import bokaghat_logo from "@assets/b j b logo_1753439981026.jpg";
+import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
+import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
+import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
 
 export default function Schools() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,16 +19,10 @@ export default function Schools() {
   });
 
   const getSchoolLogo = (schoolName: string) => {
-    switch (schoolName) {
-      case "Mohuramukh Jatiya Vidyalai":
-        return mohuramukh_logo;
-      case "Brahmaputra Jatiya Vidyalai":
-        return brahmaputra_logo;
-      case "Bokaghat Jatiya Vidyalai":
-        return bokaghat_logo;
-      default:
-        return null;
-    }
+    if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) return bokaghat_logo;
+    if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) return brahmaputra_logo;
+    if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) return mohuramukh_logo;
+    return bokaghat_logo; // default fallback
   };
 
   const filteredSchools = schools?.filter((school) =>
@@ -112,16 +106,19 @@ export default function Schools() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredSchools.map((school) => (
                   <Card key={school.id} className="revolutionary-card bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-                      {getSchoolLogo(school.name) ? (
-                        <img 
-                          src={getSchoolLogo(school.name)!} 
-                          alt={`${school.name} logo`}
-                          className="h-32 w-32 object-contain"
-                        />
-                      ) : (
-                        <GraduationCap className="h-16 w-16 text-red-800" />
-                      )}
+                    <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center p-4">
+                      <img 
+                        src={getSchoolLogo(school.name)} 
+                        alt={`${school.name} Logo`}
+                        className="max-h-24 max-w-24 object-contain"
+                        loading="lazy"
+                        style={{ 
+                          maxWidth: '96px', 
+                          maxHeight: '96px',
+                          width: 'auto',
+                          height: 'auto'
+                        }}
+                      />
                     </div>
                     <CardContent className="p-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-2">{school.name}</h3>
