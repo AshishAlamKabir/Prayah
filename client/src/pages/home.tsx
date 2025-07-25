@@ -123,19 +123,40 @@ export default function Home() {
             ) : (
               featuredSchools.map((school) => {
                 const getSchoolLogo = (schoolName: string) => {
-                  if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) return bokaghatLogo;
-                  if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
-                  if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
+                  console.log('School name:', schoolName);
+                  if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) {
+                    console.log('Using bokaghat logo');
+                    return bokaghatLogo;
+                  }
+                  if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) {
+                    console.log('Using brahmaputra logo');
+                    return brahmaputraLogo;
+                  }
+                  if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) {
+                    console.log('Using mohuramukh logo');
+                    return mohuramukhtLogo;
+                  }
+                  console.log('Using default logo');
                   return bokaghatLogo; // default fallback
                 };
+
+                const logoSrc = getSchoolLogo(school.name);
+                console.log('Logo src:', logoSrc);
 
                 return (
                   <Card key={school.id} className="revolutionary-card bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                     <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center p-4">
                       <img 
-                        src={getSchoolLogo(school.name)} 
+                        src={logoSrc} 
                         alt={`${school.name} Logo`}
                         className="max-h-32 max-w-32 object-contain"
+                        onError={(e) => {
+                          console.error('Image failed to load:', logoSrc);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                        onLoad={() => {
+                          console.log('Image loaded successfully:', logoSrc);
+                        }}
                       />
                     </div>
                     <CardContent className="p-6">
