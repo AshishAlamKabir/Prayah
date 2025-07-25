@@ -8,9 +8,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Book, GraduationCap, Palette, Users } from "lucide-react";
 import type { School, Book as BookType, CultureCategory } from "@shared/schema";
-import bokaghatLogo from "@assets/b j b logo_1753439981026.jpg";
-import brahmaputraLogo from "@assets/brahmaputra logo_1753439814424.jpg";
-import mohuramukhtLogo from "@assets/mohura mukh logo_1753439814424.jpg";
+import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
+import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
+import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
 
 export default function Home() {
   const { data: schools, isLoading: schoolsLoading } = useQuery<School[]>({
@@ -123,39 +123,25 @@ export default function Home() {
             ) : (
               featuredSchools.map((school) => {
                 const getSchoolLogo = (schoolName: string) => {
-                  console.log('School name:', schoolName);
-                  if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) {
-                    console.log('Using bokaghat logo');
-                    return bokaghatLogo;
-                  }
-                  if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) {
-                    console.log('Using brahmaputra logo');
-                    return brahmaputraLogo;
-                  }
-                  if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) {
-                    console.log('Using mohuramukh logo');
-                    return mohuramukhtLogo;
-                  }
-                  console.log('Using default logo');
+                  if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) return bokaghatLogo;
+                  if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
+                  if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
                   return bokaghatLogo; // default fallback
                 };
-
-                const logoSrc = getSchoolLogo(school.name);
-                console.log('Logo src:', logoSrc);
 
                 return (
                   <Card key={school.id} className="revolutionary-card bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                     <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center p-4">
                       <img 
-                        src={logoSrc} 
+                        src={getSchoolLogo(school.name)} 
                         alt={`${school.name} Logo`}
-                        className="max-h-32 max-w-32 object-contain"
-                        onError={(e) => {
-                          console.error('Image failed to load:', logoSrc);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                        onLoad={() => {
-                          console.log('Image loaded successfully:', logoSrc);
+                        className="max-h-24 max-w-24 object-contain"
+                        loading="lazy"
+                        style={{ 
+                          maxWidth: '96px', 
+                          maxHeight: '96px',
+                          width: 'auto',
+                          height: 'auto'
                         }}
                       />
                     </div>

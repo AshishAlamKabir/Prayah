@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Palette, Music, Film, Users, Theater } from "lucide-react";
 import { Link } from "wouter";
 import type { CultureCategory } from "@shared/schema";
-import fineArtsLogo from "@assets/fine arts logo_1753444165685.jpg";
+import fineArtsLogo from "@assets/fine_arts_logo_optimized.jpg";
 
 const iconMap = {
   "theater-masks": Theater,

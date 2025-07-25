@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Palette, Eye, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
-import fineArtsLogo from "@assets/fine arts logo_1753444165685.jpg";
+import fineArtsLogo from "@assets/fine_arts_logo_optimized.jpg";
 
 export default function FineArts() {
   const { data: fineArtsCategory, isLoading } = useQuery({
