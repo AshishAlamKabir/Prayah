@@ -3,17 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Download, FileText, Calendar, User, Eye } from "lucide-react";
+import { Download, FileText, Calendar, User, Eye, Lock } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import type { PublishedWork } from "@shared/schema";
 
 export default function PublicationsSection() {
+  const { user, isAuthenticated } = useAuth();
   const { data: publications, isLoading } = useQuery<PublishedWork[]>({
     queryKey: ["/api/published-works"],
   });
 
   // Filter only approved publications
   const approvedPublications = publications?.filter((pub) => pub.status === "approved") || [];
+  const isSubscribed = user?.isSubscribed || false;
 
   if (isLoading) {
     return (
@@ -91,22 +94,33 @@ export default function PublicationsSection() {
               
               <div className="flex gap-2">
                 {publication.pdfUrl && (
-                  <Button size="sm" className="flex-1" asChild>
-                    <a 
-                      href={publication.pdfUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        // Increment download count
-                        fetch(`/api/published-works/${publication.id}/download`, {
-                          method: 'POST'
-                        });
-                      }}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
-                    </a>
-                  </Button>
+                  <>
+                    {isSubscribed ? (
+                      <Button size="sm" className="flex-1" asChild>
+                        <a 
+                          href={publication.pdfUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          onClick={() => {
+                            // Increment download count
+                            fetch(`/api/published-works/${publication.id}/download`, {
+                              method: 'POST'
+                            });
+                          }}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download PDF
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button size="sm" className="flex-1" asChild>
+                        <Link href="/subscribe">
+                          <Lock className="w-4 h-4 mr-2" />
+                          Subscribe to Download
+                        </Link>
+                      </Button>
+                    )}
+                  </>
                 )}
                 <Button size="sm" variant="outline" className="flex-1" asChild>
                   <Link href={`/publications/${publication.id}`}>

@@ -370,9 +370,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/published-works/:id/download", optionalAuthMiddleware, async (req, res) => {
+  app.post("/api/published-works/:id/download", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Check if user is subscribed
+      if (!req.user.isSubscribed) {
+        return res.status(403).json({ message: "Subscription required for PDF downloads" });
+      }
+      
       await storage.incrementDownloadCount(id);
       res.status(200).json({ message: "Download count incremented" });
     } catch (error) {

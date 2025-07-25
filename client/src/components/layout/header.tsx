@@ -10,7 +10,7 @@ import prayasLogo from "@assets/WhatsApp Image 2025-07-24 at 14.36.01_4d13e1cd_1
 export default function Header() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, isAdmin, isSubscriber, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, isSubscribed, logout } = useAuth();
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -68,14 +68,14 @@ export default function Header() {
                 </Link>
                 <Link href="/register">
                   <Button className="bg-green-600 hover:bg-green-700 hidden sm:block">
-                    Join Movement
+                    Join Us
                   </Button>
                 </Link>
               </>
             ) : (
               <div className="flex items-center space-x-3">
-                {isSubscriber && (
-                  <Crown className="w-5 h-5 text-yellow-400" title="Premium Member" />
+                {isSubscribed && (
+                  <Crown className="w-5 h-5 text-yellow-400" />
                 )}
                 
                 <DropdownMenu>
