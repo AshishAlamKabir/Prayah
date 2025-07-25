@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Book, Search, ShoppingCart, Download, Star, Lock, Crown } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import AddToCartButton from "@/components/AddToCartButton";
+import { Link } from "wouter";
 
 export default function BooksStore() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -152,11 +154,19 @@ export default function BooksStore() {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-red-600 dark:text-red-400 mb-4">
-            Revolutionary Literature
+            Prayas Books Store
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Discover books that challenge the status quo, inspire change, and build revolutionary consciousness.
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-4">
+            Discover books focused on education, culture, and community development.
           </p>
+          <div className="flex justify-center gap-4">
+            <Link href="/cart">
+              <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white">
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                View Cart
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Subscription Banner */}
@@ -293,14 +303,18 @@ export default function BooksStore() {
                     )}
                     
                     {!book.subscriptionOnly || isSubscriber ? (
-                      <Button 
-                        size="sm" 
-                        onClick={() => handlePurchase(book)}
-                        disabled={orderMutation.isPending || !book.inStock}
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-1" />
-                        {book.inStock ? "Buy" : "Out of Stock"}
-                      </Button>
+                      book.inStock ? (
+                        <AddToCartButton
+                          bookId={book.id}
+                          title={book.title}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                        />
+                      ) : (
+                        <Button size="sm" disabled>
+                          Out of Stock
+                        </Button>
+                      )
                     ) : (
                       <Button size="sm" variant="outline" onClick={handleSubscribe}>
                         <Crown className="w-4 h-4 mr-1" />

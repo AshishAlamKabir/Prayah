@@ -8,7 +8,9 @@ import {
   insertBookSchema, 
   insertPublishedWorkSchema,
   insertUserSchema,
-  insertOrderSchema
+  insertOrderSchema,
+  insertCartItemSchema,
+  insertBookStockSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -118,7 +120,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(userWithoutPassword);
   });
 
-  // User orders endpoint
+  // Cart endpoints
+  app.get("/api/cart", authMiddleware, async (req, res) => {
+    try {
+      const cartItems = await storage.getCartItems(req.user.id);
+      res.json(cartItems);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+      res.status(500).json({ message: "Failed to fetch cart items" });
+    }
+  });
+
+  app.post("/api/cart", authMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertCartItemSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+      });
+      const cartItem = await storage.addToCart(validatedData);
+      res.status(201).json(cartItem);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error adding to cart:", error);
+      res.status(500).json({ message: "Failed to add item to cart" });
+    }
+  });
+
+  app.put("/api/cart/:id", authMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { quantity } = req.body;
+      
+      if (isNaN(id) || isNaN(quantity)) {
+        return res.status(400).json({ message: "Invalid cart item ID or quantity" });
+      }
+      
+      const cartItem = await storage.updateCartItem(id, quantity);
+      if (!cartItem) {
+        return res.status(404).json({ message: "Cart item not found or removed" });
+      }
+      res.json(cartItem);
+    } catch (error) {
+      console.error("Error updating cart item:", error);
+      res.status(500).json({ message: "Failed to update cart item" });
+    }
+  });
+
+  app.delete("/api/cart/:id", authMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid cart item ID" });
+      }
+      
+      const success = await storage.removeFromCart(id);
+      if (!success) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error removing cart item:", error);
+      res.status(500).json({ message: "Failed to remove cart item" });
+    }
+  });
+
+  app.delete("/api/cart", authMiddleware, async (req, res) => {
+    try {
+      await storage.clearCart(req.user.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      res.status(500).json({ message: "Failed to clear cart" });
+    }
+  });
+
+  // Order endpoints
+  app.post("/api/orders", authMiddleware, async (req, res) => {
+    try {
+      const orderData = insertOrderSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+      });
+
+      // Generate payment link (simplified - in production you'd integrate with payment gateway)
+      const paymentLink = `https://payment.prayas.org/pay/${Date.now()}-${req.user.id}`;
+      
+      const order = await storage.createOrder({
+        ...orderData,
+        paymentLink,
+      });
+
+      // Clear user's cart after order creation
+      await storage.clearCart(req.user.id);
+
+      res.status(201).json(order);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating order:", error);
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
   app.get("/api/orders/my-orders", authMiddleware, async (req, res) => {
     try {
       const orders = await storage.getOrdersByUser(req.user.id);
@@ -126,6 +234,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user orders:", error);
       res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  // Admin order management
+  app.get("/api/admin/orders", adminMiddleware, async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching all orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  app.patch("/api/admin/orders/:id/notify", adminMiddleware, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+      
+      const order = await storage.markOrderNotified(id);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      console.error("Error marking order as notified:", error);
+      res.status(500).json({ message: "Failed to mark order as notified" });
+    }
+  });
+
+  // Admin book stock management
+  app.get("/api/admin/book-stock", adminMiddleware, async (req, res) => {
+    try {
+      const bookStock = await storage.getAllBookStock();
+      res.json(bookStock);
+    } catch (error) {
+      console.error("Error fetching book stock:", error);
+      res.status(500).json({ message: "Failed to fetch book stock" });
+    }
+  });
+
+  app.post("/api/admin/book-stock", adminMiddleware, async (req, res) => {
+    try {
+      const stockData = insertBookStockSchema.parse({
+        ...req.body,
+        updatedBy: req.user.id,
+      });
+      
+      const stock = await storage.updateBookStock(stockData);
+      res.status(201).json(stock);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error updating book stock:", error);
+      res.status(500).json({ message: "Failed to update book stock" });
     }
   });
 

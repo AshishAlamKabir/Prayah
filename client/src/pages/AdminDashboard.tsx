@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle, XCircle, Clock, Users, FileText, BarChart3, Settings, Upload, BookOpen, School, Palette } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Users, FileText, BarChart3, Settings, Upload, BookOpen, School, Palette, ShoppingBag } from "lucide-react";
+import BookManagement from "@/components/admin/BookManagement";
+import OrderManagement from "@/components/admin/OrderManagement";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -124,10 +126,11 @@ export default function AdminDashboard() {
 
           {/* Admin Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="publications">Publications</TabsTrigger>
-              <TabsTrigger value="books">Book Management</TabsTrigger>
+              <TabsTrigger value="books">Books</TabsTrigger>
+              <TabsTrigger value="orders">Orders</TabsTrigger>
               <TabsTrigger value="content">Content</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
@@ -280,50 +283,11 @@ export default function AdminDashboard() {
             </TabsContent>
 
             <TabsContent value="books" className="space-y-6">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Book & PDF Management</h3>
-                <p className="text-gray-600">Upload new books, manage PDF files, and control access to digital publications.</p>
-              </div>
-              
-              <div className="grid gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Upload className="h-5 w-5 text-green-600" />
-                      Upload New Book
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <Button className="bg-green-600 hover:bg-green-700">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Add New Book with PDF
-                      </Button>
-                      <p className="text-sm text-gray-600">
-                        Upload new books with PDF files, set pricing, and manage subscription access.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+              <BookManagement />
+            </TabsContent>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BookOpen className="h-5 w-5 text-blue-600" />
-                      Existing Books
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <p className="text-gray-600">Manage existing book inventory, update PDFs, and modify access permissions.</p>
-                      <Button variant="outline">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        View All Books
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+            <TabsContent value="orders" className="space-y-6">
+              <OrderManagement />
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">

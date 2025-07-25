@@ -7,6 +7,8 @@ import {
   publishedWorks,
   userSessions,
   orders,
+  cartItems,
+  bookStock,
   type User,
   type InsertUser,
   type CommunityPost,
@@ -23,6 +25,10 @@ import {
   type InsertUserSession,
   type Order,
   type InsertOrder,
+  type CartItem,
+  type InsertCartItem,
+  type BookStock,
+  type InsertBookStock,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
@@ -40,10 +46,24 @@ export interface IStorage {
   getUserBySessionToken(token: string): Promise<User | undefined>;
   deleteUserSession(token: string): Promise<boolean>;
   
+  // Cart operations
+  getCartItems(userId: number): Promise<(CartItem & { book: Book })[]>;
+  addToCart(item: InsertCartItem): Promise<CartItem>;
+  updateCartItem(id: number, quantity: number): Promise<CartItem | undefined>;
+  removeFromCart(id: number): Promise<boolean>;
+  clearCart(userId: number): Promise<boolean>;
+
   // Order operations
   createOrder(order: InsertOrder): Promise<Order>;
   getOrdersByUser(userId: number): Promise<Order[]>;
+  getAllOrders(): Promise<Order[]>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  markOrderNotified(id: number): Promise<Order | undefined>;
+
+  // Book stock operations
+  getBookStock(bookId: number): Promise<BookStock | undefined>;
+  updateBookStock(stock: InsertBookStock): Promise<BookStock>;
+  getAllBookStock(): Promise<(BookStock & { book: Book })[]>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -361,6 +381,143 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return order || undefined;
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async markOrderNotified(id: number): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ adminNotified: true })
+      .where(eq(orders.id, id))
+      .returning();
+    return order || undefined;
+  }
+
+  // Cart operations
+  async getCartItems(userId: number): Promise<(CartItem & { book: Book })[]> {
+    const result = await db
+      .select({
+        id: cartItems.id,
+        userId: cartItems.userId,
+        bookId: cartItems.bookId,
+        quantity: cartItems.quantity,
+        createdAt: cartItems.createdAt,
+        book: books
+      })
+      .from(cartItems)
+      .leftJoin(books, eq(cartItems.bookId, books.id))
+      .where(eq(cartItems.userId, userId));
+    
+    return result.map(item => ({
+      id: item.id,
+      userId: item.userId,
+      bookId: item.bookId,
+      quantity: item.quantity,
+      createdAt: item.createdAt,
+      book: item.book!
+    }));
+  }
+
+  async addToCart(item: InsertCartItem): Promise<CartItem> {
+    // Check if item already exists in cart, update quantity if so
+    const existingItem = await db
+      .select()
+      .from(cartItems)
+      .where(and(eq(cartItems.userId, item.userId), eq(cartItems.bookId, item.bookId)));
+
+    if (existingItem.length > 0) {
+      const [updatedItem] = await db
+        .update(cartItems)
+        .set({ quantity: existingItem[0].quantity + (item.quantity || 1) })
+        .where(eq(cartItems.id, existingItem[0].id))
+        .returning();
+      return updatedItem;
+    }
+
+    const [cartItem] = await db
+      .insert(cartItems)
+      .values(item)
+      .returning();
+    return cartItem;
+  }
+
+  async updateCartItem(id: number, quantity: number): Promise<CartItem | undefined> {
+    if (quantity <= 0) {
+      await this.removeFromCart(id);
+      return undefined;
+    }
+
+    const [item] = await db
+      .update(cartItems)
+      .set({ quantity })
+      .where(eq(cartItems.id, id))
+      .returning();
+    return item || undefined;
+  }
+
+  async removeFromCart(id: number): Promise<boolean> {
+    const result = await db.delete(cartItems).where(eq(cartItems.id, id));
+    return result.rowCount > 0;
+  }
+
+  async clearCart(userId: number): Promise<boolean> {
+    const result = await db.delete(cartItems).where(eq(cartItems.userId, userId));
+    return result.rowCount > 0;
+  }
+
+  // Book stock operations
+  async getBookStock(bookId: number): Promise<BookStock | undefined> {
+    const [stock] = await db.select().from(bookStock).where(eq(bookStock.bookId, bookId));
+    return stock || undefined;
+  }
+
+  async updateBookStock(stock: InsertBookStock): Promise<BookStock> {
+    const existingStock = await this.getBookStock(stock.bookId);
+    
+    if (existingStock) {
+      const [updatedStock] = await db
+        .update(bookStock)
+        .set({ 
+          quantity: stock.quantity, 
+          lastUpdated: new Date(), 
+          updatedBy: stock.updatedBy 
+        })
+        .where(eq(bookStock.bookId, stock.bookId))
+        .returning();
+      return updatedStock;
+    }
+
+    const [newStock] = await db
+      .insert(bookStock)
+      .values(stock)
+      .returning();
+    return newStock;
+  }
+
+  async getAllBookStock(): Promise<(BookStock & { book: Book })[]> {
+    const result = await db
+      .select({
+        id: bookStock.id,
+        bookId: bookStock.bookId,
+        quantity: bookStock.quantity,
+        lastUpdated: bookStock.lastUpdated,
+        updatedBy: bookStock.updatedBy,
+        book: books
+      })
+      .from(bookStock)
+      .leftJoin(books, eq(bookStock.bookId, books.id));
+
+    return result.map(item => ({
+      id: item.id,
+      bookId: item.bookId,
+      quantity: item.quantity,
+      lastUpdated: item.lastUpdated,
+      updatedBy: item.updatedBy,
+      book: item.book!
+    }));
   }
 
   // Enhanced published work operations

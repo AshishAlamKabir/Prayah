@@ -112,17 +112,40 @@ export const publishedWorks = pgTable("published_works", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Orders table for e-commerce
+// Cart items table
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  bookId: integer("book_id").notNull(),
+  quantity: integer("quantity").default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Orders table for e-commerce - Enhanced with multiple books support
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull(),
-  bookId: integer("book_id"),
-  isSubscription: boolean("is_subscription").default(false),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  orderItems: jsonb("order_items").notNull(), // Array of {bookId, quantity, price, title}
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: text("status").default("pending"), // pending, completed, cancelled
   paymentMethod: text("payment_method"),
+  paymentLink: text("payment_link"), // Generated payment link
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
+  shippingAddress: text("shipping_address"),
+  adminNotified: boolean("admin_notified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Book stock table for inventory management
+export const bookStock = pgTable("book_stock", {
+  id: serial("id").primaryKey(),
+  bookId: integer("book_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  updatedBy: integer("updated_by").notNull(), // admin user id
 });
 
 // Create insert schemas
@@ -172,10 +195,21 @@ export const insertUserSessionSchema = createInsertSchema(userSessions).omit({
   createdAt: true,
 });
 
-export const insertOrderSchema = createInsertSchema(orders).omit({
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  adminNotified: true,
+  createdAt: true,
   updatedAt: true,
+});
+
+export const insertBookStockSchema = createInsertSchema(bookStock).omit({
+  id: true,
+  lastUpdated: true,
 });
 
 // Types
@@ -200,8 +234,14 @@ export type InsertPublishedWork = z.infer<typeof insertPublishedWorkSchema>;
 export type UserSession = typeof userSessions.$inferSelect;
 export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
 
+export type CartItem = typeof cartItems.$inferSelect;
+export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
+
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
+
+export type BookStock = typeof bookStock.$inferSelect;
+export type InsertBookStock = z.infer<typeof insertBookStockSchema>;
 
 // Stats type
 export interface Stats {
