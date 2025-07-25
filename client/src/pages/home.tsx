@@ -1,7 +1,7 @@
 import HeroSection from "@/components/sections/hero-section";
 import StatsSection from "@/components/sections/stats-section";
 import FeaturesSection from "@/components/sections/features-section";
-import CommunityPostForm from "@/components/forms/community-post-form";
+import PublicationsSection from "@/components/sections/publications-section";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -32,14 +32,64 @@ export default function Home() {
       <StatsSection />
       <FeaturesSection />
       
-      {/* Community Submission Form Section */}
+      {/* About Prayas Section */}
       <section className="bg-red-800 text-white py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Join the Community</h2>
-            <p className="text-xl">Submit your community post and contribute to our educational initiatives</p>
+            <h2 className="text-4xl font-bold mb-6">About Prayas Study Circle</h2>
+            <div className="text-left max-w-3xl mx-auto space-y-6">
+              <p className="text-lg leading-relaxed">
+                Prayas is a dedicated study circle committed to fostering education, cultural preservation, and community development 
+                across Assam. Our mission is to create a network of educational institutions and cultural programs that empower 
+                individuals through knowledge, skill development, and cultural awareness.
+              </p>
+              <p className="text-lg leading-relaxed">
+                We believe in the transformative power of education and the importance of preserving our rich cultural heritage 
+                while adapting to modern challenges. Through our schools, cultural programs, and educational resources, we strive 
+                to build stronger, more informed communities.
+              </p>
+              
+              <div className="mt-8">
+                <h3 className="text-2xl font-semibold mb-4">Our Goals & Objectives</h3>
+                <ul className="space-y-3 text-lg">
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-3">•</span>
+                    Establish and support quality educational institutions in rural and urban areas
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-3">•</span>
+                    Preserve and promote Assamese culture through arts, music, drama, and literature
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-3">•</span>
+                    Provide accessible educational resources and books to communities
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-3">•</span>
+                    Foster critical thinking and social awareness among students and community members
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-green-400 mr-3">•</span>
+                    Create platforms for knowledge sharing and community collaboration
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
-          <CommunityPostForm />
+        </div>
+      </section>
+
+      {/* Approved Publications Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Publications</h2>
+            <p className="text-xl text-gray-600">
+              Educational resources and research materials approved by our study circle
+            </p>
+          </div>
+          
+          <PublicationsSection />
         </div>
       </section>
 

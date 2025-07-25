@@ -8,6 +8,7 @@ Prayas is a full-stack web application for a study circle organization focused o
 
 Preferred communication style: Simple, everyday language.
 Language preference: Remove "revolutionary" language - Prayas is a study circle focused on education and community development, not political revolution.
+Content preference: Replace community submission form with Prayas description and approved publications showcase on home page.
 
 ## System Architecture
 
@@ -126,9 +127,16 @@ The application manages eight primary entity types:
 - Connection pooling for performance
 - Environment variable configuration for database URL
 
-The architecture prioritizes developer experience, type safety, and maintainability while supporting the organization's revolutionary mission through carefully designed user interfaces and comprehensive content management capabilities.
+The architecture prioritizes developer experience, type safety, and maintainability while supporting the study circle's educational mission through carefully designed user interfaces and comprehensive content management capabilities.
 
 ## Recent Changes
+
+### Home Page Content Update (July 25, 2025)
+✓ Replaced community submission form with comprehensive Prayas study circle description
+✓ Added goals and objectives section highlighting educational focus
+✓ Created dedicated approved publications section with download functionality
+✓ Updated language throughout platform to remove "revolutionary" terminology
+✓ Enhanced PublicationsSection component with proper styling and download tracking
 
 ### Major Feature Enhancement (July 24, 2025)
 ✓ Implemented comprehensive authentication system with bcrypt password hashing
