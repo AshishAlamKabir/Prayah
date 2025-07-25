@@ -19,6 +19,8 @@ import BooksStore from "@/pages/BooksStore";
 import Admin from "@/pages/admin";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import UserDashboard from "@/pages/UserDashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -41,6 +43,8 @@ function Router() {
           <Route path="/books" component={Books} />
           <Route path="/store" component={BooksStore} />
           <Route path="/admin" component={Admin} />
+          <Route path="/user-dashboard" component={UserDashboard} />
+          <Route path="/admin-dashboard" component={AdminDashboard} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route component={NotFound} />

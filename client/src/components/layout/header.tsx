@@ -84,6 +84,7 @@ export default function Header() {
                       <User className="w-5 h-5" />
                       <span className="ml-2 hidden sm:inline">
                         {user?.firstName || user?.username}
+                        <span className="text-xs opacity-75 ml-1">({user?.role})</span>
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
@@ -92,11 +93,18 @@ export default function Header() {
                       <User className="w-4 h-4 mr-2" />
                       {user?.email}
                     </DropdownMenuItem>
-                    {isAdmin && (
+                    {user?.role === "admin" ? (
                       <DropdownMenuItem asChild>
-                        <Link href="/admin">
+                        <Link href="/admin-dashboard">
                           <Settings className="w-4 h-4 mr-2" />
-                          Admin Panel
+                          Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem asChild>
+                        <Link href="/user-dashboard">
+                          <User className="w-4 h-4 mr-2" />
+                          My Dashboard
                         </Link>
                       </DropdownMenuItem>
                     )}

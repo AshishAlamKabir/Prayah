@@ -36,13 +36,19 @@ export default function Login() {
       return response.json();
     },
     onSuccess: (data) => {
-      localStorage.setItem("auth-token", data.token);
+      localStorage.setItem("auth_token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       toast({
         title: "Welcome back!",
         description: "You've been logged in successfully.",
       });
-      setLocation("/");
+      
+      // Redirect based on user role
+      if (data.user.role === "admin") {
+        setLocation("/admin-dashboard");
+      } else {
+        setLocation("/user-dashboard");
+      }
     },
     onError: (error: Error) => {
       toast({

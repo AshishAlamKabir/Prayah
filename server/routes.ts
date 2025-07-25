@@ -118,6 +118,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(userWithoutPassword);
   });
 
+  // User orders endpoint
+  app.get("/api/orders/my-orders", authMiddleware, async (req, res) => {
+    try {
+      const orders = await storage.getOrdersByUser(req.user.id);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
   // Statistics endpoint
   app.get("/api/stats", async (req, res) => {
     try {
