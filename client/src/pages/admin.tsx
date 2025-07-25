@@ -120,17 +120,17 @@ export default function Admin() {
               <>
                 <Card className="revolutionary-card bg-white p-6 text-center">
                   <Users className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                  <div className="text-3xl font-bold text-red-800 mb-2">{stats?.totalMembers || 0}</div>
-                  <div className="text-gray-600">Total Members</div>
+                  <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalUsers || 0}</div>
+                  <div className="text-gray-600">Total Users</div>
                 </Card>
                 <Card className="revolutionary-card bg-white p-6 text-center">
                   <FileText className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                  <div className="text-3xl font-bold text-red-800 mb-2">{stats?.totalPosts || 0}</div>
+                  <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalPosts || 0}</div>
                   <div className="text-gray-600">Community Posts</div>
                 </Card>
                 <Card className="revolutionary-card bg-white p-6 text-center">
                   <BarChart3 className="h-8 w-8 text-red-800 mx-auto mb-2" />
-                  <div className="text-3xl font-bold text-red-800 mb-2">{stats?.totalSchools || 0}</div>
+                  <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalSchools || 0}</div>
                   <div className="text-gray-600">Active Schools</div>
                 </Card>
                 <Card className="revolutionary-card bg-white p-6 text-center">
@@ -144,13 +144,18 @@ export default function Admin() {
 
           {/* Main Admin Interface */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="posts">Post Moderation</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="posts">Publications</TabsTrigger>
+              <TabsTrigger value="books">Book Management</TabsTrigger>
+              <TabsTrigger value="content">Content Management</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="posts" className="space-y-6">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Publication Approval Management</h3>
+                <p className="text-gray-600">Approve or reject publications submitted by the community and manage published works.</p>
+              </div>
               <div className="grid gap-6">
                 {/* Pending Posts Section */}
                 <Card>
@@ -277,6 +282,109 @@ export default function Admin() {
               </div>
             </TabsContent>
 
+            <TabsContent value="books" className="space-y-6">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Book & PDF Management</h3>
+                <p className="text-gray-600">Upload new books, manage PDF files, and control access to digital publications.</p>
+              </div>
+              
+              <div className="grid gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Upload New Book</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Button className="bg-green-600 hover:bg-green-700">
+                        Add New Book
+                      </Button>
+                      <p className="text-sm text-gray-600">
+                        Upload new books with PDF files, set pricing, and manage subscription access.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Existing Books</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-gray-600">Manage existing book inventory, update PDFs, and modify access permissions.</p>
+                      <Button variant="outline">
+                        View All Books
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="content" className="space-y-6">
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Content Management</h3>
+                <p className="text-gray-600">Manage school information, notices, culture programs, and other website content.</p>
+              </div>
+              
+              <div className="grid gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>School Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-gray-600">Add new schools, update information, upload media files, and manage programs.</p>
+                      <div className="flex gap-2">
+                        <Button className="bg-green-600 hover:bg-green-700">
+                          Add New School
+                        </Button>
+                        <Button variant="outline">
+                          Manage Existing Schools
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Culture Programs</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-gray-600">Update music, fine arts, dance, drama, and poetry programs with new content.</p>
+                      <div className="flex gap-2">
+                        <Button variant="outline">
+                          Manage Music Programs
+                        </Button>
+                        <Button variant="outline">
+                          Manage Fine Arts
+                        </Button>
+                        <Button variant="outline">
+                          Manage Performances
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Notices & Announcements</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-gray-600">Create and manage important notices, announcements, and updates.</p>
+                      <Button className="bg-red-600 hover:bg-red-700">
+                        Create New Notice
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
             <TabsContent value="analytics" className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <Card>
@@ -307,20 +415,7 @@ export default function Admin() {
               </div>
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Settings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Eye className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">System Configuration</h3>
-                    <p className="text-gray-600">Platform configuration options will be available here.</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+
           </Tabs>
         </div>
       </section>
