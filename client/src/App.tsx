@@ -10,6 +10,9 @@ import SchoolDetail from "@/pages/SchoolDetail";
 import Culture from "@/pages/culture";
 import Music from "@/pages/culture/Music";
 import FineArts from "@/pages/culture/FineArts";
+import Dance from "@/pages/culture/Dance";
+import Drama from "@/pages/culture/Drama";
+import Poems from "@/pages/culture/Poems";
 import DanceDramaPoems from "@/pages/culture/DanceDramaPoems";
 import Books from "@/pages/books";
 import BooksStore from "@/pages/BooksStore";
@@ -31,6 +34,9 @@ function Router() {
           <Route path="/culture" component={Culture} />
           <Route path="/culture/music" component={Music} />
           <Route path="/culture/fine-arts" component={FineArts} />
+          <Route path="/culture/dance" component={Dance} />
+          <Route path="/culture/drama" component={Drama} />
+          <Route path="/culture/poems" component={Poems} />
           <Route path="/culture/dance-drama-poems" component={DanceDramaPoems} />
           <Route path="/books" component={Books} />
           <Route path="/store" component={BooksStore} />

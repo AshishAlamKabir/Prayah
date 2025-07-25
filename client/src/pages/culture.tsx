@@ -69,33 +69,125 @@ export default function Culture() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {categories?.map((category) => (
-                  <Card key={category.id} className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="text-red-800 text-3xl mb-4">
-                      {getIcon(category.icon)}
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">{category.name}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{category.description}</p>
-                    
-                    {category.programs && Array.isArray(category.programs) && category.programs.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                        <div className="space-y-1">
-                          {(category.programs as any[]).slice(0, 3).map((program, index) => (
-                            <p key={index} className="text-xs text-gray-600">• {program.name || program}</p>
-                          ))}
-                          {(category.programs as any[]).length > 3 && (
-                            <p className="text-xs text-gray-500">+{(category.programs as any[]).length - 3} more programs</p>
-                          )}
-                        </div>
+                {/* Music Category */}
+                <Link href="/culture/music">
+                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                    <div className="text-red-800 text-3xl mb-4">🎵</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Music Programs</h3>
+                    <p className="text-gray-600 text-sm mb-4">Revolutionary music programs that blend traditional folk music with modern expression</p>
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">• Traditional Folk Music</p>
+                        <p className="text-xs text-gray-600">• Revolutionary Songs Workshop</p>
+                        <p className="text-xs text-gray-600">• Community Choir</p>
                       </div>
-                    )}
-                    
+                    </div>
                     <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
                       Learn More
                     </Button>
                   </Card>
-                ))}
+                </Link>
+                
+                {/* Fine Arts Category */}
+                <Link href="/culture/fine-arts">
+                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                    <div className="text-red-800 text-3xl mb-4">🎨</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Fine Arts Programs</h3>
+                    <p className="text-gray-600 text-sm mb-4">Visual arts programs where creativity meets activism</p>
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">• Traditional Manuscript Painting</p>
+                        <p className="text-xs text-gray-600">• Social Justice Murals</p>
+                        <p className="text-xs text-gray-600">• Digital Art for Change</p>
+                      </div>
+                    </div>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                      Learn More
+                    </Button>
+                  </Card>
+                </Link>
+                
+                {/* Dance Category */}
+                <Link href="/culture/dance">
+                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                    <div className="text-red-800 text-3xl mb-4">💃</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Dance Programs</h3>
+                    <p className="text-gray-600 text-sm mb-4">Traditional Assamese dance forms celebrating our cultural heritage</p>
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">• Bihu Dance</p>
+                        <p className="text-xs text-gray-600">• Sattriya Classical Dance</p>
+                        <p className="text-xs text-gray-600">• Folk Dance Forms</p>
+                      </div>
+                    </div>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                      Learn More
+                    </Button>
+                  </Card>
+                </Link>
+                
+                {/* Drama Category */}
+                <Link href="/culture/drama">
+                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                    <div className="text-red-800 text-3xl mb-4">🎭</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Drama Programs</h3>
+                    <p className="text-gray-600 text-sm mb-4">Revolutionary theater that addresses social issues and inspires change</p>
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">• Revolutionary Theater</p>
+                        <p className="text-xs text-gray-600">• Community Drama Workshop</p>
+                        <p className="text-xs text-gray-600">• Social Justice Plays</p>
+                      </div>
+                    </div>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                      Learn More
+                    </Button>
+                  </Card>
+                </Link>
+                
+                {/* Poetry Category */}
+                <Link href="/culture/poems">
+                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                    <div className="text-red-800 text-3xl mb-4">📖</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Poetry Programs</h3>
+                    <p className="text-gray-600 text-sm mb-4">Spoken word and written poetry expressing revolutionary ideas</p>
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">• Spoken Word Poetry</p>
+                        <p className="text-xs text-gray-600">• Poetry Writing Workshop</p>
+                        <p className="text-xs text-gray-600">• Open Mic Nights</p>
+                      </div>
+                    </div>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                      Learn More
+                    </Button>
+                  </Card>
+                </Link>
+                
+                {/* Combined Overview Category */}
+                <Link href="/culture/dance-drama-poems">
+                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                    <div className="text-red-800 text-3xl mb-4">🎭</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">Dance, Drama & Poems</h3>
+                    <p className="text-gray-600 text-sm mb-4">Performing arts that tell stories of revolution and hope</p>
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-600">• Traditional Dance Forms</p>
+                        <p className="text-xs text-gray-600">• Revolutionary Theater</p>
+                        <p className="text-xs text-gray-600">• Spoken Word Poetry</p>
+                      </div>
+                    </div>
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                      Learn More
+                    </Button>
+                  </Card>
+                </Link>
               </div>
 
               {/* Featured Programs Section */}
@@ -119,9 +211,11 @@ export default function Culture() {
                         the struggles and triumphs of working-class communities. Join our monthly performances 
                         and workshops.
                       </p>
-                      <Button className="bg-green-600 hover:bg-green-700">
-                        Join Theater Group
-                      </Button>
+                      <Link href="/culture/drama">
+                        <Button className="bg-green-600 hover:bg-green-700">
+                          Join Theater Group
+                        </Button>
+                      </Link>
                     </div>
 
                     <div className="bg-green-50 p-6 rounded-lg">
@@ -134,9 +228,11 @@ export default function Culture() {
                         Our collective performs at community events and teaches traditional instruments 
                         to new generations.
                       </p>
-                      <Button className="bg-green-600 hover:bg-green-700">
-                        Join Music Collective
-                      </Button>
+                      <Link href="/culture/music">
+                        <Button className="bg-green-600 hover:bg-green-700">
+                          Join Music Collective
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
