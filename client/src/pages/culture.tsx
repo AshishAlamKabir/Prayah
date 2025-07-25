@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Palette, Music, Film, Users, Theater } from "lucide-react";
+import { Link } from "wouter";
 import type { CultureCategory } from "@shared/schema";
 
 const iconMap = {
