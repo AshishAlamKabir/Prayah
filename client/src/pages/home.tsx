@@ -8,6 +8,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Book, GraduationCap, Palette, Users } from "lucide-react";
 import type { School, Book as BookType, CultureCategory } from "@shared/schema";
+import bokaghatLogo from "@assets/b j b logo_1753439981026.jpg";
+import brahmaputraLogo from "@assets/brahmaputra logo_1753439814424.jpg";
+import mohuramukhtLogo from "@assets/mohura mukh logo_1753439814424.jpg";
 
 export default function Home() {
   const { data: schools, isLoading: schoolsLoading } = useQuery<School[]>({
@@ -118,24 +121,37 @@ export default function Home() {
                 </Card>
               ))
             ) : (
-              featuredSchools.map((school) => (
-                <Card key={school.id} className="revolutionary-card bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-                    <GraduationCap className="h-16 w-16 text-red-800" />
-                  </div>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{school.name}</h3>
-                    <p className="text-gray-600 mb-3">{school.location}</p>
-                    <p className="text-gray-700 mb-4">{school.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-red-800 font-medium">{school.studentCount} Students</span>
-                      <Button className="bg-green-600 hover:bg-green-700">
-                        View Details
-                      </Button>
+              featuredSchools.map((school) => {
+                const getSchoolLogo = (schoolName: string) => {
+                  if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) return bokaghatLogo;
+                  if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
+                  if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
+                  return bokaghatLogo; // default fallback
+                };
+
+                return (
+                  <Card key={school.id} className="revolutionary-card bg-gray-50 overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center p-4">
+                      <img 
+                        src={getSchoolLogo(school.name)} 
+                        alt={`${school.name} Logo`}
+                        className="max-h-32 max-w-32 object-contain"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
-              ))
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{school.name}</h3>
+                      <p className="text-gray-600 mb-3">{school.location}</p>
+                      <p className="text-gray-700 mb-4">{school.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-red-800 font-medium">{school.studentCount} Students</span>
+                        <Button className="bg-green-600 hover:bg-green-700">
+                          View Details
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
             )}
           </div>
           
