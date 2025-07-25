@@ -39,6 +39,7 @@ export const schools = pgTable("schools", {
   detailedDescription: text("detailed_description"),
   studentCount: integer("student_count").default(0),
   imageUrl: text("image_url"),
+  logo: text("logo"),
   mediaFiles: jsonb("media_files").default([]), // Array of image/video URLs
   programs: text("programs").array(),
   contactEmail: text("contact_email"),

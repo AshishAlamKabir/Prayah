@@ -96,7 +96,15 @@ export default function Schools() {
                 {filteredSchools.map((school) => (
                   <Card key={school.id} className="revolutionary-card bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                     <div className="h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-                      <GraduationCap className="h-16 w-16 text-red-800" />
+                      {school.logo ? (
+                        <img 
+                          src={school.logo} 
+                          alt={`${school.name} logo`}
+                          className="h-32 w-32 object-contain"
+                        />
+                      ) : (
+                        <GraduationCap className="h-16 w-16 text-red-800" />
+                      )}
                     </div>
                     <CardContent className="p-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-2">{school.name}</h3>

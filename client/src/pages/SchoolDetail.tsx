@@ -55,6 +55,15 @@ export default function SchoolDetail() {
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
                   <div className="p-6 text-white">
+                    {school.logo && (
+                      <div className="mb-4">
+                        <img 
+                          src={school.logo} 
+                          alt={`${school.name} logo`}
+                          className="h-16 w-16 object-contain bg-white rounded-lg p-2"
+                        />
+                      </div>
+                    )}
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">{school.name}</h1>
                     <div className="flex items-center text-lg">
                       <MapPin className="w-5 h-5 mr-2" />
@@ -67,6 +76,15 @@ export default function SchoolDetail() {
             
             {!school.imageUrl && (
               <div className="p-6 border-b">
+                {school.logo && (
+                  <div className="flex justify-center mb-4">
+                    <img 
+                      src={school.logo} 
+                      alt={`${school.name} logo`}
+                      className="h-24 w-24 object-contain"
+                    />
+                  </div>
+                )}
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-red-600 dark:text-red-400">
                   {school.name}
                 </h1>
