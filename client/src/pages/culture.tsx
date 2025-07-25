@@ -33,7 +33,7 @@ export default function Culture() {
             Art & Culture Programs
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            Revolutionary expression through arts, music, theater, and cultural initiatives
+            Cultural expression through arts, music, theater, and educational initiatives
           </p>
         </div>
       </section>
@@ -65,7 +65,7 @@ export default function Culture() {
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Cultural Initiatives</h2>
                 <p className="text-xl text-gray-600">
-                  Discover our diverse range of programs promoting revolutionary arts and culture
+                  Discover our diverse range of programs promoting arts, culture and education
                 </p>
               </div>
 

@@ -2,11 +2,12 @@
 
 ## Overview
 
-Prayas is a full-stack web application for a revolutionary community organization focused on education, culture, and social change. The platform serves as a digital hub for managing schools, cultural programs, books, and community content with a socialist-themed design and comprehensive administrative features.
+Prayas is a full-stack web application for a study circle organization focused on education, culture, and community development. The platform serves as a digital hub for managing schools, cultural programs, books, and community content with a socialist-themed design and comprehensive administrative features.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Language preference: Remove "revolutionary" language - Prayas is a study circle focused on education and community development, not political revolution.
 
 ## System Architecture
 

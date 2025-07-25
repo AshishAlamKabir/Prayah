@@ -40,11 +40,11 @@ export default function Drama() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-4">
-              Revolutionary Theater
+              Drama & Theater
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Experience powerful theatrical performances that address social issues, celebrate heroic struggles,
-              and inspire audiences to become agents of positive change in their communities.
+              Experience powerful theatrical performances that address social issues, celebrate community stories,
+              and inspire audiences to engage positively with their communities through dramatic arts.
             </p>
           </div>
         </div>

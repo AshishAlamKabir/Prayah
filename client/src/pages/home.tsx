@@ -36,8 +36,8 @@ export default function Home() {
       <section className="bg-red-800 text-white py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Join the Revolutionary Movement</h2>
-            <p className="text-xl">Submit your community post and contribute to the collective struggle</p>
+            <h2 className="text-4xl font-bold mb-4">Join the Community</h2>
+            <p className="text-xl">Submit your community post and contribute to our educational initiatives</p>
           </div>
           <CommunityPostForm />
         </div>
