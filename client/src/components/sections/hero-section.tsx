@@ -24,8 +24,7 @@ export default function HeroSection() {
           <Link href="/schools">
             <Button 
               size="lg"
-              variant="outline"
-              className="border-2 border-white hover:bg-white hover:text-red-800 px-8 py-4 text-lg font-semibold text-white"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg font-semibold"
             >
               Explore Platform
             </Button>
