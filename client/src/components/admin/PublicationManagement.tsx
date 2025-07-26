@@ -8,9 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
   BookOpen, FileText, Clock, CheckCircle, XCircle, Eye, 
-  Download, DollarSign, Send, User, Calendar, Filter
+  Download, DollarSign, Send, User, Calendar, TrendingUp
 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PublicationSubmission {
   id: number;
@@ -33,7 +32,6 @@ export default function PublicationManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("pending");
-  const [statusFilter, setStatusFilter] = useState("all");
 
   // Fetch publication submissions
   const { data: submissions = [], isLoading } = useQuery({
@@ -88,22 +86,22 @@ export default function PublicationManagement() {
   });
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; icon: any; label: string }> = {
-      pending: { variant: "secondary", icon: Clock, label: "Pending Review" },
-      approved: { variant: "default", icon: CheckCircle, label: "Approved" },
-      rejected: { variant: "destructive", icon: XCircle, label: "Rejected" },
-      payment_pending: { variant: "outline", icon: DollarSign, label: "Payment Pending" },
-      published: { variant: "default", icon: BookOpen, label: "Published" }
+    const variants: Record<string, { variant: any; icon: any; label: string; color: string }> = {
+      pending: { variant: "secondary", icon: Clock, label: "Pending Review", color: "bg-yellow-100 text-yellow-800" },
+      approved: { variant: "default", icon: CheckCircle, label: "Approved", color: "bg-green-100 text-green-800" },
+      rejected: { variant: "destructive", icon: XCircle, label: "Rejected", color: "bg-red-100 text-red-800" },
+      payment_pending: { variant: "outline", icon: DollarSign, label: "Payment Pending", color: "bg-blue-100 text-blue-800" },
+      published: { variant: "default", icon: BookOpen, label: "Published", color: "bg-purple-100 text-purple-800" }
     };
 
     const config = variants[status] || variants.pending;
     const IconComponent = config.icon;
 
     return (
-      <Badge variant={config.variant} className="flex items-center gap-1">
+      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
         <IconComponent className="w-3 h-3" />
         {config.label}
-      </Badge>
+      </div>
     );
   };
 
@@ -125,7 +123,7 @@ export default function PublicationManagement() {
   };
 
   const handleReject = async (submission: PublicationSubmission) => {
-    const notes = prompt("Enter rejection reason:");
+    const notes = prompt("Add rejection reason:");
     if (!notes) {
       toast({
         title: "Rejection Reason Required",
@@ -138,335 +136,256 @@ export default function PublicationManagement() {
     rejectSubmissionMutation.mutate({ id: submission.id, notes });
   };
 
-  const filteredSubmissions = Array.isArray(submissions) ? submissions.filter((submission: PublicationSubmission) => {
-    if (statusFilter === "all") return true;
-    return submission.status === statusFilter;
-  }) : [];
-
-  const getSubmissionsByStatus = (status: string) => {
-    return filteredSubmissions.filter((s: PublicationSubmission) => s.status === status);
+  // Group submissions by status for tabs
+  const submissionsByStatus = {
+    pending: submissions.filter((s: PublicationSubmission) => s.status === 'pending'),
+    approved: submissions.filter((s: PublicationSubmission) => s.status === 'approved'),
+    payment_pending: submissions.filter((s: PublicationSubmission) => s.status === 'payment_pending'),
+    rejected: submissions.filter((s: PublicationSubmission) => s.status === 'rejected'),
+    published: submissions.filter((s: PublicationSubmission) => s.status === 'published'),
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Publication Management</h2>
-          <p className="text-gray-600">Review and manage book publication submissions</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Submissions</SelectItem>
-              <SelectItem value="pending">Pending Review</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="payment_pending">Payment Pending</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-            </SelectContent>
-          </Select>
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-red-600 to-green-600 text-white p-6 rounded-xl shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <BookOpen className="w-8 h-8" />
+              Publication Management Center
+            </h1>
+            <p className="text-red-100 mt-2 text-lg">Review, approve, and manage manuscript submissions for publication</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold">{submissionsByStatus.pending.length}</div>
+              <div className="text-red-100 text-sm">Awaiting Review</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold">{submissionsByStatus.published.length}</div>
+              <div className="text-red-100 text-sm">Published Works</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="pending" className="flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            Pending ({getSubmissionsByStatus("pending").length})
-          </TabsTrigger>
-          <TabsTrigger value="approved" className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
-            Approved ({getSubmissionsByStatus("approved").length})
-          </TabsTrigger>
-          <TabsTrigger value="payment" className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
-            Payment ({getSubmissionsByStatus("payment_pending").length})
-          </TabsTrigger>
-          <TabsTrigger value="published" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />
-            Published ({getSubmissionsByStatus("published").length})
-          </TabsTrigger>
-          <TabsTrigger value="rejected" className="flex items-center gap-2">
-            <XCircle className="w-4 h-4" />
-            Rejected ({getSubmissionsByStatus("rejected").length})
-          </TabsTrigger>
+      {/* Quick Stats Cards */}
+      <div className="grid grid-cols-5 gap-4">
+        {Object.entries(submissionsByStatus).map(([status, statusSubmissions]) => {
+          const statusConfig = {
+            pending: { color: "border-yellow-200 bg-yellow-50", icon: Clock, label: "Pending Review" },
+            approved: { color: "border-green-200 bg-green-50", icon: CheckCircle, label: "Approved" },
+            payment_pending: { color: "border-blue-200 bg-blue-50", icon: DollarSign, label: "Payment Due" },
+            rejected: { color: "border-red-200 bg-red-50", icon: XCircle, label: "Rejected" },
+            published: { color: "border-purple-200 bg-purple-50", icon: BookOpen, label: "Published" }
+          };
+          
+          const config = statusConfig[status as keyof typeof statusConfig];
+          const IconComponent = config.icon;
+          
+          return (
+            <Card key={status} className={`${config.color} border-2`}>
+              <CardContent className="p-4 text-center">
+                <IconComponent className="w-6 h-6 mx-auto mb-2 text-gray-600" />
+                <div className="text-2xl font-bold text-gray-900">{statusSubmissions.length}</div>
+                <div className="text-sm text-gray-600">{config.label}</div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Status Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-xl h-14">
+          {Object.entries(submissionsByStatus).map(([status, statusSubmissions]) => {
+            const statusConfig = {
+              pending: { icon: Clock, label: "Pending", color: "data-[state=active]:bg-yellow-500 data-[state=active]:text-white" },
+              approved: { icon: CheckCircle, label: "Approved", color: "data-[state=active]:bg-green-500 data-[state=active]:text-white" },
+              payment_pending: { icon: DollarSign, label: "Payment", color: "data-[state=active]:bg-blue-500 data-[state=active]:text-white" },
+              rejected: { icon: XCircle, label: "Rejected", color: "data-[state=active]:bg-red-500 data-[state=active]:text-white" },
+              published: { icon: BookOpen, label: "Published", color: "data-[state=active]:bg-purple-500 data-[state=active]:text-white" }
+            };
+            
+            const config = statusConfig[status as keyof typeof statusConfig];
+            const IconComponent = config.icon;
+            
+            return (
+              <TabsTrigger 
+                key={status}
+                value={status} 
+                className={`flex flex-col items-center gap-1 py-2 rounded-lg ${config.color}`}
+              >
+                <IconComponent className="w-4 h-4" />
+                <span className="text-xs font-medium">{config.label}</span>
+                <Badge variant="secondary" className="text-xs">
+                  {statusSubmissions.length}
+                </Badge>
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
-        <TabsContent value="pending" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-yellow-600" />
-                Pending Review ({getSubmissionsByStatus("pending").length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8">Loading submissions...</div>
-              ) : getSubmissionsByStatus("pending").length === 0 ? (
-                <div className="text-center py-8">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Pending Submissions</h3>
-                  <p className="text-gray-500">All submissions have been reviewed.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {getSubmissionsByStatus("pending").map((submission: PublicationSubmission) => (
-                    <div key={submission.id} className="border rounded-lg p-6 bg-white">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{submission.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <User className="w-4 h-4" />
-                              {submission.author}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {new Date(submission.submittedAt).toLocaleDateString()}
-                            </div>
-                            <Badge variant="outline">{submission.category}</Badge>
+        {/* Tab Contents */}
+        {Object.entries(submissionsByStatus).map(([status, statusSubmissions]) => (
+          <TabsContent key={status} value={status} className="space-y-4 mt-6">
+            {statusSubmissions.length === 0 ? (
+              <Card className="border-2 border-dashed border-gray-300">
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                    <FileText className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    No {status.replace('_', ' ')} submissions
+                  </h3>
+                  <p className="text-gray-600 text-center max-w-md leading-relaxed">
+                    {status === 'pending' && "New manuscript submissions will appear here for your review and approval."}
+                    {status === 'approved' && "Approved manuscripts awaiting author payment will be listed here."}
+                    {status === 'payment_pending' && "Manuscripts with pending payments will appear here."}
+                    {status === 'rejected' && "Rejected submissions will be shown here for reference."}
+                    {status === 'published' && "Successfully published works will be displayed here."}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {statusSubmissions.map((submission: PublicationSubmission) => (
+                  <Card key={submission.id} className="border-l-4 border-l-red-500 shadow-lg hover:shadow-xl transition-shadow">
+                    <CardHeader className="bg-gray-50 pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-3 flex-1">
+                          <div className="flex items-center gap-4">
+                            <CardTitle className="text-xl text-gray-900 font-bold">{submission.title}</CardTitle>
+                            {getStatusBadge(submission.status)}
                           </div>
-                          <p className="text-gray-700 mb-4">{submission.description}</p>
+                          <div className="flex items-center gap-8 text-sm text-gray-600">
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4" />
+                              <span className="font-medium">{submission.author}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>{new Date(submission.submittedAt).toLocaleDateString('en-IN')}</span>
+                            </div>
+                            <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                              {submission.category}
+                            </div>
+                          </div>
                         </div>
-                        {getStatusBadge(submission.status)}
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-6 p-6">
+                      <div className="bg-white border border-gray-200 p-4 rounded-lg">
+                        <label className="text-sm font-semibold text-gray-700 block mb-2">Manuscript Description</label>
+                        <p className="text-gray-600 leading-relaxed">{submission.description}</p>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-50 p-4 rounded-lg border">
+                          <label className="text-sm font-semibold text-gray-700">Author Contact</label>
+                          <p className="text-gray-600 mt-1">{submission.email}</p>
+                        </div>
+                        {submission.publicationFee && (
+                          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <label className="text-sm font-semibold text-green-700">Publication Fee</label>
+                            <p className="text-2xl font-bold text-green-600 mt-1">₹{submission.publicationFee}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {submission.adminNotes && (
+                        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                          <label className="text-sm font-semibold text-blue-900 flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4" />
+                            Admin Review Notes
+                          </label>
+                          <p className="text-blue-800 leading-relaxed">{submission.adminNotes}</p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                        <div className="flex items-center gap-3">
                           <Button
                             variant="outline"
-                            size="sm"
+                            size="default"
+                            className="flex items-center gap-2 hover:bg-blue-50 border-blue-200"
                             onClick={() => window.open(submission.pdfUrl, '_blank')}
                           >
-                            <Eye className="w-4 h-4 mr-2" />
-                            Review PDF
+                            <Eye className="w-4 h-4" />
+                            Preview PDF
                           </Button>
                           <Button
                             variant="outline"
-                            size="sm"
-                            onClick={() => window.open(submission.pdfUrl, '_blank')}
+                            size="default"
+                            className="flex items-center gap-2 hover:bg-gray-50"
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = submission.pdfUrl;
+                              link.download = `${submission.title}.pdf`;
+                              link.click();
+                            }}
                           >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
+                            <Download className="w-4 h-4" />
+                            Download PDF
                           </Button>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleReject(submission)}
-                            disabled={rejectSubmissionMutation.isPending}
-                          >
-                            <XCircle className="w-4 h-4 mr-2" />
-                            Reject
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleApprove(submission)}
-                            disabled={approveSubmissionMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Approve & Send Payment Link
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
 
-        <TabsContent value="approved" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                Approved Submissions ({getSubmissionsByStatus("approved").length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {getSubmissionsByStatus("approved").length === 0 ? (
-                <div className="text-center py-8">
-                  <CheckCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Approved Submissions</h3>
-                  <p className="text-gray-500">Approved submissions will appear here.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {getSubmissionsByStatus("approved").map((submission: PublicationSubmission) => (
-                    <div key={submission.id} className="border rounded-lg p-6 bg-green-50">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{submission.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <User className="w-4 h-4" />
-                              {submission.author}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
-                              ₹{submission.publicationFee}
-                            </div>
+                        {submission.status === 'pending' && (
+                          <div className="flex gap-3">
+                            <Button
+                              size="default"
+                              onClick={() => handleApprove(submission)}
+                              disabled={approveSubmissionMutation.isPending}
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-6"
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                              Approve & Set Fee
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="default"
+                              onClick={() => handleReject(submission)}
+                              disabled={rejectSubmissionMutation.isPending}
+                              className="flex items-center gap-2 px-6"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              Reject
+                            </Button>
                           </div>
-                          {submission.adminNotes && (
-                            <p className="text-sm text-gray-600 bg-white p-2 rounded border-l-4 border-green-500">
-                              <strong>Admin Notes:</strong> {submission.adminNotes}
-                            </p>
-                          )}
-                        </div>
-                        {getStatusBadge(submission.status)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                        )}
 
-        <TabsContent value="payment" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-blue-600" />
-                Payment Pending ({getSubmissionsByStatus("payment_pending").length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {getSubmissionsByStatus("payment_pending").length === 0 ? (
-                <div className="text-center py-8">
-                  <DollarSign className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Payment Pending</h3>
-                  <p className="text-gray-500">Authors awaiting payment will appear here.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {getSubmissionsByStatus("payment_pending").map((submission: PublicationSubmission) => (
-                    <div key={submission.id} className="border rounded-lg p-6 bg-blue-50">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{submission.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <User className="w-4 h-4" />
-                              {submission.author} ({submission.email})
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
-                              ₹{submission.publicationFee}
-                            </div>
+                        {submission.status === 'approved' && (
+                          <div className="flex items-center gap-2 text-green-600 bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+                            <Send className="w-4 h-4" />
+                            <span className="font-medium">Payment link sent to author</span>
                           </div>
-                          <p className="text-sm text-blue-700 bg-blue-100 p-2 rounded">
-                            Payment link sent to author. Awaiting payment confirmation.
-                          </p>
-                        </div>
-                        {getStatusBadge(submission.status)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                        )}
 
-        <TabsContent value="published" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-purple-600" />
-                Published Books ({getSubmissionsByStatus("published").length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {getSubmissionsByStatus("published").length === 0 ? (
-                <div className="text-center py-8">
-                  <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Published Books</h3>
-                  <p className="text-gray-500">Successfully published books will appear here.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {getSubmissionsByStatus("published").map((submission: PublicationSubmission) => (
-                    <div key={submission.id} className="border rounded-lg p-6 bg-purple-50">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{submission.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <User className="w-4 h-4" />
-                              {submission.author}
-                            </div>
-                            <Badge variant="outline">{submission.category}</Badge>
+                        {submission.status === 'published' && (
+                          <div className="flex items-center gap-2 text-purple-600 bg-purple-50 px-4 py-2 rounded-lg border border-purple-200">
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="font-medium">Successfully published</span>
                           </div>
-                          <p className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
-                            ✓ Successfully published by Prayas Publications
-                          </p>
-                        </div>
-                        {getStatusBadge(submission.status)}
+                        )}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="rejected" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-red-600" />
-                Rejected Submissions ({getSubmissionsByStatus("rejected").length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {getSubmissionsByStatus("rejected").length === 0 ? (
-                <div className="text-center py-8">
-                  <XCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Rejected Submissions</h3>
-                  <p className="text-gray-500">Rejected submissions will appear here.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {getSubmissionsByStatus("rejected").map((submission: PublicationSubmission) => (
-                    <div key={submission.id} className="border rounded-lg p-6 bg-red-50">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{submission.title}</h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                            <div className="flex items-center gap-1">
-                              <User className="w-4 h-4" />
-                              {submission.author}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              Rejected: {submission.reviewedAt ? new Date(submission.reviewedAt).toLocaleDateString() : 'N/A'}
-                            </div>
-                          </div>
-                          {submission.adminNotes && (
-                            <p className="text-sm text-red-700 bg-red-100 p-2 rounded border-l-4 border-red-500">
-                              <strong>Rejection Reason:</strong> {submission.adminNotes}
-                            </p>
-                          )}
-                        </div>
-                        {getStatusBadge(submission.status)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   );
