@@ -12,6 +12,9 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isSchoolAdmin = user?.role === 'school_admin';
+  const isCultureAdmin = user?.role === 'culture_admin';
+  const hasAdminAccess = isAdmin || isSchoolAdmin || isCultureAdmin;
   const isSubscribed = user?.isSubscribed || false;
 
   const navigation = [
@@ -95,13 +98,23 @@ export default function Header() {
                       <User className="w-4 h-4 mr-2" />
                       {user?.email}
                     </DropdownMenuItem>
-                    {user?.role === "admin" ? (
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin-dashboard">
-                          <Settings className="w-4 h-4 mr-2" />
-                          Admin Dashboard
-                        </Link>
-                      </DropdownMenuItem>
+                    {hasAdminAccess ? (
+                      <>
+                        {isAdmin && (
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin-dashboard">
+                              <Settings className="w-4 h-4 mr-2" />
+                              Super Admin Dashboard
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem asChild>
+                          <Link href="/role-admin">
+                            <Settings className="w-4 h-4 mr-2" />
+                            {isSchoolAdmin ? "School Admin" : isCultureAdmin ? "Culture Admin" : "Role Admin"}
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
                     ) : (
                       <DropdownMenuItem asChild>
                         <Link href="/user-dashboard">

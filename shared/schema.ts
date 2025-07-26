@@ -2,7 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } fr
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table - Enhanced with subscription and authentication
+// Users table - Enhanced with granular role-based permissions
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -10,9 +10,13 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   firstName: text("first_name"),
   lastName: text("last_name"),
-  role: text("role").default("user"), // user, admin, moderator
+  role: text("role").default("user"), // user, admin, moderator, school_admin, culture_admin
   isSubscribed: boolean("is_subscribed").default(false),
   subscriptionExpiry: timestamp("subscription_expiry"),
+  // Granular permissions for specific sections
+  schoolPermissions: jsonb("school_permissions").default([]), // Array of school IDs user can manage
+  culturePermissions: jsonb("culture_permissions").default([]), // Array of culture category IDs user can manage
+  permissions: jsonb("permissions").default([]), // Additional specific permissions
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

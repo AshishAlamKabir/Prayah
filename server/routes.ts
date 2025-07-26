@@ -29,6 +29,7 @@ import {
   hashPassword, 
   verifyPassword 
 } from "./auth";
+import roleAdminRoutes from "./routes/role-admin";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -1155,6 +1156,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Register role-based admin routes
+  app.use("/api/role-admin", roleAdminRoutes);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -46,6 +46,12 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserSubscription(id: number, isSubscribed: boolean, expiry?: Date): Promise<User | undefined>;
+  updateUserPermissions(userId: number, permissions: {
+    schoolPermissions?: number[];
+    culturePermissions?: number[];
+    permissions?: string[];
+  }): Promise<User | undefined>;
+  getUsersByRole(role: string): Promise<User[]>;
   
   // Authentication operations
   createUserSession(session: InsertUserSession): Promise<UserSession>;
@@ -150,6 +156,26 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+
+  async updateUserPermissions(userId: number, permissions: {
+    schoolPermissions?: number[];
+    culturePermissions?: number[];
+    permissions?: string[];
+  }): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({
+        ...permissions,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return updatedUser || undefined;
+  }
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    return await db.select().from(users).where(eq(users.role, role));
   }
 
   // Community post operations
