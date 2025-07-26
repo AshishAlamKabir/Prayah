@@ -41,43 +41,35 @@ export default function Header() {
                 alt="Prayas Logo" 
                 className="h-12 w-12 object-contain rounded-lg shadow-sm"
               />
-              <div className="flex flex-col">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">প্রয়াস</h1>
-                <span className="text-xs md:text-sm text-red-200 font-medium">Study Circle</span>
-              </div>
+              <h1 className="text-2xl md:text-3xl font-bold">প্রয়াস</h1>
             </div>
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
               <Link key={item.name} href={item.href}>
-                <div 
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
-                    isActive(item.href) 
-                      ? "bg-red-700 text-yellow-300 shadow-md" 
-                      : "hover:bg-red-700/50 hover:text-white"
+                <span 
+                  className={`text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 ${
+                    isActive(item.href) ? "text-yellow-300 border-b-2 border-yellow-300 pb-1" : ""
                   }`}
                 >
                   {item.name}
-                </div>
+                </span>
               </Link>
             ))}
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
               <>
                 <Link href="/login">
-                  <Button 
-                    variant="ghost" 
-                    className="hidden lg:inline-flex text-white hover:bg-red-700 font-medium px-6 py-2 border border-white/20 hover:border-white/40 transition-all"
-                  >
+                  <Button variant="ghost" className="hidden md:inline-flex text-white hover:bg-red-700 font-medium">
                     Login
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="hidden lg:inline-flex bg-green-600 hover:bg-green-700 font-medium px-6 py-2 shadow-md hover:shadow-lg transition-all">
+                  <Button className="hidden md:inline-flex bg-green-600 hover:bg-green-700 font-medium">
                     Register
                   </Button>
                 </Link>
@@ -85,24 +77,17 @@ export default function Header() {
             ) : (
               <div className="flex items-center space-x-3">
                 {isSubscribed && (
-                  <div className="hidden lg:flex items-center bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-400/30">
-                    <Crown className="w-4 h-4 text-yellow-400 mr-1" />
-                    <span className="text-xs font-medium text-yellow-200">Premium</span>
-                  </div>
+                  <Crown className="w-5 h-5 text-yellow-400 hidden md:block" />
                 )}
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-white hover:bg-red-700 px-4 py-2 hidden lg:flex items-center space-x-2 rounded-lg border border-white/20 hover:border-white/40 transition-all">
+                    <Button variant="ghost" className="text-white hover:bg-red-700 hidden md:flex items-center space-x-2">
                       <User className="w-5 h-5" />
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-medium">
-                          {user?.firstName || user?.username}
-                        </span>
-                        <span className="text-xs text-red-200 capitalize">
-                          {user?.role}
-                        </span>
-                      </div>
+                      <span className="font-medium">
+                        {user?.firstName || user?.username}
+                        <span className="text-xs opacity-75 ml-1">({user?.role})</span>
+                      </span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -144,111 +129,91 @@ export default function Header() {
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="lg:hidden text-white bg-red-700 border-white/30 hover:bg-red-600 hover:border-white/50 rounded-lg"
+                  className="md:hidden text-white bg-red-700 border-white/30 hover:bg-red-600 hover:border-white/50"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-6 w-6" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="bg-red-800 text-white border-red-700 w-[300px] sm:w-[350px]">
-                <div className="flex flex-col space-y-2 mt-8">
-                  <div className="text-center mb-6">
-                    <h2 className="text-xl font-bold mb-1">প্রয়াস</h2>
-                    <p className="text-sm text-red-200">Study Circle</p>
-                  </div>
-                  
+              <SheetContent side="right" className="bg-red-800 text-white border-red-700 w-[280px] sm:w-[350px]">
+                <div className="flex flex-col space-y-4 mt-8">
                   {navigation.map((item) => (
                     <Link key={item.name} href={item.href}>
-                      <div 
-                        className={`flex items-center py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer ${
-                          isActive(item.href) 
-                            ? "bg-red-700 text-yellow-300 font-semibold border-l-4 border-yellow-300" 
-                            : "hover:bg-red-700/50"
+                      <span 
+                        className={`block py-2 px-4 rounded-lg hover:bg-red-700 transition-colors cursor-pointer ${
+                          isActive(item.href) ? "bg-red-700 text-yellow-300 font-semibold" : ""
                         }`}
                         onClick={() => setIsOpen(false)}
                       >
-                        <span className="text-base">{item.name}</span>
-                      </div>
+                        {item.name}
+                      </span>
                     </Link>
                   ))}
                   
-                  <div className="border-t border-red-700 pt-6 mt-6">
-                    {!isAuthenticated ? (
-                      <div className="space-y-3">
-                        <Link href="/login">
+                  
+                  {!isAuthenticated ? (
+                    <div className="mt-6 space-y-3">
+                      <Link href="/login">
+                        <Button 
+                          variant="outline" 
+                          className="w-full text-white border-white hover:bg-white hover:text-red-800" 
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Login
+                        </Button>
+                      </Link>
+                      <Link href="/register">
+                        <Button 
+                          className="w-full bg-green-600 hover:bg-green-700" 
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Register
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-6 space-y-3">
+                      <div className="text-center py-2">
+                        <p className="text-sm">Logged in as</p>
+                        <p className="font-semibold">{user?.firstName || user?.username}</p>
+                        <p className="text-xs opacity-75">({user?.role})</p>
+                        {isSubscribed && <Crown className="w-4 h-4 text-yellow-400 mx-auto mt-1" />}
+                      </div>
+                      {user?.role === "admin" ? (
+                        <Link href="/admin-dashboard">
                           <Button 
                             variant="outline" 
-                            className="w-full text-white border-white/50 hover:bg-white hover:text-red-800 font-medium" 
+                            className="w-full text-white border-white hover:bg-white hover:text-red-800" 
                             onClick={() => setIsOpen(false)}
                           >
-                            Login
+                            Admin Dashboard
                           </Button>
                         </Link>
-                        <Link href="/register">
+                      ) : (
+                        <Link href="/user-dashboard">
                           <Button 
-                            className="w-full bg-green-600 hover:bg-green-700 font-medium shadow-md" 
+                            variant="outline" 
+                            className="w-full text-white border-white hover:bg-white hover:text-red-800" 
                             onClick={() => setIsOpen(false)}
                           >
-                            Register
+                            My Dashboard
                           </Button>
                         </Link>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="bg-red-700/50 rounded-lg p-4 text-center">
-                          <div className="flex items-center justify-center mb-2">
-                            <User className="w-5 h-5 mr-2" />
-                            {isSubscribed && <Crown className="w-4 h-4 text-yellow-400 ml-1" />}
-                          </div>
-                          <p className="font-semibold text-lg">{user?.firstName || user?.username}</p>
-                          <p className="text-sm text-red-200 capitalize">{user?.role}</p>
-                          {isSubscribed && (
-                            <span className="inline-block bg-yellow-500/20 text-yellow-200 text-xs px-2 py-1 rounded-full mt-1">
-                              Premium Member
-                            </span>
-                          )}
-                        </div>
-                        
-                        {user?.role === "admin" ? (
-                          <Link href="/admin-dashboard">
-                            <Button 
-                              variant="outline" 
-                              className="w-full text-white border-white/50 hover:bg-white hover:text-red-800 font-medium" 
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <Settings className="w-4 h-4 mr-2" />
-                              Admin Dashboard
-                            </Button>
-                          </Link>
-                        ) : (
-                          <Link href="/user-dashboard">
-                            <Button 
-                              variant="outline" 
-                              className="w-full text-white border-white/50 hover:bg-white hover:text-red-800 font-medium" 
-                              onClick={() => setIsOpen(false)}
-                            >
-                              <User className="w-4 h-4 mr-2" />
-                              My Dashboard
-                            </Button>
-                          </Link>
-                        )}
-                        
-                        <Button 
-                          variant="destructive" 
-                          className="w-full font-medium" 
-                          onClick={() => {
-                            localStorage.removeItem("auth_token");
-                            localStorage.removeItem("user");
-                            window.location.href = "/";
-                            setIsOpen(false);
-                          }}
-                        >
-                          <LogOut className="w-4 h-4 mr-2" />
-                          Logout
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                      <Button 
+                        variant="destructive" 
+                        className="w-full" 
+                        onClick={() => {
+                          localStorage.removeItem("auth_token");
+                          localStorage.removeItem("user");
+                          window.location.href = "/";
+                          setIsOpen(false);
+                        }}
+                      >
+                        Logout
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
