@@ -498,12 +498,12 @@ export class DatabaseStorage implements IStorage {
 
   async removeFromCart(id: number): Promise<boolean> {
     const result = await db.delete(cartItems).where(eq(cartItems.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async clearCart(userId: number): Promise<boolean> {
     const result = await db.delete(cartItems).where(eq(cartItems.userId, userId));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Book stock operations
@@ -554,7 +554,7 @@ export class DatabaseStorage implements IStorage {
       quantity: item.quantity,
       lastUpdated: item.lastUpdated,
       updatedBy: item.updatedBy,
-      book: item.book!
+      book: item.book || {} as Book
     }));
   }
 
