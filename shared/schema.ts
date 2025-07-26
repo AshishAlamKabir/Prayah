@@ -95,7 +95,7 @@ export const books = pgTable("books", {
   pdfUrl: text("pdf_url"),
   bookType: text("book_type").notNull().default("paperback"), // paperback, pdf, both
   inStock: boolean("in_stock").default(true),
-  isbn: text("isbn"),
+  isbn: text("isbn").array(),
   publishedYear: integer("published_year"),
   subscriptionOnly: boolean("subscription_only").default(false), // Only for subscribers
   featured: boolean("featured").default(false),
