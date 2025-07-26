@@ -138,6 +138,9 @@ export default function Books() {
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{book.title}</h3>
                       <p className="text-gray-600 text-sm mb-3">
                         by {book.author}
+                        {book.contributorRole && book.contributorRole !== 'author' && (
+                          <span className="text-gray-500"> • {book.contributorRole === 'editor' ? 'Editor' : 'Author & Editor'}</span>
+                        )}
                         {book.editor && <span className="text-gray-500"> • edited by {book.editor}</span>}
                       </p>
                       <p className="text-gray-700 text-sm mb-4 line-clamp-3">{book.description}</p>

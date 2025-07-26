@@ -273,6 +273,9 @@ export default function BooksStore() {
                 <CardTitle className="text-lg line-clamp-2">{book.title}</CardTitle>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   by {book.author}
+                  {book.contributorRole && book.contributorRole !== 'author' && (
+                    <span className="text-gray-500"> • {book.contributorRole === 'editor' ? 'Editor' : 'Author & Editor'}</span>
+                  )}
                   {book.editor && <span className="text-gray-500"> • edited by {book.editor}</span>}
                 </p>
               </CardHeader>

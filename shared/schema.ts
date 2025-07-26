@@ -87,6 +87,7 @@ export const books = pgTable("books", {
   title: text("title").notNull(),
   author: text("author").notNull(),
   editor: text("editor"), // Optional editor field
+  contributorRole: text("contributor_role").default("author"), // author, editor, author-editor
   description: text("description").notNull(),
   category: text("category").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
@@ -108,6 +109,7 @@ export const publishedWorks = pgTable("published_works", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   author: text("author").notNull(),
+  contributorRole: text("contributor_role").default("author"), // author, editor, author-editor
   description: text("description").notNull(),
   type: text("type").notNull(), // article, research, manifesto, etc.
   pdfUrl: text("pdf_url"),

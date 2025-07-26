@@ -46,6 +46,7 @@ interface NewBookForm {
   title: string;
   author: string;
   editor: string;
+  contributorRole: string;
   description: string;
   category: string;
   price: number;
@@ -68,6 +69,7 @@ export default function BookManagement() {
     title: "",
     author: "",
     editor: "",
+    contributorRole: "author",
     description: "",
     category: "",
     price: 0,
@@ -111,6 +113,7 @@ export default function BookManagement() {
         title: "",
         author: "",
         editor: "",
+        contributorRole: "author",
         description: "",
         category: "",
         price: 0,
@@ -349,7 +352,24 @@ export default function BookManagement() {
                   </div>
 
                   <div>
-                    <Label htmlFor="editor">Editor</Label>
+                    <Label htmlFor="contributorRole">Your Role</Label>
+                    <Select
+                      value={newBookForm.contributorRole}
+                      onValueChange={(value) => setNewBookForm(prev => ({ ...prev, contributorRole: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="author">Author</SelectItem>
+                        <SelectItem value="editor">Editor</SelectItem>
+                        <SelectItem value="author-editor">Author & Editor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="editor">Editor Name</Label>
                     <Input
                       id="editor"
                       value={newBookForm.editor}
@@ -544,6 +564,7 @@ export default function BookManagement() {
                       title: "",
                       author: "",
                       editor: "",
+                      contributorRole: "author",
                       description: "",
                       category: "",
                       price: 0,
