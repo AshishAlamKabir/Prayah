@@ -50,7 +50,7 @@ interface NewBookForm {
   description: string;
   category: string;
   price: number;
-  isbn: string[];
+  isbn: string;
   tags: string;
   subscriptionOnly: boolean;
   featured: boolean;
@@ -73,7 +73,7 @@ export default function BookManagement() {
     description: "",
     category: "",
     price: 0,
-    isbn: [""],
+    isbn: "",
     tags: "",
     subscriptionOnly: false,
     featured: false,
@@ -117,7 +117,7 @@ export default function BookManagement() {
         description: "",
         category: "",
         price: 0,
-        isbn: [""],
+        isbn: "",
         tags: "",
         subscriptionOnly: false,
         featured: false,
@@ -197,7 +197,7 @@ export default function BookManagement() {
         ...newBookForm,
         imageUrl,
         pdfUrl,
-        isbn: newBookForm.isbn.filter(isbn => isbn.trim()),
+        isbn: newBookForm.isbn,
         tags: newBookForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
         price: parseFloat(newBookForm.price.toString()),
       };
@@ -412,45 +412,13 @@ export default function BookManagement() {
                   </div>
 
                   <div>
-                    <Label>ISBN Numbers</Label>
-                    <div className="space-y-2">
-                      {newBookForm.isbn.map((isbn, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={isbn}
-                            onChange={(e) => {
-                              const newIsbns = [...newBookForm.isbn];
-                              newIsbns[index] = e.target.value;
-                              setNewBookForm(prev => ({ ...prev, isbn: newIsbns }));
-                            }}
-                            placeholder={`Enter ISBN ${index + 1}`}
-                          />
-                          {newBookForm.isbn.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const newIsbns = newBookForm.isbn.filter((_, i) => i !== index);
-                                setNewBookForm(prev => ({ ...prev, isbn: newIsbns }));
-                              }}
-                            >
-                              Remove
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setNewBookForm(prev => ({ ...prev, isbn: [...prev.isbn, ""] }));
-                        }}
-                      >
-                        + Add Another ISBN
-                      </Button>
-                    </div>
+                    <Label htmlFor="isbn">ISBN</Label>
+                    <Input
+                      id="isbn"
+                      value={newBookForm.isbn}
+                      onChange={(e) => setNewBookForm(prev => ({ ...prev, isbn: e.target.value }))}
+                      placeholder="Enter ISBN"
+                    />
                   </div>
 
                   <div>
@@ -601,7 +569,7 @@ export default function BookManagement() {
                       description: "",
                       category: "",
                       price: 0,
-                      isbn: [""],
+                      isbn: "",
                       tags: "",
                       subscriptionOnly: false,
                       featured: false,

@@ -330,10 +330,8 @@ export default function BooksStore() {
                   </div>
                 </div>
                 
-                {book.isbn && book.isbn.length > 0 && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    ISBN: {Array.isArray(book.isbn) ? book.isbn.filter(isbn => isbn.trim()).join(', ') : book.isbn}
-                  </p>
+                {book.isbn && (
+                  <p className="text-xs text-gray-500 mt-2">ISBN: {book.isbn}</p>
                 )}
               </CardContent>
             </Card>
