@@ -40,11 +40,11 @@ export default function FineArts() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-green-600 dark:text-green-400 mb-4">
-              Fine Arts Programs
+              Prayas Chitra kala Bidyalay
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Discover our revolutionary fine arts programs where creativity meets activism,
-              using visual expression to communicate powerful messages of social change and cultural identity.
+              Visual arts academy specializing in painting, drawing, sculpture and traditional art forms.
+              Our academy nurtures creativity through various mediums while preserving cultural traditions.
             </p>
           </div>
         </div>

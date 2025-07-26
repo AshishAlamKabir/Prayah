@@ -40,11 +40,11 @@ export default function Poems() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-4">
-              Revolutionary Poetry
+              Prayas Kabya Kanan
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Express the power of words through spoken and written poetry that captures the spirit of revolution,
-              hope, love, and social transformation in the beautiful Assamese language.
+              Poetry academy dedicated to nurturing literary talents and traditional verse forms.
+              Express the power of words through spoken and written poetry that celebrates cultural heritage.
             </p>
           </div>
         </div>

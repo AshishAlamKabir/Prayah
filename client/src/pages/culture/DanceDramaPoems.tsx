@@ -35,11 +35,11 @@ export default function DanceDramaPoems() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-4">
-              Dance, Drama & Poetry
+              Prayas Satriya Nritya Kala Kendra
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Experience the power of performing arts that tell stories of revolution, hope, and social transformation
-              through movement, drama, and the spoken word.
+              Dance academy focusing on traditional Satriya dance and cultural performances.
+              Experience the grace and discipline of classical dance forms that preserve our cultural heritage.
             </p>
           </div>
         </div>

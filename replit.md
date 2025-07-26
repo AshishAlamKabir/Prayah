@@ -131,6 +131,17 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 
 ## Recent Changes
 
+### Cultural Academy Names Update (July 26, 2025)
+✓ **Updated Academy Names**: Implemented specific academy names for all cultural programs per user requirements
+✓ **Prayas Sangeet-kala Academy**: Music academy specifically focused on singing and traditional music
+✓ **Prayas Kabya Kanan**: Poetry academy dedicated to nurturing literary talents and verse forms
+✓ **Prayas Natya Bidyalay**: Drama academy for traditional and contemporary theatrical performances
+✓ **Prayas Chitra kala Bidyalay**: Fine arts academy for painting, drawing, sculpture and traditional art
+✓ **Prayas Satriya Nritya Kala Kendra**: Dance academy focusing on traditional Satriya dance forms
+✓ **Database Updates**: Updated culture_categories table with new academy names and descriptions
+✓ **Frontend Updates**: Updated all culture pages to reflect new academy names and descriptions
+✓ **New Drama Page**: Created dedicated page for Prayas Natya Bidyalay with programs and performances
+
 ### Two-Tier Authentication System Implementation (July 25, 2025)
 ✓ **Dual Account Types**: Implemented separate login flows for regular users and admin accounts
 ✓ **Regular User Account**: Created "testuser" account (testuser123) with user-level access and dashboard
