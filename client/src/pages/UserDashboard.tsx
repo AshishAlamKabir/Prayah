@@ -12,7 +12,7 @@ export default function UserDashboard() {
   const { user, isSubscribed } = useAuth();
 
   const { data: orders, isLoading: ordersLoading } = useQuery<Order[]>({
-    queryKey: ["/api/orders/my-orders"],
+    queryKey: ["/api/orders"],
     enabled: !!user,
   });
 
@@ -169,7 +169,7 @@ export default function UserDashboard() {
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600">
-                          ${order.amount} • {new Date(order.createdAt!).toLocaleDateString()}
+                          ${order.totalAmount} • {new Date(order.createdAt!).toLocaleDateString()}
                         </p>
                       </div>
                     ))}

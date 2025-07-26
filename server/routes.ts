@@ -1043,10 +1043,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: 'pending'
       };
 
+      const submission = await storage.createPublicationSubmission(submissionData);
+
       res.json({ 
         success: true, 
         message: 'Manuscript submitted successfully for review',
-        data: submissionData
+        data: submission
       });
     } catch (error) {
       console.error('Error submitting manuscript:', error);
@@ -1073,8 +1075,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const submissions: any[] = []; // Placeholder for database query
-      res.json(submissions);
+      const submissions = await storage.getPublicationSubmissions();
+      const userSubmissions = submissions.filter(s => s.userId === userId);
+      res.json(userSubmissions);
     } catch (error) {
       console.error('Error fetching user submissions:', error);
       res.status(500).json({ 
@@ -1087,7 +1090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin publication management endpoints
   app.get("/api/admin/publication-submissions", adminMiddleware, async (req, res) => {
     try {
-      const submissions: any[] = []; // Placeholder for database query
+      const submissions = await storage.getPublicationSubmissions();
       res.json(submissions);
     } catch (error) {
       console.error('Error fetching publication submissions:', error);
@@ -1103,18 +1106,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const submissionId = parseInt(req.params.id);
       const { adminNotes, publicationFee } = req.body;
 
-      // Update submission status to approved and set fee
-      const updatedSubmission = {
-        id: submissionId,
-        status: 'approved',
-        adminNotes,
-        publicationFee,
-        reviewedAt: new Date().toISOString(),
-        reviewedBy: req.user.id
-      };
+      const updatedSubmission = await storage.updatePublicationSubmissionStatus(
+        submissionId, 
+        'approved', 
+        adminNotes, 
+        parseFloat(publicationFee)
+      );
 
-      // TODO: Send email notification to author with payment link
-      
       res.json({ 
         success: true, 
         message: 'Submission approved and payment link sent to author',

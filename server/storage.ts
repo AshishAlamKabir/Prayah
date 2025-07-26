@@ -10,6 +10,7 @@ import {
   cartItems,
   bookStock,
   schoolActivities,
+  publicationSubmissions,
   type User,
   type InsertUser,
   type CommunityPost,
@@ -32,6 +33,8 @@ import {
   type InsertBookStock,
   type SchoolActivity,
   type InsertSchoolActivity,
+  type PublicationSubmission,
+  type InsertPublicationSubmission,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
@@ -107,6 +110,13 @@ export interface IStorage {
   updatePublishedWorkStatus(id: number, status: string, approvedBy?: number): Promise<PublishedWork | undefined>;
   incrementDownloadCount(id: number): Promise<void>;
   deletePublishedWork(id: number): Promise<boolean>;
+
+  // Publication submission operations
+  getPublicationSubmissions(status?: string): Promise<any[]>;
+  getPublicationSubmission(id: number): Promise<any | undefined>;
+  createPublicationSubmission(submission: any): Promise<any>;
+  updatePublicationSubmissionStatus(id: number, status: string, note?: string, fee?: number): Promise<any | undefined>;
+  deletePublicationSubmission(id: number): Promise<boolean>;
 
   // Statistics
   getStats(): Promise<{
@@ -576,6 +586,57 @@ export class DatabaseStorage implements IStorage {
       .where(eq(publishedWorks.id, id))
       .returning();
     return work || undefined;
+  }
+
+  // Publication submission operations
+  async getPublicationSubmissions(status?: string): Promise<PublicationSubmission[]> {
+    let query = db.select().from(publicationSubmissions);
+    
+    if (status) {
+      query = query.where(eq(publicationSubmissions.status, status));
+    }
+    
+    return await query;
+  }
+
+  async getPublicationSubmission(id: number): Promise<PublicationSubmission | undefined> {
+    const [submission] = await db.select().from(publicationSubmissions).where(eq(publicationSubmissions.id, id));
+    return submission || undefined;
+  }
+
+  async createPublicationSubmission(submission: InsertPublicationSubmission): Promise<PublicationSubmission> {
+    const [newSubmission] = await db
+      .insert(publicationSubmissions)
+      .values(submission)
+      .returning();
+    return newSubmission;
+  }
+
+  async updatePublicationSubmissionStatus(id: number, status: string, note?: string, fee?: number): Promise<PublicationSubmission | undefined> {
+    const updateData: any = { 
+      status, 
+      updatedAt: new Date() 
+    };
+    
+    if (note) {
+      updateData.adminNote = note;
+    }
+    
+    if (fee !== undefined) {
+      updateData.publicationFee = fee.toString();
+    }
+
+    const [submission] = await db
+      .update(publicationSubmissions)
+      .set(updateData)
+      .where(eq(publicationSubmissions.id, id))
+      .returning();
+    return submission || undefined;
+  }
+
+  async deletePublicationSubmission(id: number): Promise<boolean> {
+    const result = await db.delete(publicationSubmissions).where(eq(publicationSubmissions.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Statistics
