@@ -178,11 +178,12 @@ export default function BookManagement() {
         }
 
         const uploadResponse = await apiRequest("POST", "/api/upload", formData);
-        if (uploadResponse.coverImageUrl) {
-          imageUrl = uploadResponse.coverImageUrl;
+        const uploadData = await uploadResponse.json();
+        if (uploadData.coverImageUrl) {
+          imageUrl = uploadData.coverImageUrl;
         }
-        if (uploadResponse.pdfUrl) {
-          pdfUrl = uploadResponse.pdfUrl;
+        if (uploadData.pdfUrl) {
+          pdfUrl = uploadData.pdfUrl;
         }
       }
 

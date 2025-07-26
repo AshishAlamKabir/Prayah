@@ -10,7 +10,9 @@ import prayasLogo from "@assets/WhatsApp Image 2025-07-24 at 14.36.01_4d13e1cd_1
 export default function Header() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, isAdmin, isSubscribed, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const isSubscribed = user?.isSubscribed || false;
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -109,7 +111,11 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem onClick={logout}>
+                    <DropdownMenuItem onClick={() => {
+                    localStorage.removeItem("auth_token");
+                    localStorage.removeItem("user");
+                    window.location.href = "/";
+                  }}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Logout
                     </DropdownMenuItem>
@@ -192,7 +198,9 @@ export default function Header() {
                         variant="destructive" 
                         className="w-full" 
                         onClick={() => {
-                          logout();
+                          localStorage.removeItem("auth_token");
+                          localStorage.removeItem("user");
+                          window.location.href = "/";
                           setIsOpen(false);
                         }}
                       >

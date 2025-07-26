@@ -1,66 +1,41 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import type { User } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import { User } from "@shared/schema";
 
 export function useAuth() {
-  const queryClient = useQueryClient();
-  const [localUser, setLocalUser] = useState<User | null>(null);
-  const [isLoadingLocal, setIsLoadingLocal] = useState(true);
-
-  // Try to get user from localStorage first
-  useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        setLocalUser(JSON.parse(storedUser));
-      }
-    } catch (error) {
-      console.error("Error parsing user from localStorage:", error);
-    } finally {
-      setIsLoadingLocal(false);
-    }
-  }, []);
-  
-  const { data: serverUser, isLoading: isLoadingServer, error } = useQuery<User>({
+  const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["/api/auth/me"],
-    retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !localUser, // Only fetch if no local user
-  });
+    queryFn: async () => {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        return null;
+      }
 
-  const logout = () => {
-    // Clear local storage immediately
-    localStorage.removeItem("user");
-    localStorage.removeItem("auth_token");
-    setLocalUser(null);
-    queryClient.clear();
-    
-    // Try to logout from server (optional, won't fail if no auth)
-    try {
-      apiRequest("POST", "/api/auth/logout").catch(() => {
-        // Ignore server logout errors since we've already cleared locally
+      const response = await fetch("/api/auth/me", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        credentials: "include",
       });
-    } catch (error) {
-      // Ignore errors
-    }
-    
-    // Redirect to home
-    window.location.href = "/";
-  };
 
-  const user = localUser || serverUser;
-  const isLoading = isLoadingLocal || (isLoadingServer && !localUser);
-  const isSubscribed = user?.subscriptionExpiry ? new Date(user.subscriptionExpiry) > new Date() : false;
+      if (response.status === 401) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("user");
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user");
+      }
+
+      return response.json();
+    },
+    retry: false,
+  });
 
   return {
     user,
     isLoading,
-    error,
     isAuthenticated: !!user,
-    isSubscribed,
-    isAdmin: user?.role === "admin",
-    isSubscriber: isSubscribed,
-    logout,
+    error,
   };
 }

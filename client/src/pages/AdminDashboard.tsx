@@ -8,12 +8,13 @@ import CommunityManagement from "@/components/admin/CommunityManagement";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
+import { Stats } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [selectedTab, setSelectedTab] = useState("overview");
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ["/api/stats"],
   });
 
@@ -60,7 +61,7 @@ export default function AdminDashboard() {
                 <School className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.totalSchools || 0}</div>
+                <div className="text-2xl font-bold">{stats?.totalSchools ?? 0}</div>
               </CardContent>
             </Card>
             
@@ -70,7 +71,7 @@ export default function AdminDashboard() {
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.totalPosts || 0}</div>
+                <div className="text-2xl font-bold">{stats?.totalPosts ?? 0}</div>
               </CardContent>
             </Card>
             
@@ -80,7 +81,7 @@ export default function AdminDashboard() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.totalBooks || 0}</div>
+                <div className="text-2xl font-bold">{stats?.totalBooks ?? 0}</div>
               </CardContent>
             </Card>
             
@@ -90,7 +91,7 @@ export default function AdminDashboard() {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats?.totalMembers || 0}</div>
+                <div className="text-2xl font-bold">{stats?.totalMembers ?? 0}</div>
               </CardContent>
             </Card>
           </div>
