@@ -9,6 +9,7 @@ import {
   orders,
   cartItems,
   bookStock,
+  schoolActivities,
   type User,
   type InsertUser,
   type CommunityPost,
@@ -29,6 +30,8 @@ import {
   type InsertCartItem,
   type BookStock,
   type InsertBookStock,
+  type SchoolActivity,
+  type InsertSchoolActivity,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt } from "drizzle-orm";
@@ -78,6 +81,7 @@ export interface IStorage {
   createSchool(school: InsertSchool): Promise<School>;
   updateSchool(id: number, school: Partial<InsertSchool>): Promise<School | undefined>;
   deleteSchool(id: number): Promise<boolean>;
+  createSchoolActivity(activity: any): Promise<SchoolActivity>;
 
   // Culture category operations
   getCultureCategories(): Promise<CultureCategory[]>;
@@ -212,6 +216,31 @@ export class DatabaseStorage implements IStorage {
   async deleteSchool(id: number): Promise<boolean> {
     const result = await db.delete(schools).where(eq(schools.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async createSchoolActivity(activityData: any): Promise<SchoolActivity> {
+    const [activity] = await db
+      .insert(schoolActivities)
+      .values({
+        title: activityData.title,
+        description: activityData.description,
+        activityType: activityData.activityType,
+        schoolId: activityData.schoolId,
+        status: activityData.status,
+        startDate: activityData.startDate,
+        endDate: activityData.endDate,
+        location: activityData.location,
+        maxParticipants: activityData.maxParticipants,
+        contactPerson: activityData.contactPerson,
+        contactInfo: activityData.contactInfo,
+        attachments: activityData.attachments,
+        requirements: activityData.requirements,
+        achievements: activityData.achievements,
+        isPublic: activityData.isPublic,
+        createdBy: activityData.createdBy
+      })
+      .returning();
+    return activity;
   }
 
   // Culture category operations

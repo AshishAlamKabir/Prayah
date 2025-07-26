@@ -37,12 +37,33 @@ interface NotificationFormData {
   publishDate: string;
 }
 
+interface ActivityFormData {
+  title: string;
+  description: string;
+  activityType: string;
+  schoolId: number;
+  status: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  maxParticipants: number;
+  contactPerson: string;
+  contactInfo: {
+    phone: string;
+    email: string;
+  };
+  requirements: string;
+  achievements: string;
+  isPublic: boolean;
+}
+
 export default function SchoolManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedSchool, setSelectedSchool] = useState<number | null>(null);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [activityFiles, setActivityFiles] = useState<File[]>([]);
 
   // School form state
   const [schoolForm, setSchoolForm] = useState<SchoolFormData>({
@@ -69,6 +90,27 @@ export default function SchoolManagement() {
     schoolId: null,
     priority: "medium",
     publishDate: new Date().toISOString().split('T')[0],
+  });
+
+  // Activity form state
+  const [activityForm, setActivityForm] = useState<ActivityFormData>({
+    title: "",
+    description: "",
+    activityType: "event",
+    schoolId: 0,
+    status: "upcoming",
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: "",
+    location: "",
+    maxParticipants: 0,
+    contactPerson: "",
+    contactInfo: {
+      phone: "",
+      email: ""
+    },
+    requirements: "",
+    achievements: "",
+    isPublic: true
   });
 
   // Fetch schools
@@ -119,6 +161,27 @@ export default function SchoolManagement() {
     },
   });
 
+  // Add activity mutation
+  const addActivityMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return await apiRequest("POST", "/api/admin/school-activities", formData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Activity added successfully!",
+      });
+      resetActivityForm();
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add activity. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const resetSchoolForm = () => {
     setSchoolForm({
       name: "",
@@ -148,6 +211,29 @@ export default function SchoolManagement() {
       publishDate: new Date().toISOString().split('T')[0],
     });
     setMediaFiles([]);
+  };
+
+  const resetActivityForm = () => {
+    setActivityForm({
+      title: "",
+      description: "",
+      activityType: "event",
+      schoolId: 0,
+      status: "upcoming",
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: "",
+      location: "",
+      maxParticipants: 0,
+      contactPerson: "",
+      contactInfo: {
+        phone: "",
+        email: ""
+      },
+      requirements: "",
+      achievements: "",
+      isPublic: true
+    });
+    setActivityFiles([]);
   };
 
   const handleAddSchool = async () => {
@@ -207,6 +293,50 @@ export default function SchoolManagement() {
     addNotificationMutation.mutate(formData);
   };
 
+  const handleAddActivity = async () => {
+    if (!activityForm.title || !activityForm.description || !activityForm.schoolId) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in activity title, description, and select a school.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', activityForm.title);
+    formData.append('description', activityForm.description);
+    formData.append('activityType', activityForm.activityType);
+    formData.append('schoolId', activityForm.schoolId.toString());
+    formData.append('status', activityForm.status);
+    formData.append('startDate', activityForm.startDate);
+    if (activityForm.endDate) {
+      formData.append('endDate', activityForm.endDate);
+    }
+    if (activityForm.location) {
+      formData.append('location', activityForm.location);
+    }
+    formData.append('maxParticipants', activityForm.maxParticipants.toString());
+    if (activityForm.contactPerson) {
+      formData.append('contactPerson', activityForm.contactPerson);
+    }
+    formData.append('contactInfo', JSON.stringify(activityForm.contactInfo));
+    if (activityForm.requirements) {
+      formData.append('requirements', activityForm.requirements);
+    }
+    if (activityForm.achievements) {
+      formData.append('achievements', activityForm.achievements);
+    }
+    formData.append('isPublic', activityForm.isPublic.toString());
+
+    // Add activity files
+    activityFiles.forEach((file, index) => {
+      formData.append(`activityFile_${index}`, file);
+    });
+
+    addActivityMutation.mutate(formData);
+  };
+
   const handleFileUpload = (files: FileList | null) => {
     if (files) {
       const newFiles = Array.from(files);
@@ -216,6 +346,42 @@ export default function SchoolManagement() {
 
   const removeFile = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeActivityFile = (index: number) => {
+    setActivityFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleActivityFileUpload = (files: FileList | null) => {
+    if (!files) return;
+    
+    const validFiles = Array.from(files).filter(file => {
+      const validTypes = ['image/', 'video/', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const isValidType = validTypes.some(type => file.type.startsWith(type));
+      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB limit
+      
+      if (!isValidType) {
+        toast({
+          title: "Invalid file type",
+          description: `${file.name} is not a supported file type.`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      if (!isValidSize) {
+        toast({
+          title: "File too large",
+          description: `${file.name} exceeds the 50MB size limit.`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setActivityFiles(prev => [...prev, ...validFiles]);
   };
 
   return (
@@ -228,10 +394,11 @@ export default function SchoolManagement() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="add-school">Add School</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="activities">Activities</TabsTrigger>
           <TabsTrigger value="media">Media Gallery</TabsTrigger>
         </TabsList>
 
@@ -648,6 +815,302 @@ export default function SchoolManagement() {
                   {addNotificationMutation.isPending ? "Publishing..." : "Publish Notification"}
                 </Button>
                 <Button variant="outline" onClick={resetNotificationForm}>
+                  Clear Form
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activities" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-green-600" />
+                Add School Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="activityTitle">Activity Title *</Label>
+                    <Input
+                      id="activityTitle"
+                      value={activityForm.title}
+                      onChange={(e) => setActivityForm(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Enter activity title"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="activityType">Activity Type</Label>
+                    <Select
+                      value={activityForm.activityType}
+                      onValueChange={(value) => setActivityForm(prev => ({ ...prev, activityType: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select activity type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="event">Cultural Event</SelectItem>
+                        <SelectItem value="program">Educational Program</SelectItem>
+                        <SelectItem value="achievement">Achievement/Award</SelectItem>
+                        <SelectItem value="competition">Competition</SelectItem>
+                        <SelectItem value="workshop">Workshop/Training</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="activitySchool">Target School *</Label>
+                    <Select
+                      value={activityForm.schoolId.toString()}
+                      onValueChange={(value) => setActivityForm(prev => ({ ...prev, schoolId: parseInt(value) }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select school" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.isArray(schools) ? schools.map((school: any) => (
+                          <SelectItem key={school.id} value={school.id.toString()}>
+                            {school.name}
+                          </SelectItem>
+                        )) : null}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="activityStatus">Status</Label>
+                    <Select
+                      value={activityForm.status}
+                      onValueChange={(value) => setActivityForm(prev => ({ ...prev, status: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="startDate">Start Date *</Label>
+                      <Input
+                        id="startDate"
+                        type="date"
+                        value={activityForm.startDate}
+                        onChange={(e) => setActivityForm(prev => ({ ...prev, startDate: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="endDate">End Date</Label>
+                      <Input
+                        id="endDate"
+                        type="date"
+                        value={activityForm.endDate}
+                        onChange={(e) => setActivityForm(prev => ({ ...prev, endDate: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={activityForm.location}
+                      onChange={(e) => setActivityForm(prev => ({ ...prev, location: e.target.value }))}
+                      placeholder="Event location"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maxParticipants">Max Participants</Label>
+                    <Input
+                      id="maxParticipants"
+                      type="number"
+                      value={activityForm.maxParticipants}
+                      onChange={(e) => setActivityForm(prev => ({ ...prev, maxParticipants: parseInt(e.target.value) || 0 }))}
+                      placeholder="Maximum participants"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="contactPerson">Contact Person</Label>
+                    <Input
+                      id="contactPerson"
+                      value={activityForm.contactPerson}
+                      onChange={(e) => setActivityForm(prev => ({ ...prev, contactPerson: e.target.value }))}
+                      placeholder="Contact person name"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="contactPhone">Contact Phone</Label>
+                      <Input
+                        id="contactPhone"
+                        value={activityForm.contactInfo.phone}
+                        onChange={(e) => setActivityForm(prev => ({ 
+                          ...prev, 
+                          contactInfo: { ...prev.contactInfo, phone: e.target.value }
+                        }))}
+                        placeholder="Phone number"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="contactEmail">Contact Email</Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={activityForm.contactInfo.email}
+                        onChange={(e) => setActivityForm(prev => ({ 
+                          ...prev, 
+                          contactInfo: { ...prev.contactInfo, email: e.target.value }
+                        }))}
+                        placeholder="Email address"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="activityDescription">Description *</Label>
+                <Textarea
+                  id="activityDescription"
+                  value={activityForm.description}
+                  onChange={(e) => setActivityForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe the activity in detail"
+                  rows={4}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="requirements">Requirements/Prerequisites</Label>
+                  <Textarea
+                    id="requirements"
+                    value={activityForm.requirements}
+                    onChange={(e) => setActivityForm(prev => ({ ...prev, requirements: e.target.value }))}
+                    placeholder="Any requirements or prerequisites"
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="achievements">Achievements/Awards</Label>
+                  <Textarea
+                    id="achievements"
+                    value={activityForm.achievements}
+                    onChange={(e) => setActivityForm(prev => ({ ...prev, achievements: e.target.value }))}
+                    placeholder="Awards, recognitions, or outcomes"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Activity Attachments</Label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
+                  <div className="text-center">
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">Upload Activity Files</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Add photos, documents, certificates, or other relevant files
+                    </p>
+                    <div className="space-y-2 mb-4">
+                      <p className="text-xs text-gray-500">
+                        Supported: Images, Documents, Videos • Max 50MB per file
+                      </p>
+                    </div>
+                    <Input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+                      onChange={(e) => handleActivityFileUpload(e.target.files)}
+                      className="max-w-xs mx-auto"
+                    />
+                  </div>
+                </div>
+                
+                {activityFiles.length > 0 && (
+                  <div className="mt-4">
+                    <Label className="text-sm font-medium">Attached Files ({activityFiles.length})</Label>
+                    <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                      {activityFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0">
+                              {file.type.startsWith('image/') && (
+                                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <Image className="w-4 h-4 text-blue-600" />
+                                </div>
+                              )}
+                              {file.type.startsWith('video/') && (
+                                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                  <Video className="w-4 h-4 text-purple-600" />
+                                </div>
+                              )}
+                              {file.type.includes('pdf') && (
+                                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                  <FileText className="w-4 h-4 text-red-600" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                              <p className="text-xs text-gray-500">
+                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeActivityFile(index)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isPublic"
+                    checked={activityForm.isPublic}
+                    onChange={(e) => setActivityForm(prev => ({ ...prev, isPublic: e.target.checked }))}
+                    className="rounded"
+                  />
+                  <Label htmlFor="isPublic" className="text-sm">
+                    Make this activity publicly visible
+                  </Label>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  onClick={handleAddActivity}
+                  disabled={addActivityMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {addActivityMutation.isPending ? "Adding..." : "Add Activity"}
+                </Button>
+                <Button variant="outline" onClick={resetActivityForm}>
                   Clear Form
                 </Button>
               </div>

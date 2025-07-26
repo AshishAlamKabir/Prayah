@@ -785,6 +785,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route to create school activities
+  app.post("/api/admin/school-activities", adminMiddleware, upload.array('activityFiles'), async (req, res) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      const attachments = files ? files.map(file => ({
+        originalName: file.originalname,
+        filename: file.filename,
+        path: file.path,
+        mimetype: file.mimetype,
+        size: file.size
+      })) : [];
+
+      const activityData = {
+        title: req.body.title,
+        description: req.body.description,
+        activityType: req.body.activityType,
+        schoolId: parseInt(req.body.schoolId),
+        status: req.body.status,
+        startDate: new Date(req.body.startDate),
+        endDate: req.body.endDate ? new Date(req.body.endDate) : null,
+        location: req.body.location || null,
+        maxParticipants: parseInt(req.body.maxParticipants) || 0,
+        contactPerson: req.body.contactPerson || null,
+        contactInfo: req.body.contactInfo ? JSON.parse(req.body.contactInfo) : {},
+        attachments: attachments,
+        requirements: req.body.requirements || null,
+        achievements: req.body.achievements || null,
+        isPublic: req.body.isPublic === 'true',
+        createdBy: req.user.id
+      };
+
+      await storage.createSchoolActivity(activityData);
+      res.json({ success: true, message: "Activity created successfully" });
+    } catch (error) {
+      console.error("Error creating school activity:", error);
+      res.status(500).json({ message: "Error creating activity" });
+    }
+  });
+
   app.post("/api/admin/school-notifications", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
     try {
       const {

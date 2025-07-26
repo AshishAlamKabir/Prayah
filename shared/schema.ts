@@ -248,6 +248,37 @@ export const insertSchoolNotificationSchema = createInsertSchema(schoolNotificat
   updatedAt: true,
 });
 
+// School activities table for tracking events, programs, and achievements
+export const schoolActivities = pgTable("school_activities", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  activityType: text("activity_type").notNull().default("event"), // event, program, achievement, competition, workshop
+  schoolId: integer("school_id").notNull(),
+  status: text("status").notNull().default("upcoming"), // upcoming, ongoing, completed, cancelled
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  location: text("location"),
+  maxParticipants: integer("max_participants"),
+  currentParticipants: integer("current_participants").default(0),
+  contactPerson: text("contact_person"),
+  contactInfo: jsonb("contact_info").default({}), // {phone, email}
+  attachments: jsonb("attachments").default([]), // Array of uploaded files
+  requirements: text("requirements"), // Prerequisites or requirements
+  achievements: text("achievements"), // Awards or recognition received
+  isPublic: boolean("is_public").default(true),
+  createdBy: integer("created_by").notNull(), // admin user id
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSchoolActivitySchema = createInsertSchema(schoolActivities).omit({
+  id: true,
+  currentParticipants: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Culture programs table for enhanced program management
 export const culturePrograms = pgTable("culture_programs", {
   id: serial("id").primaryKey(),
@@ -303,6 +334,8 @@ export const insertCultureActivitySchema = createInsertSchema(cultureActivities)
 
 // Types
 export type User = typeof users.$inferSelect;
+export type SchoolActivity = typeof schoolActivities.$inferSelect;
+export type InsertSchoolActivity = typeof insertSchoolActivitySchema._type;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type CommunityPost = typeof communityPosts.$inferSelect;
 export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;
