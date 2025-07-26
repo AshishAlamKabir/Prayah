@@ -14,7 +14,8 @@ import {
   insertUserSchema,
   insertOrderSchema,
   insertCartItemSchema,
-  insertBookStockSchema
+  insertBookStockSchema,
+  insertSchoolNotificationSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -727,6 +728,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating subscription:", error);
       res.status(500).json({ message: "Failed to create subscription" });
+    }
+  });
+
+  // Admin school management endpoints
+  app.post("/api/admin/schools", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+    try {
+      const {
+        name,
+        location,
+        description,
+        contactInfo,
+        establishedYear,
+        studentCount,
+        teacherCount,
+        programs,
+        facilities
+      } = req.body;
+
+      // Process media files
+      const mediaFiles = req.files ? (req.files as Express.Multer.File[]).map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        path: `/uploads/${file.filename}`
+      })) : [];
+
+      const schoolData = {
+        name,
+        location,
+        description,
+        contactInfo: JSON.parse(contactInfo || '{}'),
+        establishedYear: parseInt(establishedYear) || new Date().getFullYear(),
+        studentCount: parseInt(studentCount) || 0,
+        teacherCount: parseInt(teacherCount) || 0,
+        programs: programs ? JSON.parse(programs) : [],
+        facilities: facilities ? JSON.parse(facilities) : [],
+        mediaFiles
+      };
+
+      res.json({ 
+        success: true, 
+        message: 'School created successfully',
+        data: schoolData
+      });
+    } catch (error) {
+      console.error('Error creating school:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to create school' 
+      });
+    }
+  });
+
+  app.post("/api/admin/school-notifications", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+    try {
+      const {
+        title,
+        content,
+        type,
+        schoolId,
+        priority,
+        publishDate
+      } = req.body;
+
+      // Process media files
+      const mediaFiles = req.files ? (req.files as Express.Multer.File[]).map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        path: `/uploads/${file.filename}`
+      })) : [];
+
+      const notificationData = {
+        title,
+        content,
+        type,
+        schoolId: schoolId ? parseInt(schoolId) : null,
+        priority,
+        publishDate,
+        mediaFiles,
+        createdBy: req.user.id,
+        createdAt: new Date().toISOString()
+      };
+
+      res.json({ 
+        success: true, 
+        message: 'Notification published successfully',
+        data: notificationData
+      });
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to publish notification' 
+      });
+    }
+  });
+
+  app.get("/api/admin/school-notifications", adminMiddleware, async (req, res) => {
+    try {
+      const notifications = []; // Placeholder for database query
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch notifications' 
+      });
     }
   });
 

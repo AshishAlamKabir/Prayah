@@ -6,6 +6,7 @@ import { Users, FileText, BarChart3, BookOpen, School, Palette, ShoppingBag } fr
 import BookManagement from "@/components/admin/BookManagement";
 import OrderManagement from "@/components/admin/OrderManagement";
 import CommunityManagement from "@/components/admin/CommunityManagement";
+import SchoolManagement from "@/components/admin/SchoolManagement";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -102,11 +103,12 @@ export default function AdminDashboard() {
 
           {/* Admin Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="publications">Community</TabsTrigger>
               <TabsTrigger value="books">Books</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
+              <TabsTrigger value="school-management">Schools</TabsTrigger>
               <TabsTrigger value="content">Content</TabsTrigger>
             </TabsList>
 
@@ -155,7 +157,7 @@ export default function AdminDashboard() {
                       
                       <button 
                         className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
-                        onClick={() => setSelectedTab("content")}
+                        onClick={() => setSelectedTab("school-management")}
                       >
                         <School className="h-6 w-6 mb-2" />
                         Manage Schools
@@ -184,6 +186,10 @@ export default function AdminDashboard() {
 
             <TabsContent value="orders" className="space-y-6">
               <OrderManagement />
+            </TabsContent>
+
+            <TabsContent value="school-management" className="space-y-6">
+              <SchoolManagement />
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">
@@ -224,26 +230,26 @@ export default function AdminDashboard() {
                           {activeSchoolAction === 'add' && (
                             <div>
                               <h4 className="font-semibold text-blue-900 mb-2">Add New School</h4>
-                              <p className="text-blue-700 text-sm mb-3">School management functionality is available. Use the form below to add new schools to the platform.</p>
+                              <p className="text-blue-700 text-sm mb-3">Access the comprehensive school management system with media upload capabilities.</p>
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => toast({ title: "Feature Available", description: "Navigate to the Schools section to add and manage schools." })}
+                                onClick={() => setSelectedTab("school-management")}
                               >
-                                Go to School Management
+                                Open School Management
                               </Button>
                             </div>
                           )}
                           {activeSchoolAction === 'manage' && (
                             <div>
                               <h4 className="font-semibold text-blue-900 mb-2">Manage Existing Schools</h4>
-                              <p className="text-blue-700 text-sm mb-3">You can view and update existing school information, upload media, and manage programs.</p>
+                              <p className="text-blue-700 text-sm mb-3">View, edit, and add notifications with media uploads for existing schools.</p>
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => toast({ title: "Feature Available", description: "Navigate to the Schools section to manage existing schools." })}
+                                onClick={() => setSelectedTab("school-management")}
                               >
-                                View All Schools
+                                Open School Management
                               </Button>
                             </div>
                           )}

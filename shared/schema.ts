@@ -224,6 +224,30 @@ export const insertBookStockSchema = createInsertSchema(bookStock).omit({
   lastUpdated: true,
 });
 
+// School notifications table
+export const schoolNotifications = pgTable("school_notifications", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  type: text("type").notNull().default("announcement"), // announcement, event, admission, examination, holiday, activity
+  schoolId: integer("school_id"), // null means all schools
+  priority: text("priority").notNull().default("medium"), // low, medium, high, urgent
+  mediaFiles: jsonb("media_files").default([]), // Array of uploaded media files
+  publishDate: timestamp("publish_date").notNull(),
+  isActive: boolean("is_active").default(true),
+  views: integer("views").default(0),
+  createdBy: integer("created_by").notNull(), // admin user id
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSchoolNotificationSchema = createInsertSchema(schoolNotifications).omit({
+  id: true,
+  views: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -253,6 +277,9 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 
 export type BookStock = typeof bookStock.$inferSelect;
 export type InsertBookStock = z.infer<typeof insertBookStockSchema>;
+
+export type SchoolNotification = typeof schoolNotifications.$inferSelect;
+export type InsertSchoolNotification = z.infer<typeof insertSchoolNotificationSchema>;
 
 // Stats type
 export interface Stats {
