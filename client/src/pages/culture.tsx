@@ -71,113 +71,61 @@ export default function Culture() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
-                {/* Music Category */}
-                <Link href="/culture/music">
-                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="text-red-800 text-3xl mb-4">🎵</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Music Programs</h3>
-                    <p className="text-gray-600 text-sm mb-4">Revolutionary music programs that blend traditional folk music with modern expression</p>
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">• Traditional Folk Music</p>
-                        <p className="text-xs text-gray-600">• Revolutionary Songs Workshop</p>
-                        <p className="text-xs text-gray-600">• Community Choir</p>
-                      </div>
-                    </div>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                      Learn More
-                    </Button>
-                  </Card>
-                </Link>
-                
-                {/* Fine Arts Category */}
-                <Link href="/culture/fine-arts">
-                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="flex justify-center mb-4">
-                      <img 
-                        src={fineArtsLogo} 
-                        alt="Fine Arts Logo"
-                        className="w-12 h-12 object-contain"
-                      />
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Fine Arts Programs</h3>
-                    <p className="text-gray-600 text-sm mb-4">Visual arts programs where creativity meets activism</p>
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">• Traditional Manuscript Painting</p>
-                        <p className="text-xs text-gray-600">• Social Justice Murals</p>
-                        <p className="text-xs text-gray-600">• Digital Art for Change</p>
-                      </div>
-                    </div>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                      Learn More
-                    </Button>
-                  </Card>
-                </Link>
-                
-                {/* Dance Category */}
-                <Link href="/culture/dance">
-                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="text-red-800 text-3xl mb-4">💃</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Dance Programs</h3>
-                    <p className="text-gray-600 text-sm mb-4">Traditional Assamese dance forms celebrating our cultural heritage</p>
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">• Bihu Dance</p>
-                        <p className="text-xs text-gray-600">• Sattriya Classical Dance</p>
-                        <p className="text-xs text-gray-600">• Folk Dance Forms</p>
-                      </div>
-                    </div>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                      Learn More
-                    </Button>
-                  </Card>
-                </Link>
-                
-                {/* Drama Category */}
-                <Link href="/culture/drama">
-                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="text-red-800 text-3xl mb-4">🎭</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Drama Programs</h3>
-                    <p className="text-gray-600 text-sm mb-4">Revolutionary theater that addresses social issues and inspires change</p>
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">• Revolutionary Theater</p>
-                        <p className="text-xs text-gray-600">• Community Drama Workshop</p>
-                        <p className="text-xs text-gray-600">• Social Justice Plays</p>
-                      </div>
-                    </div>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                      Learn More
-                    </Button>
-                  </Card>
-                </Link>
-                
-                {/* Poetry Category */}
-                <Link href="/culture/poems">
-                  <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                    <div className="text-red-800 text-3xl mb-4">📖</div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Poetry Programs</h3>
-                    <p className="text-gray-600 text-sm mb-4">Spoken word and written poetry expressing revolutionary ideas</p>
-                    <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
-                      <div className="space-y-1">
-                        <p className="text-xs text-gray-600">• Spoken Word Poetry</p>
-                        <p className="text-xs text-gray-600">• Poetry Writing Workshop</p>
-                        <p className="text-xs text-gray-600">• Open Mic Nights</p>
-                      </div>
-                    </div>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                      Learn More
-                    </Button>
-                  </Card>
-                </Link>
-                
+                {categories?.map((category) => {
+                  const getRouteLink = (name: string) => {
+                    if (name.toLowerCase().includes('music')) return '/culture/music';
+                    if (name.toLowerCase().includes('fine arts')) return '/culture/fine-arts';
+                    if (name.toLowerCase().includes('dance')) return '/culture/dance-drama-poems';
+                    if (name.toLowerCase().includes('poetry')) return '/culture/poems';
+                    if (name.toLowerCase().includes('drama')) return '/culture/drama';
+                    return '/culture';
+                  };
 
+                  const getIcon = (name: string) => {
+                    if (name.toLowerCase().includes('music')) return '🎵';
+                    if (name.toLowerCase().includes('fine arts')) return <img src={fineArtsLogo} alt="Fine Arts" className="w-12 h-12 object-contain" />;
+                    if (name.toLowerCase().includes('dance')) return '💃';
+                    if (name.toLowerCase().includes('poetry')) return '📖';
+                    if (name.toLowerCase().includes('drama')) return '🎭';
+                    return '🎨';
+                  };
+
+                  const getPrograms = (name: string) => {
+                    if (name.toLowerCase().includes('music')) return ['Traditional Folk Music', 'Vocal Training', 'Instrumental Music'];
+                    if (name.toLowerCase().includes('fine arts')) return ['Painting Workshop', 'Traditional Art Forms', 'Sculpture & Clay Work'];
+                    if (name.toLowerCase().includes('dance')) return ['Bihu Dance', 'Satriya Classical Dance', 'Folk Dance Forms'];
+                    if (name.toLowerCase().includes('poetry')) return ['Poetry Composition', 'Literary Reading', 'Poetry Recitation'];
+                    if (name.toLowerCase().includes('drama')) return ['Acting Workshop', 'Script Writing', 'Stage Production'];
+                    return [];
+                  };
+
+                  return (
+                    <Link key={category.id} href={getRouteLink(category.name)}>
+                      <Card className="revolutionary-card bg-white p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                        <div className="text-red-800 text-3xl mb-4 flex justify-center">
+                          {typeof getIcon(category.name) === 'string' ? (
+                            <span>{getIcon(category.name)}</span>
+                          ) : (
+                            getIcon(category.name)
+                          )}
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-3">{category.name}</h3>
+                        <p className="text-gray-600 text-sm mb-4">{category.description}</p>
+                        <div className="mb-4">
+                          <h4 className="text-sm font-medium text-gray-900 mb-2">Current Programs:</h4>
+                          <div className="space-y-1">
+                            {getPrograms(category.name).map((program, index) => (
+                              <p key={index} className="text-xs text-gray-600">• {program}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                          Learn More
+                        </Button>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Featured Programs Section */}
