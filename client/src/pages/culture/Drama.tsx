@@ -62,7 +62,7 @@ export default function Drama() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-4">
-              Drama Academy
+              Prayas Natya Bidyalay
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Drama and theater programs for stage performance and acting.

@@ -131,16 +131,16 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 
 ## Recent Changes
 
-### Cultural Academy Names Simplification (July 26, 2025)
-✓ **Simplified Academy Names**: Changed complex academy names to simple, clear titles per user request
-✓ **Music Academy**: Traditional and contemporary music programs with focus on singing and instruments
-✓ **Poetry Academy**: Poetry and literature programs for nurturing literary talents and traditional verse forms
-✓ **Drama Academy**: Drama and theater programs for stage performance and acting
-✓ **Fine Arts Academy**: Visual arts programs including painting, drawing, sculpture and traditional art forms
-✓ **Dance Academy**: Classical and folk dance programs including traditional Satriya dance
-✓ **Database Updates**: Updated culture_categories table with simplified names and descriptions
-✓ **Frontend Updates**: Updated all culture pages to reflect simplified academy names
-✓ **Dedicated Pages**: All five academies now have individual pages with specific programs and content
+### Cultural Academy Names Update (July 26, 2025)
+✓ **Traditional Academy Names**: Updated to specific traditional names per user requirements
+✓ **Prayas Sangeet-kala**: Music academy for traditional and contemporary music programs
+✓ **Prayas Kabya Kanan**: Poetry academy for literature and traditional verse forms
+✓ **Prayas Natya Bidyalay**: Drama academy for theater and stage performance
+✓ **Prayas Chitra Kala Bidyalay**: Fine arts academy for visual arts and traditional art forms
+✓ **Prayas Satriya Nritya Kala Kendra**: Dance academy for classical and folk dance including Satriya
+✓ **Database Updates**: Updated culture_categories table with traditional academy names
+✓ **Frontend Updates**: Updated all individual academy pages to display traditional names
+✓ **Dynamic Content**: Main culture page now uses database content to display updated names
 
 ### Two-Tier Authentication System Implementation (July 25, 2025)
 ✓ **Dual Account Types**: Implemented separate login flows for regular users and admin accounts
