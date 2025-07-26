@@ -143,6 +143,8 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 ✓ **Admin Actions**: Approve/reject submissions with custom notes and publication fee setting
 ✓ **User Dashboard Integration**: Authors can track their submission status and payment requirements
 ✓ **UI Error Fixes**: Resolved SelectItem validation errors and improved console error handling
+✓ **Mobile Navigation**: Enhanced mobile menu visibility with better contrast and responsive design
+✓ **Login Improvements**: Enhanced admin login flow with better auth state management and removed credential display
 
 ### Comprehensive Cultural Program Management System (July 26, 2025)
 ✓ **Complete Culture Management Interface**: Built comprehensive admin interface with 4 main sections (Overview, Add Program, Activities, Social Media)

@@ -126,7 +126,7 @@ export default function Login() {
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center space-y-2">
+          <div className="mt-4 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Don't have an account?{" "}
               <button
@@ -136,11 +136,6 @@ export default function Login() {
                 Sign up
               </button>
             </p>
-            <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-              <p><strong>Admin Login:</strong></p>
-              <p>Username: Prayasadmin</p>
-              <p>Password: Prayas2025!</p>
-            </div>
           </div>
         </CardContent>
       </Card>
