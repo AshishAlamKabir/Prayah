@@ -17,7 +17,8 @@ import {
   insertBookStockSchema,
   insertSchoolNotificationSchema,
   insertCultureProgramSchema,
-  insertCultureActivitySchema
+  insertCultureActivitySchema,
+  insertPublicationSubmissionSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -971,6 +972,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: 'Failed to fetch culture activities' 
+      });
+    }
+  });
+
+  // Book publication submission endpoints
+  app.post("/api/publication-submissions", (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    next();
+  }, upload.single('pdfFile'), async (req, res) => {
+    try {
+      const { title, author, email, category, description } = req.body;
+
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'PDF file is required' 
+        });
+      }
+
+      const submissionData = {
+        userId: req.user.id,
+        title,
+        author,
+        email,
+        category,
+        description,
+        pdfUrl: `/uploads/${req.file.filename}`,
+        status: 'pending'
+      };
+
+      res.json({ 
+        success: true, 
+        message: 'Manuscript submitted successfully for review',
+        data: submissionData
+      });
+    } catch (error) {
+      console.error('Error submitting manuscript:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to submit manuscript' 
+      });
+    }
+  });
+
+  app.get("/api/publication-submissions/:userId", (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    next();
+  }, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      if (req.user.id !== userId && req.user.role !== 'admin') {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Access denied' 
+        });
+      }
+
+      const submissions = []; // Placeholder for database query
+      res.json(submissions);
+    } catch (error) {
+      console.error('Error fetching user submissions:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch submissions' 
+      });
+    }
+  });
+
+  // Admin publication management endpoints
+  app.get("/api/admin/publication-submissions", adminMiddleware, async (req, res) => {
+    try {
+      const submissions = []; // Placeholder for database query
+      res.json(submissions);
+    } catch (error) {
+      console.error('Error fetching publication submissions:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch publication submissions' 
+      });
+    }
+  });
+
+  app.patch("/api/admin/publication-submissions/:id/approve", adminMiddleware, async (req, res) => {
+    try {
+      const submissionId = parseInt(req.params.id);
+      const { adminNotes, publicationFee } = req.body;
+
+      // Update submission status to approved and set fee
+      const updatedSubmission = {
+        id: submissionId,
+        status: 'approved',
+        adminNotes,
+        publicationFee,
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: req.user.id
+      };
+
+      // TODO: Send email notification to author with payment link
+      
+      res.json({ 
+        success: true, 
+        message: 'Submission approved and payment link sent to author',
+        data: updatedSubmission
+      });
+    } catch (error) {
+      console.error('Error approving submission:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to approve submission' 
+      });
+    }
+  });
+
+  app.patch("/api/admin/publication-submissions/:id/reject", adminMiddleware, async (req, res) => {
+    try {
+      const submissionId = parseInt(req.params.id);
+      const { adminNotes } = req.body;
+
+      const updatedSubmission = {
+        id: submissionId,
+        status: 'rejected',
+        adminNotes,
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: req.user.id
+      };
+
+      // TODO: Send email notification to author
+      
+      res.json({ 
+        success: true, 
+        message: 'Submission rejected and author notified',
+        data: updatedSubmission
+      });
+    } catch (error) {
+      console.error('Error rejecting submission:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to reject submission' 
       });
     }
   });

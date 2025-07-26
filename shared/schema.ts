@@ -340,6 +340,42 @@ export type InsertCultureProgram = z.infer<typeof insertCultureProgramSchema>;
 export type CultureActivity = typeof cultureActivities.$inferSelect;
 export type InsertCultureActivity = z.infer<typeof insertCultureActivitySchema>;
 
+// Publication submissions table for manuscript review and publication workflow
+export const publicationSubmissions = pgTable("publication_submissions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  title: text("title").notNull(),
+  author: text("author").notNull(),
+  email: text("email").notNull(),
+  category: text("category").notNull(), // fiction, non-fiction, poetry, academic, etc.
+  description: text("description").notNull(),
+  pdfUrl: text("pdf_url").notNull(), // Path to uploaded manuscript PDF
+  status: text("status").notNull().default("pending"), // pending, approved, rejected, payment_pending, published
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewedBy: integer("reviewed_by"), // admin user id
+  adminNotes: text("admin_notes"), // Review feedback or rejection reason
+  publicationFee: decimal("publication_fee", { precision: 10, scale: 2 }), // Fee amount if approved
+  paymentStatus: text("payment_status").default("pending"), // pending, completed, failed
+  paymentId: text("payment_id"), // Stripe payment intent ID
+  publishedAt: timestamp("published_at"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPublicationSubmissionSchema = createInsertSchema(publicationSubmissions).omit({
+  id: true,
+  submittedAt: true,
+  reviewedAt: true,
+  publishedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PublicationSubmission = typeof publicationSubmissions.$inferSelect;
+export type InsertPublicationSubmission = z.infer<typeof insertPublicationSubmissionSchema>;
+
 // Stats type
 export interface Stats {
   totalSchools: number;

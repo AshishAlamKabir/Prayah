@@ -8,6 +8,7 @@ import OrderManagement from "@/components/admin/OrderManagement";
 import CommunityManagement from "@/components/admin/CommunityManagement";
 import SchoolManagement from "@/components/admin/SchoolManagement";
 import CultureManagement from "@/components/admin/CultureManagement";
+import PublicationManagement from "@/components/admin/PublicationManagement";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -104,9 +105,10 @@ export default function AdminDashboard() {
 
           {/* Admin Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="publications">Community</TabsTrigger>
+              <TabsTrigger value="manuscript-review">Publications</TabsTrigger>
               <TabsTrigger value="books">Books</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
               <TabsTrigger value="school-management">Schools</TabsTrigger>
@@ -140,7 +142,7 @@ export default function AdminDashboard() {
                     <CardTitle>Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <button 
                         className="h-20 flex flex-col items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded"
                         onClick={() => setSelectedTab("books")}
@@ -159,6 +161,14 @@ export default function AdminDashboard() {
                       
                       <button 
                         className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
+                        onClick={() => setSelectedTab("manuscript-review")}
+                      >
+                        <BookOpen className="h-6 w-6 mb-2" />
+                        Publication Review
+                      </button>
+                      
+                      <button 
+                        className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
                         onClick={() => setSelectedTab("school-management")}
                       >
                         <School className="h-6 w-6 mb-2" />
@@ -171,6 +181,14 @@ export default function AdminDashboard() {
                       >
                         <Palette className="h-6 w-6 mb-2" />
                         Culture Programs
+                      </button>
+                      
+                      <button 
+                        className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
+                        onClick={() => setSelectedTab("content")}
+                      >
+                        <BarChart3 className="h-6 w-6 mb-2" />
+                        View Analytics
                       </button>
                     </div>
                   </CardContent>
@@ -196,6 +214,10 @@ export default function AdminDashboard() {
 
             <TabsContent value="culture-management" className="space-y-6">
               <CultureManagement />
+            </TabsContent>
+
+            <TabsContent value="manuscript-review" className="space-y-6">
+              <PublicationManagement />
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">
