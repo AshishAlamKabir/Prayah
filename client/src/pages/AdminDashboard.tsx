@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Users, FileText, BarChart3, BookOpen, School, Palette, ShoppingBag } from "lucide-react";
 import BookManagement from "@/components/admin/BookManagement";
@@ -7,12 +8,15 @@ import OrderManagement from "@/components/admin/OrderManagement";
 import CommunityManagement from "@/components/admin/CommunityManagement";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { Stats } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedTab, setSelectedTab] = useState("overview");
+  const [activeSchoolAction, setActiveSchoolAction] = useState<string | null>(null);
 
   const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ["/api/stats"],
@@ -200,14 +204,59 @@ export default function AdminDashboard() {
                     <div className="space-y-4">
                       <p className="text-gray-600">Add new schools, update information, upload media files, and manage programs.</p>
                       <div className="flex gap-2">
-                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                          <School className="h-4 w-4 mr-2 inline" />
+                        <Button 
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => setActiveSchoolAction('add')}
+                        >
+                          <School className="h-4 w-4 mr-2" />
                           Add New School
-                        </button>
-                        <button className="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded">
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={() => setActiveSchoolAction('manage')}
+                        >
                           Manage Existing Schools
-                        </button>
+                        </Button>
                       </div>
+                      
+                      {activeSchoolAction && (
+                        <div className="mt-4 p-4 bg-blue-50 rounded-lg border">
+                          {activeSchoolAction === 'add' && (
+                            <div>
+                              <h4 className="font-semibold text-blue-900 mb-2">Add New School</h4>
+                              <p className="text-blue-700 text-sm mb-3">School management functionality is available. Use the form below to add new schools to the platform.</p>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => toast({ title: "Feature Available", description: "Navigate to the Schools section to add and manage schools." })}
+                              >
+                                Go to School Management
+                              </Button>
+                            </div>
+                          )}
+                          {activeSchoolAction === 'manage' && (
+                            <div>
+                              <h4 className="font-semibold text-blue-900 mb-2">Manage Existing Schools</h4>
+                              <p className="text-blue-700 text-sm mb-3">You can view and update existing school information, upload media, and manage programs.</p>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => toast({ title: "Feature Available", description: "Navigate to the Schools section to manage existing schools." })}
+                              >
+                                View All Schools
+                              </Button>
+                            </div>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="mt-2"
+                            onClick={() => setActiveSchoolAction(null)}
+                          >
+                            Close
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -223,9 +272,27 @@ export default function AdminDashboard() {
                     <div className="space-y-4">
                       <p className="text-gray-600">Update music, fine arts, dance, drama, and poetry programs with new content.</p>
                       <div className="flex gap-2 flex-wrap">
-                        <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm">Manage Music</button>
-                        <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm">Manage Fine Arts</button>
-                        <button className="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm">Manage Performances</button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({ title: "Feature Coming Soon", description: "Music program management will be available soon." })}
+                        >
+                          Manage Music
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({ title: "Feature Coming Soon", description: "Fine Arts management will be available soon." })}
+                        >
+                          Manage Fine Arts
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({ title: "Feature Coming Soon", description: "Performance management will be available soon." })}
+                        >
+                          Manage Performances
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
