@@ -35,10 +35,10 @@ export default function Music() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-red-600 dark:text-red-400 mb-4">
-              Prayas Sangeet-kala Academy
+              Music Academy
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Dedicated to preserving and promoting traditional and contemporary music with focus on singing.
+              Traditional and contemporary music programs with focus on singing and instruments.
               Our academy blends traditional folk music with modern expression, creating harmonies that inspire cultural unity.
             </p>
           </div>

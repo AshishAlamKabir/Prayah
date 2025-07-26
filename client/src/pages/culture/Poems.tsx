@@ -40,10 +40,10 @@ export default function Poems() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-4">
-              Prayas Kabya Kanan
+              Poetry Academy
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Poetry academy dedicated to nurturing literary talents and traditional verse forms.
+              Poetry and literature programs for nurturing literary talents and traditional verse forms.
               Express the power of words through spoken and written poetry that celebrates cultural heritage.
             </p>
           </div>

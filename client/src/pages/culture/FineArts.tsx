@@ -40,10 +40,10 @@ export default function FineArts() {
               </div>
             </div>
             <h1 className="text-4xl font-bold text-green-600 dark:text-green-400 mb-4">
-              Prayas Chitra kala Bidyalay
+              Fine Arts Academy
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Visual arts academy specializing in painting, drawing, sculpture and traditional art forms.
+              Visual arts programs including painting, drawing, sculpture and traditional art forms.
               Our academy nurtures creativity through various mediums while preserving cultural traditions.
             </p>
           </div>
