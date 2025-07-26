@@ -248,7 +248,10 @@ export default function Home() {
                       <span className="text-green-600 font-bold">₹{book.price}</span>
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{book.title}</h3>
-                    <p className="text-gray-600 text-sm mb-3">by {book.author}</p>
+                    <p className="text-gray-600 text-sm mb-3">
+                      by {book.author}
+                      {book.editor && <span className="text-gray-500"> • edited by {book.editor}</span>}
+                    </p>
                     <p className="text-gray-700 text-sm mb-4">{book.description}</p>
                     <div className="flex gap-2">
                       <Button className="bg-green-600 hover:bg-green-700 text-white flex-1">

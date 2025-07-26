@@ -45,6 +45,7 @@ interface BookStock {
 interface NewBookForm {
   title: string;
   author: string;
+  editor: string;
   description: string;
   category: string;
   price: number;
@@ -66,6 +67,7 @@ export default function BookManagement() {
   const [newBookForm, setNewBookForm] = useState<NewBookForm>({
     title: "",
     author: "",
+    editor: "",
     description: "",
     category: "",
     price: 0,
@@ -108,6 +110,7 @@ export default function BookManagement() {
       setNewBookForm({
         title: "",
         author: "",
+        editor: "",
         description: "",
         category: "",
         price: 0,
@@ -346,6 +349,16 @@ export default function BookManagement() {
                   </div>
 
                   <div>
+                    <Label htmlFor="editor">Editor</Label>
+                    <Input
+                      id="editor"
+                      value={newBookForm.editor}
+                      onChange={(e) => setNewBookForm(prev => ({ ...prev, editor: e.target.value }))}
+                      placeholder="Enter editor name (optional)"
+                    />
+                  </div>
+
+                  <div>
                     <Label htmlFor="category">Category</Label>
                     <Select
                       value={newBookForm.category}
@@ -530,6 +543,7 @@ export default function BookManagement() {
                     setNewBookForm({
                       title: "",
                       author: "",
+                      editor: "",
                       description: "",
                       category: "",
                       price: 0,

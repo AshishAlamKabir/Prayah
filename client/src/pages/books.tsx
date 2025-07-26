@@ -136,7 +136,10 @@ export default function Books() {
                         <span className="text-green-600 font-bold text-lg">₹{book.price}</span>
                       </div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{book.title}</h3>
-                      <p className="text-gray-600 text-sm mb-3">by {book.author}</p>
+                      <p className="text-gray-600 text-sm mb-3">
+                        by {book.author}
+                        {book.editor && <span className="text-gray-500"> • edited by {book.editor}</span>}
+                      </p>
                       <p className="text-gray-700 text-sm mb-4 line-clamp-3">{book.description}</p>
                       
                       {book.isbn && (
