@@ -50,7 +50,7 @@ const storage_multer = multer.diskStorage({
 const upload = multer({ 
   storage: storage_multer,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 50 * 1024 * 1024, // 50MB limit for manuscripts
   },
   fileFilter: (req, file, cb) => {
     if (file.fieldname === 'coverImage') {
@@ -833,7 +833,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/school-notifications", adminMiddleware, async (req, res) => {
     try {
-      const notifications = []; // Placeholder for database query
+      const notifications: any[] = []; // Placeholder for database query
       res.json(notifications);
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -952,7 +952,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/culture-programs", adminMiddleware, async (req, res) => {
     try {
-      const programs = []; // Placeholder for database query
+      const programs: any[] = []; // Placeholder for database query
       res.json(programs);
     } catch (error) {
       console.error('Error fetching culture programs:', error);
@@ -965,7 +965,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/culture-activities", adminMiddleware, async (req, res) => {
     try {
-      const activities = []; // Placeholder for database query
+      const activities: any[] = []; // Placeholder for database query
       res.json(activities);
     } catch (error) {
       console.error('Error fetching culture activities:', error);
@@ -1034,7 +1034,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const submissions = []; // Placeholder for database query
+      const submissions: any[] = []; // Placeholder for database query
       res.json(submissions);
     } catch (error) {
       console.error('Error fetching user submissions:', error);
@@ -1048,7 +1048,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin publication management endpoints
   app.get("/api/admin/publication-submissions", adminMiddleware, async (req, res) => {
     try {
-      const submissions = []; // Placeholder for database query
+      const submissions: any[] = []; // Placeholder for database query
       res.json(submissions);
     } catch (error) {
       console.error('Error fetching publication submissions:', error);

@@ -138,7 +138,7 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 ✓ **Payment Integration Ready**: System prepared for Stripe payment processing after admin approval
 ✓ **Email Notification System**: Infrastructure ready for SendGrid email notifications at each workflow stage
 ✓ **Database Schema**: Added publicationSubmissions table with full workflow tracking and payment status
-✓ **File Upload System**: Secure PDF manuscript upload with validation and file size limits
+✓ **File Upload System**: Secure PDF manuscript upload with validation and 50MB file size limits
 ✓ **Status Management**: Complete status tracking from pending → approved → payment → published
 ✓ **Admin Actions**: Approve/reject submissions with custom notes and publication fee setting
 ✓ **User Dashboard Integration**: Authors can track their submission status and payment requirements

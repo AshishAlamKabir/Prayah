@@ -34,7 +34,7 @@ export default function PublicationManagement() {
   const [activeTab, setActiveTab] = useState("pending");
 
   // Fetch publication submissions
-  const { data: submissions = [], isLoading } = useQuery({
+  const { data: submissions = [], isLoading } = useQuery<PublicationSubmission[]>({
     queryKey: ["/api/admin/publication-submissions"],
   });
 
@@ -138,11 +138,11 @@ export default function PublicationManagement() {
 
   // Group submissions by status for tabs
   const submissionsByStatus = {
-    pending: submissions.filter((s: PublicationSubmission) => s.status === 'pending'),
-    approved: submissions.filter((s: PublicationSubmission) => s.status === 'approved'),
-    payment_pending: submissions.filter((s: PublicationSubmission) => s.status === 'payment_pending'),
-    rejected: submissions.filter((s: PublicationSubmission) => s.status === 'rejected'),
-    published: submissions.filter((s: PublicationSubmission) => s.status === 'published'),
+    pending: (submissions as PublicationSubmission[]).filter((s) => s.status === 'pending'),
+    approved: (submissions as PublicationSubmission[]).filter((s) => s.status === 'approved'),
+    payment_pending: (submissions as PublicationSubmission[]).filter((s) => s.status === 'payment_pending'),
+    rejected: (submissions as PublicationSubmission[]).filter((s) => s.status === 'rejected'),
+    published: (submissions as PublicationSubmission[]).filter((s) => s.status === 'published'),
   };
 
   if (isLoading) {

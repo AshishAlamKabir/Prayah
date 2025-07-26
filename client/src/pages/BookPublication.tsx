@@ -98,10 +98,10 @@ export default function BookPublication() {
         });
         return;
       }
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      if (file.size > 50 * 1024 * 1024) { // 50MB limit
         toast({
           title: "File Too Large",
-          description: "Please upload a PDF file smaller than 10MB.",
+          description: "Please upload a PDF file smaller than 50MB.",
           variant: "destructive",
         });
         return;
@@ -281,7 +281,7 @@ export default function BookPublication() {
                       <div className="text-center">
                         <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <p className="text-gray-600 mb-2">Upload your complete manuscript in PDF format</p>
-                        <p className="text-sm text-gray-500 mb-4">Maximum file size: 10MB</p>
+                        <p className="text-sm text-gray-500 mb-4">Maximum file size: 50MB</p>
                         <Input
                           type="file"
                           accept=".pdf"
@@ -311,7 +311,7 @@ export default function BookPublication() {
                         <p className="font-medium mb-2">Submission Guidelines:</p>
                         <ul className="space-y-1 text-sm">
                           <li>• Manuscript should be complete and properly formatted</li>
-                          <li>• PDF file must be under 10MB in size</li>
+                          <li>• PDF file must be under 50MB in size</li>
                           <li>• Review process typically takes 5-7 business days</li>
                           <li>• Publication fees will be communicated upon approval</li>
                           <li>• You'll receive email notifications about your submission status</li>
