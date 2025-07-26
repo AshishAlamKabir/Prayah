@@ -33,7 +33,7 @@ export default function Header() {
   return (
     <header className="bg-red-800 text-white shadow-lg sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center py-3 md:py-4">
           <Link href="/">
             <div className="flex items-center space-x-3 cursor-pointer">
               <img 
@@ -60,16 +60,16 @@ export default function Header() {
             ))}
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             {!isAuthenticated ? (
               <>
                 <Link href="/login">
-                  <Button variant="ghost" className="text-white hover:bg-red-700">
+                  <Button variant="ghost" className="hidden md:inline-flex text-white hover:bg-red-700">
                     Login
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="bg-green-600 hover:bg-green-700">
+                  <Button className="hidden md:inline-flex bg-green-600 hover:bg-green-700">
                     Register
                   </Button>
                 </Link>
@@ -82,7 +82,7 @@ export default function Header() {
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
+                    <Button variant="ghost" className="text-white hover:bg-red-700 p-2 hidden md:flex">
                       <User className="w-5 h-5" />
                       <span className="ml-2 hidden sm:inline">
                         {user?.firstName || user?.username}
@@ -126,11 +126,16 @@ export default function Header() {
             {/* Mobile Menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-white">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="md:hidden text-white bg-red-700 border-white/30 hover:bg-red-600 hover:border-white/50"
+                >
                   <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="bg-red-800 text-white border-red-700">
+              <SheetContent side="right" className="bg-red-800 text-white border-red-700 w-[280px] sm:w-[350px]">
                 <div className="flex flex-col space-y-4 mt-8">
                   {navigation.map((item) => (
                     <Link key={item.name} href={item.href}>
