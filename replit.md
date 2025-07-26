@@ -131,6 +131,14 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 
 ## Recent Changes
 
+### Navigation Streamlining & Author/Editor Option (July 26, 2025)
+✓ **Navigation Cleanup**: Removed separate "Books" section from main navigation - all book functionality now in "Store"
+✓ **Admin Access Streamlined**: Removed "Admin" tab from main navigation - admin access through user dropdown only
+✓ **Author/Editor Role Selection**: Added contributorRole field allowing users to specify role as Author, Editor, or Author & Editor
+✓ **Enhanced Book Display**: Updated book listings to show contributor role information
+✓ **Database Schema Updates**: Added contributorRole to both books and publishedWorks tables
+✓ **Clean Navigation**: Main navigation now shows only Home, Schools, Art & Culture, Community, and Store
+
 ### Enhanced Admin Book Management System (July 26, 2025)
 ✓ **File Upload Support**: Added multer-based file upload system for book cover images and PDF files
 ✓ **Book Type Classification**: Added bookType field to distinguish between paperback, PDF, and both formats

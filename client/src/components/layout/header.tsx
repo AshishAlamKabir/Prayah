@@ -19,9 +19,7 @@ export default function Header() {
     { name: "Schools", href: "/schools" },
     { name: "Art & Culture", href: "/culture" },
     { name: "Community", href: "/community" },
-    { name: "Books", href: "/books" },
     { name: "Store", href: "/store" },
-    ...(isAdmin ? [{ name: "Admin", href: "/admin" }] : []),
   ];
 
   const isActive = (href: string) => {
