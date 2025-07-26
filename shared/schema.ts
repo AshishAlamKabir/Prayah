@@ -248,6 +248,59 @@ export const insertSchoolNotificationSchema = createInsertSchema(schoolNotificat
   updatedAt: true,
 });
 
+// Culture programs table for enhanced program management
+export const culturePrograms = pgTable("culture_programs", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  activityType: text("activity_type").notNull().default("regular"), // regular, workshop, masterclass, competition, performance
+  instructorName: text("instructor_name"),
+  contactInfo: jsonb("contact_info").default({}), // {phone, email, address}
+  socialMedia: jsonb("social_media").default({}), // {facebook, instagram, youtube, twitter, website}
+  schedule: jsonb("schedule").default({}), // {days: [], time, duration}
+  fees: jsonb("fees").default({}), // {monthly, registration}
+  capacity: integer("capacity").default(0),
+  ageGroup: text("age_group").default("all"), // all, children, teens, adults, seniors
+  mediaFiles: jsonb("media_files").default([]), // Array of uploaded media files
+  isActive: boolean("is_active").default(true),
+  createdBy: integer("created_by").notNull(), // admin user id
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Culture activities table for recent activities and events
+export const cultureActivities = pgTable("culture_activities", {
+  id: serial("id").primaryKey(),
+  categoryId: integer("category_id").notNull(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  activityType: text("activity_type").notNull().default("event"), // event, performance, competition, workshop, exhibition, award
+  eventDate: timestamp("event_date").notNull(),
+  location: text("location"),
+  participants: integer("participants").default(0),
+  achievements: text("achievements"), // Awards and recognitions
+  mediaFiles: jsonb("media_files").default([]), // Array of uploaded media files
+  views: integer("views").default(0),
+  isActive: boolean("is_active").default(true),
+  createdBy: integer("created_by").notNull(), // admin user id
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCultureProgramSchema = createInsertSchema(culturePrograms).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCultureActivitySchema = createInsertSchema(cultureActivities).omit({
+  id: true,
+  views: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -280,6 +333,12 @@ export type InsertBookStock = z.infer<typeof insertBookStockSchema>;
 
 export type SchoolNotification = typeof schoolNotifications.$inferSelect;
 export type InsertSchoolNotification = z.infer<typeof insertSchoolNotificationSchema>;
+
+export type CultureProgram = typeof culturePrograms.$inferSelect;
+export type InsertCultureProgram = z.infer<typeof insertCultureProgramSchema>;
+
+export type CultureActivity = typeof cultureActivities.$inferSelect;
+export type InsertCultureActivity = z.infer<typeof insertCultureActivitySchema>;
 
 // Stats type
 export interface Stats {

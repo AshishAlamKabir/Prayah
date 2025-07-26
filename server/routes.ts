@@ -15,7 +15,9 @@ import {
   insertOrderSchema,
   insertCartItemSchema,
   insertBookStockSchema,
-  insertSchoolNotificationSchema
+  insertSchoolNotificationSchema,
+  insertCultureProgramSchema,
+  insertCultureActivitySchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -837,6 +839,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: 'Failed to fetch notifications' 
+      });
+    }
+  });
+
+  // Admin culture management endpoints
+  app.post("/api/admin/culture-programs", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+    try {
+      const {
+        categoryId,
+        title,
+        description,
+        activityType,
+        instructorName,
+        contactInfo,
+        socialMedia,
+        schedule,
+        fees,
+        capacity,
+        ageGroup
+      } = req.body;
+
+      // Process media files
+      const mediaFiles = req.files ? (req.files as Express.Multer.File[]).map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        path: `/uploads/${file.filename}`
+      })) : [];
+
+      const programData = {
+        categoryId: parseInt(categoryId),
+        title,
+        description,
+        activityType,
+        instructorName,
+        contactInfo: JSON.parse(contactInfo || '{}'),
+        socialMedia: JSON.parse(socialMedia || '{}'),
+        schedule: JSON.parse(schedule || '{}'),
+        fees: JSON.parse(fees || '{}'),
+        capacity: parseInt(capacity) || 0,
+        ageGroup,
+        mediaFiles,
+        createdBy: req.user.id
+      };
+
+      res.json({ 
+        success: true, 
+        message: 'Culture program created successfully',
+        data: programData
+      });
+    } catch (error) {
+      console.error('Error creating culture program:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to create culture program' 
+      });
+    }
+  });
+
+  app.post("/api/admin/culture-activities", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+    try {
+      const {
+        categoryId,
+        title,
+        content,
+        activityType,
+        eventDate,
+        location,
+        participants,
+        achievements
+      } = req.body;
+
+      // Process media files
+      const mediaFiles = req.files ? (req.files as Express.Multer.File[]).map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        path: `/uploads/${file.filename}`
+      })) : [];
+
+      const activityData = {
+        categoryId: parseInt(categoryId),
+        title,
+        content,
+        activityType,
+        eventDate,
+        location,
+        participants: parseInt(participants) || 0,
+        achievements,
+        mediaFiles,
+        createdBy: req.user.id,
+        createdAt: new Date().toISOString()
+      };
+
+      res.json({ 
+        success: true, 
+        message: 'Culture activity published successfully',
+        data: activityData
+      });
+    } catch (error) {
+      console.error('Error creating culture activity:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to publish culture activity' 
+      });
+    }
+  });
+
+  app.get("/api/admin/culture-programs", adminMiddleware, async (req, res) => {
+    try {
+      const programs = []; // Placeholder for database query
+      res.json(programs);
+    } catch (error) {
+      console.error('Error fetching culture programs:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch culture programs' 
+      });
+    }
+  });
+
+  app.get("/api/admin/culture-activities", adminMiddleware, async (req, res) => {
+    try {
+      const activities = []; // Placeholder for database query
+      res.json(activities);
+    } catch (error) {
+      console.error('Error fetching culture activities:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch culture activities' 
       });
     }
   });

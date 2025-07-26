@@ -7,6 +7,7 @@ import BookManagement from "@/components/admin/BookManagement";
 import OrderManagement from "@/components/admin/OrderManagement";
 import CommunityManagement from "@/components/admin/CommunityManagement";
 import SchoolManagement from "@/components/admin/SchoolManagement";
+import CultureManagement from "@/components/admin/CultureManagement";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -103,12 +104,13 @@ export default function AdminDashboard() {
 
           {/* Admin Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="publications">Community</TabsTrigger>
               <TabsTrigger value="books">Books</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
               <TabsTrigger value="school-management">Schools</TabsTrigger>
+              <TabsTrigger value="culture-management">Culture</TabsTrigger>
               <TabsTrigger value="content">Content</TabsTrigger>
             </TabsList>
 
@@ -165,7 +167,7 @@ export default function AdminDashboard() {
                       
                       <button 
                         className="h-20 flex flex-col items-center justify-center border border-gray-300 hover:bg-gray-50 rounded"
-                        onClick={() => setSelectedTab("content")}
+                        onClick={() => setSelectedTab("culture-management")}
                       >
                         <Palette className="h-6 w-6 mb-2" />
                         Culture Programs
@@ -190,6 +192,10 @@ export default function AdminDashboard() {
 
             <TabsContent value="school-management" className="space-y-6">
               <SchoolManagement />
+            </TabsContent>
+
+            <TabsContent value="culture-management" className="space-y-6">
+              <CultureManagement />
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">
@@ -281,21 +287,21 @@ export default function AdminDashboard() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({ title: "Feature Coming Soon", description: "Music program management will be available soon." })}
+                          onClick={() => setSelectedTab("culture-management")}
                         >
                           Manage Music
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({ title: "Feature Coming Soon", description: "Fine Arts management will be available soon." })}
+                          onClick={() => setSelectedTab("culture-management")}
                         >
                           Manage Fine Arts
                         </Button>
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({ title: "Feature Coming Soon", description: "Performance management will be available soon." })}
+                          onClick={() => setSelectedTab("culture-management")}
                         >
                           Manage Performances
                         </Button>
