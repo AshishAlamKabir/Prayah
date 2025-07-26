@@ -91,6 +91,7 @@ export const books = pgTable("books", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   imageUrl: text("image_url"),
   pdfUrl: text("pdf_url"),
+  bookType: text("book_type").notNull().default("paperback"), // paperback, pdf, both
   inStock: boolean("in_stock").default(true),
   isbn: text("isbn"),
   publishedYear: integer("published_year"),
@@ -223,9 +224,6 @@ export const insertBookStockSchema = createInsertSchema(bookStock).omit({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
-export type CommunityPost = typeof communityPosts.$inferSelect;
-export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;
-
 export type CommunityPost = typeof communityPosts.$inferSelect;
 export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;
 

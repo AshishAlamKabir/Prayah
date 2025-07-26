@@ -1,6 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
 import { 
   insertCommunityPostSchema, 
   insertSchoolSchema, 
@@ -22,7 +26,76 @@ import {
   verifyPassword 
 } from "./auth";
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const storage_multer = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage_multer,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === 'coverImage') {
+      // Accept image files
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed for cover images'));
+      }
+    } else if (file.fieldname === 'pdfFile') {
+      // Accept PDF files
+      if (file.mimetype === 'application/pdf') {
+        cb(null, true);
+      } else {
+        cb(new Error('Only PDF files are allowed'));
+      }
+    } else {
+      cb(new Error('Unknown field'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files statically
+  app.use('/uploads', express.static(uploadsDir));
+
+  // File upload endpoint
+  app.post("/api/upload", authMiddleware, adminMiddleware, upload.fields([
+    { name: 'coverImage', maxCount: 1 },
+    { name: 'pdfFile', maxCount: 1 }
+  ]), (req, res) => {
+    try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const result: { coverImageUrl?: string; pdfUrl?: string } = {};
+
+      if (files.coverImage) {
+        result.coverImageUrl = `/uploads/${files.coverImage[0].filename}`;
+      }
+
+      if (files.pdfFile) {
+        result.pdfUrl = `/uploads/${files.pdfFile[0].filename}`;
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      res.status(500).json({ message: "Failed to upload files" });
+    }
+  });
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {

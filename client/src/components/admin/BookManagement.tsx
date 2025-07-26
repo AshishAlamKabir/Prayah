@@ -54,6 +54,7 @@ interface NewBookForm {
   featured: boolean;
   imageUrl: string;
   pdfUrl: string;
+  bookType: string;
   quantity: number;
 }
 
@@ -73,9 +74,13 @@ export default function BookManagement() {
     subscriptionOnly: false,
     featured: false,
     imageUrl: "",
+    bookType: "paperback",
     pdfUrl: "",
     quantity: 0,
   });
+  
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
 
   // Fetch book stock data
   const { data: bookStock = [], isLoading: stockLoading } = useQuery<BookStock[]>({
@@ -112,8 +117,11 @@ export default function BookManagement() {
         featured: false,
         imageUrl: "",
         pdfUrl: "",
+        bookType: "paperback",
         quantity: 0,
       });
+      setCoverImageFile(null);
+      setPdfFile(null);
     },
     onError: () => {
       toast({
@@ -145,7 +153,7 @@ export default function BookManagement() {
     },
   });
 
-  const handleAddBook = () => {
+  const handleAddBook = async () => {
     if (!newBookForm.title || !newBookForm.author || !newBookForm.price) {
       toast({
         title: "Missing Information",
@@ -155,13 +163,46 @@ export default function BookManagement() {
       return;
     }
 
-    const bookData = {
-      ...newBookForm,
-      tags: newBookForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
-      price: parseFloat(newBookForm.price.toString()),
-    };
+    try {
+      let imageUrl = newBookForm.imageUrl;
+      let pdfUrl = newBookForm.pdfUrl;
 
-    addBookMutation.mutate(bookData);
+      // Upload files if they exist
+      if (coverImageFile || pdfFile) {
+        const formData = new FormData();
+        if (coverImageFile) {
+          formData.append('coverImage', coverImageFile);
+        }
+        if (pdfFile) {
+          formData.append('pdfFile', pdfFile);
+        }
+
+        const uploadResponse = await apiRequest("POST", "/api/upload", formData);
+        if (uploadResponse.coverImageUrl) {
+          imageUrl = uploadResponse.coverImageUrl;
+        }
+        if (uploadResponse.pdfUrl) {
+          pdfUrl = uploadResponse.pdfUrl;
+        }
+      }
+
+      const bookData = {
+        ...newBookForm,
+        imageUrl,
+        pdfUrl,
+        tags: newBookForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
+        price: parseFloat(newBookForm.price.toString()),
+      };
+
+      addBookMutation.mutate(bookData);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload files. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleStockUpdate = (bookId: number, newQuantity: number) => {
@@ -214,7 +255,7 @@ export default function BookManagement() {
                           />
                         ) : (
                           <div className="w-16 h-20 bg-gray-200 rounded flex items-center justify-center">
-                            <Book className="w-8 h-8 text-gray-400" />
+                            <BookIcon className="w-8 h-8 text-gray-400" />
                           </div>
                         )}
                         <div>
@@ -381,24 +422,74 @@ export default function BookManagement() {
                   </div>
 
                   <div>
-                    <Label htmlFor="imageUrl">Cover Image URL</Label>
-                    <Input
-                      id="imageUrl"
-                      value={newBookForm.imageUrl}
-                      onChange={(e) => setNewBookForm(prev => ({ ...prev, imageUrl: e.target.value }))}
-                      placeholder="Enter image URL"
-                    />
+                    <Label htmlFor="bookType">Book Type *</Label>
+                    <Select
+                      value={newBookForm.bookType}
+                      onValueChange={(value) => setNewBookForm(prev => ({ ...prev, bookType: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select book type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="paperback">Paperback Only</SelectItem>
+                        <SelectItem value="pdf">PDF Only</SelectItem>
+                        <SelectItem value="both">Both Paperback & PDF</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
-                    <Label htmlFor="pdfUrl">PDF URL (optional)</Label>
-                    <Input
-                      id="pdfUrl"
-                      value={newBookForm.pdfUrl}
-                      onChange={(e) => setNewBookForm(prev => ({ ...prev, pdfUrl: e.target.value }))}
-                      placeholder="Enter PDF URL"
-                    />
+                    <Label htmlFor="coverImage">Cover Image</Label>
+                    <div className="space-y-2">
+                      <Input
+                        id="coverImage"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setCoverImageFile(file);
+                            // Create preview URL
+                            const previewUrl = URL.createObjectURL(file);
+                            setNewBookForm(prev => ({ ...prev, imageUrl: previewUrl }));
+                          }
+                        }}
+                      />
+                      {coverImageFile && (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                          <ImageIcon className="w-4 h-4" />
+                          <span>{coverImageFile.name}</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">Upload an image file for the book cover</p>
+                    </div>
                   </div>
+
+                  {(newBookForm.bookType === 'pdf' || newBookForm.bookType === 'both') && (
+                    <div>
+                      <Label htmlFor="pdfFile">PDF File</Label>
+                      <div className="space-y-2">
+                        <Input
+                          id="pdfFile"
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setPdfFile(file);
+                            }
+                          }}
+                        />
+                        {pdfFile && (
+                          <div className="flex items-center gap-2 text-sm text-green-600">
+                            <FileText className="w-4 h-4" />
+                            <span>{pdfFile.name}</span>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500">Upload a PDF file for digital access</p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2">
@@ -447,8 +538,11 @@ export default function BookManagement() {
                       featured: false,
                       imageUrl: "",
                       pdfUrl: "",
+                      bookType: "paperback",
                       quantity: 0,
                     });
+                    setCoverImageFile(null);
+                    setPdfFile(null);
                   }}
                 >
                   Clear Form
@@ -465,7 +559,7 @@ export default function BookManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Total Books</p>
-                    <p className="text-2xl font-bold">{books?.length || 0}</p>
+                    <p className="text-2xl font-bold">{Array.isArray(books) ? books.length : 0}</p>
                   </div>
                   <BookIcon className="w-8 h-8 text-blue-600" />
                 </div>

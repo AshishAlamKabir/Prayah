@@ -131,6 +131,15 @@ The architecture prioritizes developer experience, type safety, and maintainabil
 
 ## Recent Changes
 
+### Enhanced Admin Book Management System (July 26, 2025)
+✓ **File Upload Support**: Added multer-based file upload system for book cover images and PDF files
+✓ **Book Type Classification**: Added bookType field to distinguish between paperback, PDF, and both formats
+✓ **Cover Image Upload**: Admin can now upload image files directly instead of providing URLs
+✓ **PDF File Upload**: Support for uploading PDF files for digital book access
+✓ **File Storage**: Configured secure file storage in uploads directory with proper validation
+✓ **Enhanced UI**: Updated admin interface with file upload fields and book type selection
+✓ **Database Schema**: Added bookType column to books table with paperback/pdf/both options
+
 ### Cultural Academy Names Update (July 26, 2025)
 ✓ **Traditional Academy Names**: Updated to specific traditional names per user requirements
 ✓ **Prayas Sangeet-kala**: Music academy for traditional and contemporary music programs
