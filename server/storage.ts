@@ -37,7 +37,7 @@ import {
   type InsertPublicationSubmission,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gt } from "drizzle-orm";
+import { eq, desc, and, gt, sql, count } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -646,16 +646,16 @@ export class DatabaseStorage implements IStorage {
     totalBooks: number;
     totalMembers: number;
   }> {
-    const [schoolCount] = await db.select({ count: schools.id }).from(schools);
-    const [postCount] = await db.select({ count: communityPosts.id }).from(communityPosts);
-    const [bookCount] = await db.select({ count: books.id }).from(books);
-    const [memberCount] = await db.select({ count: users.id }).from(users);
+    const [schoolCount] = await db.select({ count: count() }).from(schools);
+    const [postCount] = await db.select({ count: count() }).from(communityPosts);
+    const [bookCount] = await db.select({ count: count() }).from(books);
+    const [memberCount] = await db.select({ count: count() }).from(users);
 
     return {
-      totalSchools: schoolCount?.count || 0,
-      totalPosts: postCount?.count || 0,
-      totalBooks: bookCount?.count || 0,
-      totalMembers: memberCount?.count || 0,
+      totalSchools: Number(schoolCount?.count) || 0,
+      totalPosts: Number(postCount?.count) || 0,
+      totalBooks: Number(bookCount?.count) || 0,
+      totalMembers: Number(memberCount?.count) || 0,
     };
   }
 }
