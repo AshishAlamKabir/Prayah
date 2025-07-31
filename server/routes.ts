@@ -32,6 +32,7 @@ import {
 import roleAdminRoutes from "./routes/role-admin";
 import { registerPaymentRoutes } from "./routes/payments";
 import { registerAdminNotificationRoutes } from "./routes/admin-notifications";
+import { registerRazorpayRoutes } from "./routes/razorpay";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -1164,6 +1165,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register payment routes
   registerPaymentRoutes(app);
+
+  // Register Razorpay routes
+  registerRazorpayRoutes(app);
 
   // Register admin notification routes
   registerAdminNotificationRoutes(app);
