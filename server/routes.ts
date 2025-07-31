@@ -30,6 +30,8 @@ import {
   verifyPassword 
 } from "./auth";
 import roleAdminRoutes from "./routes/role-admin";
+import { registerPaymentRoutes } from "./routes/payments";
+import { registerAdminNotificationRoutes } from "./routes/admin-notifications";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -1159,6 +1161,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register role-based admin routes
   app.use("/api/role-admin", roleAdminRoutes);
+
+  // Register payment routes
+  registerPaymentRoutes(app);
+
+  // Register admin notification routes
+  registerAdminNotificationRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -11,6 +11,8 @@ import {
   bookStock,
   schoolActivities,
   publicationSubmissions,
+  payments,
+  adminNotifications,
   type User,
   type InsertUser,
   type CommunityPost,
@@ -35,6 +37,10 @@ import {
   type InsertSchoolActivity,
   type PublicationSubmission,
   type InsertPublicationSubmission,
+  type Payment,
+  type InsertPayment,
+  type AdminNotification,
+  type InsertAdminNotification,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, sql, count } from "drizzle-orm";
@@ -123,6 +129,22 @@ export interface IStorage {
   createPublicationSubmission(submission: any): Promise<any>;
   updatePublicationSubmissionStatus(id: number, status: string, note?: string, fee?: number): Promise<any | undefined>;
   deletePublicationSubmission(id: number): Promise<boolean>;
+
+  // Payment operations
+  createPayment(payment: InsertPayment): Promise<Payment>;
+  getPaymentById(id: number): Promise<Payment | undefined>;
+  getPaymentByStripeId(stripePaymentIntentId: string): Promise<Payment | undefined>;
+  updatePaymentStatus(id: number, status: string, stripeChargeId?: string, failureReason?: string): Promise<Payment | undefined>;
+  getPaymentsByUser(userId: number): Promise<Payment[]>;
+  getPaymentsByType(paymentType: string): Promise<Payment[]>;
+  markPaymentAdminsNotified(paymentId: number, notificationsSent: string[]): Promise<Payment | undefined>;
+
+  // Admin notification operations
+  createAdminNotification(notification: InsertAdminNotification): Promise<AdminNotification>;
+  getAdminNotifications(adminUserId: number, unreadOnly?: boolean): Promise<AdminNotification[]>;
+  markNotificationRead(notificationId: number): Promise<AdminNotification | undefined>;
+  markNotificationEmailSent(notificationId: number): Promise<AdminNotification | undefined>;
+  getUnreadNotificationCount(adminUserId: number): Promise<number>;
 
   // Statistics
   getStats(): Promise<{
@@ -616,13 +638,11 @@ export class DatabaseStorage implements IStorage {
 
   // Publication submission operations
   async getPublicationSubmissions(status?: string): Promise<PublicationSubmission[]> {
-    let query = db.select().from(publicationSubmissions);
-    
     if (status) {
-      query = query.where(eq(publicationSubmissions.status, status));
+      return await db.select().from(publicationSubmissions).where(eq(publicationSubmissions.status, status));
     }
     
-    return await query;
+    return await db.select().from(publicationSubmissions);
   }
 
   async getPublicationSubmission(id: number): Promise<PublicationSubmission | undefined> {
@@ -663,6 +683,131 @@ export class DatabaseStorage implements IStorage {
   async deletePublicationSubmission(id: number): Promise<boolean> {
     const result = await db.delete(publicationSubmissions).where(eq(publicationSubmissions.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  // Payment operations
+  async createPayment(payment: InsertPayment): Promise<Payment> {
+    const [newPayment] = await db
+      .insert(payments)
+      .values(payment)
+      .returning();
+    return newPayment;
+  }
+
+  async getPaymentById(id: number): Promise<Payment | undefined> {
+    const [payment] = await db.select().from(payments).where(eq(payments.id, id));
+    return payment || undefined;
+  }
+
+  async getPaymentByStripeId(stripePaymentIntentId: string): Promise<Payment | undefined> {
+    const [payment] = await db.select().from(payments).where(eq(payments.stripePaymentIntentId, stripePaymentIntentId));
+    return payment || undefined;
+  }
+
+  async updatePaymentStatus(id: number, status: string, stripeChargeId?: string, failureReason?: string): Promise<Payment | undefined> {
+    const updateData: any = { 
+      status, 
+      updatedAt: new Date() 
+    };
+    
+    if (stripeChargeId) {
+      updateData.stripeChargeId = stripeChargeId;
+    }
+    
+    if (failureReason) {
+      updateData.failureReason = failureReason;
+    }
+
+    const [payment] = await db
+      .update(payments)
+      .set(updateData)
+      .where(eq(payments.id, id))
+      .returning();
+    return payment || undefined;
+  }
+
+  async getPaymentsByUser(userId: number): Promise<Payment[]> {
+    return await db.select().from(payments).where(eq(payments.userId, userId));
+  }
+
+  async getPaymentsByType(paymentType: string): Promise<Payment[]> {
+    if (paymentType === '') {
+      // Return all payments if type is empty
+      return await db.select().from(payments).orderBy(desc(payments.createdAt));
+    }
+    return await db.select().from(payments).where(eq(payments.paymentType, paymentType));
+  }
+
+  async markPaymentAdminsNotified(paymentId: number, notificationsSent: string[]): Promise<Payment | undefined> {
+    const [payment] = await db
+      .update(payments)
+      .set({
+        adminsNotified: true,
+        notificationsSent: notificationsSent,
+        updatedAt: new Date()
+      })
+      .where(eq(payments.id, paymentId))
+      .returning();
+    return payment || undefined;
+  }
+
+  // Admin notification operations
+  async createAdminNotification(notification: InsertAdminNotification): Promise<AdminNotification> {
+    const [newNotification] = await db
+      .insert(adminNotifications)
+      .values(notification)
+      .returning();
+    return newNotification;
+  }
+
+  async getAdminNotifications(adminUserId: number, unreadOnly?: boolean): Promise<AdminNotification[]> {
+    if (unreadOnly) {
+      return await db.select().from(adminNotifications)
+        .where(and(
+          eq(adminNotifications.adminUserId, adminUserId),
+          eq(adminNotifications.isRead, false)
+        ))
+        .orderBy(desc(adminNotifications.createdAt));
+    }
+    
+    return await db.select().from(adminNotifications)
+      .where(eq(adminNotifications.adminUserId, adminUserId))
+      .orderBy(desc(adminNotifications.createdAt));
+  }
+
+  async markNotificationRead(notificationId: number): Promise<AdminNotification | undefined> {
+    const [notification] = await db
+      .update(adminNotifications)
+      .set({
+        isRead: true,
+        readAt: new Date()
+      })
+      .where(eq(adminNotifications.id, notificationId))
+      .returning();
+    return notification || undefined;
+  }
+
+  async markNotificationEmailSent(notificationId: number): Promise<AdminNotification | undefined> {
+    const [notification] = await db
+      .update(adminNotifications)
+      .set({
+        emailSent: true,
+        emailSentAt: new Date()
+      })
+      .where(eq(adminNotifications.id, notificationId))
+      .returning();
+    return notification || undefined;
+  }
+
+  async getUnreadNotificationCount(adminUserId: number): Promise<number> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(adminNotifications)
+      .where(and(
+        eq(adminNotifications.adminUserId, adminUserId),
+        eq(adminNotifications.isRead, false)
+      ));
+    return Number(result?.count) || 0;
   }
 
   // Statistics

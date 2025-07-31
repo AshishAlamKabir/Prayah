@@ -135,6 +135,52 @@ export const cartItems = pgTable("cart_items", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Payments table - Comprehensive payment tracking with admin notifications
+export const payments = pgTable("payments", {
+  id: serial("id").primaryKey(),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  stripeChargeId: text("stripe_charge_id"),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("usd"),
+  status: text("status").notNull(), // pending, succeeded, failed, canceled, refunded
+  paymentType: text("payment_type").notNull(), // book_purchase, subscription, publication_fee, school_fee, culture_program
+  userId: integer("user_id").notNull(),
+  orderId: integer("order_id"), // For book purchases
+  publicationSubmissionId: integer("publication_submission_id"), // For publication fees
+  schoolId: integer("school_id"), // For school-related payments
+  cultureId: integer("culture_id"), // For culture program payments
+  description: text("description"),
+  customerEmail: text("customer_email").notNull(),
+  customerName: text("customer_name").notNull(),
+  billingAddress: jsonb("billing_address"), // Address information
+  metadata: jsonb("metadata").default({}), // Additional payment context
+  adminsNotified: boolean("admins_notified").default(false),
+  notificationsSent: jsonb("notifications_sent").default([]), // Track which admins were notified
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
+  refundReason: text("refund_reason"),
+  failureReason: text("failure_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Admin notifications table - Track notifications sent to role-based admins
+export const adminNotifications = pgTable("admin_notifications", {
+  id: serial("id").primaryKey(),
+  adminUserId: integer("admin_user_id").notNull(),
+  notificationType: text("notification_type").notNull(), // payment_received, order_placed, publication_submitted, etc.
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  priority: text("priority").default("medium"), // low, medium, high, urgent
+  relatedEntityType: text("related_entity_type"), // payment, order, publication, school, culture
+  relatedEntityId: integer("related_entity_id"),
+  paymentId: integer("payment_id"), // Link to payment if applicable
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  emailSent: boolean("email_sent").default(false),
+  emailSentAt: timestamp("email_sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Orders table for e-commerce - Enhanced with multiple books support and shipping
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
@@ -226,6 +272,17 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
 export const insertBookStockSchema = createInsertSchema(bookStock).omit({
   id: true,
   lastUpdated: true,
+});
+
+export const insertPaymentSchema = createInsertSchema(payments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAdminNotificationSchema = createInsertSchema(adminNotifications).omit({
+  id: true,
+  createdAt: true,
 });
 
 // School notifications table
@@ -412,6 +469,14 @@ export const insertPublicationSubmissionSchema = createInsertSchema(publicationS
 
 export type PublicationSubmission = typeof publicationSubmissions.$inferSelect;
 export type InsertPublicationSubmission = z.infer<typeof insertPublicationSubmissionSchema>;
+
+// Payment types
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+
+// Admin notification types
+export type AdminNotification = typeof adminNotifications.$inferSelect;
+export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;
 
 // Stats type
 export interface Stats {
