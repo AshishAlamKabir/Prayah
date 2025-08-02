@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import deadlockMonitoringRoutes from "./routes/deadlock-monitoring";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -1171,6 +1172,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register admin notification routes
   registerAdminNotificationRoutes(app);
+
+  // Register deadlock monitoring routes
+  app.use("/api/monitoring", deadlockMonitoringRoutes);
 
   // Health check endpoint for Docker
   app.get('/api/health', (req, res) => {

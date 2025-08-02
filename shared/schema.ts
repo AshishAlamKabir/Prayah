@@ -1,4 +1,5 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, index, uniqueIndex, foreignKey } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -19,6 +20,13 @@ export const users = pgTable("users", {
   permissions: jsonb("permissions").default([]), // Additional specific permissions
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    usernameIdx: uniqueIndex('users_username_idx').on(table.username),
+    emailIdx: uniqueIndex('users_email_idx').on(table.email),
+    roleIdx: index('users_role_idx').on(table.role),
+    subscriptionIdx: index('users_subscription_idx').on(table.isSubscribed, table.subscriptionExpiry),
+  };
 });
 
 // Community posts table - Enhanced with media support
@@ -29,15 +37,22 @@ export const communityPosts = pgTable("community_posts", {
   category: text("category").notNull(),
   authorName: text("author_name").notNull(),
   authorEmail: text("author_email").notNull(),
-  userId: integer("user_id"), // Optional: link to registered user
+  userId: integer("user_id").references(() => users.id, { onDelete: 'set null' }), // Optional: link to registered user
   mediaFiles: jsonb("media_files").default([]), // Array of media file URLs/paths
   tags: text("tags").array(), // Optional tags for categorization
   status: text("status").default("pending"), // pending, approved, rejected
-  approvedBy: integer("approved_by"), // Admin user who approved
+  approvedBy: integer("approved_by").references(() => users.id, { onDelete: 'set null' }), // Admin user who approved
   approvedAt: timestamp("approved_at"),
   rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    statusIdx: index('community_posts_status_idx').on(table.status),
+    categoryIdx: index('community_posts_category_idx').on(table.category),
+    userIdx: index('community_posts_user_idx').on(table.userId),
+    createdAtIdx: index('community_posts_created_at_idx').on(table.createdAt),
+  };
 });
 
 // Schools table - Enhanced with detailed media and descriptions
@@ -79,10 +94,16 @@ export const cultureCategories = pgTable("culture_categories", {
 // User sessions table for authentication
 export const userSessions = pgTable("user_sessions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    tokenIdx: uniqueIndex('user_sessions_token_idx').on(table.token),
+    userIdx: index('user_sessions_user_idx').on(table.userId),
+    expiresIdx: index('user_sessions_expires_idx').on(table.expiresAt),
+  };
 });
 
 // Books table - Enhanced for e-commerce with subscription access
@@ -129,10 +150,16 @@ export const publishedWorks = pgTable("published_works", {
 // Cart items table
 export const cartItems = pgTable("cart_items", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  bookId: integer("book_id").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  bookId: integer("book_id").notNull().references(() => books.id, { onDelete: 'cascade' }),
   quantity: integer("quantity").default(1),
   createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    userBookIdx: uniqueIndex('cart_items_user_book_idx').on(table.userId, table.bookId),
+    userIdx: index('cart_items_user_idx').on(table.userId),
+    bookIdx: index('cart_items_book_idx').on(table.bookId),
+  };
 });
 
 // Payments table - Comprehensive payment tracking with admin notifications
@@ -144,11 +171,11 @@ export const payments = pgTable("payments", {
   currency: text("currency").default("usd"),
   status: text("status").notNull(), // pending, succeeded, failed, canceled, refunded
   paymentType: text("payment_type").notNull(), // book_purchase, subscription, publication_fee, school_fee, culture_program
-  userId: integer("user_id").notNull(),
-  orderId: integer("order_id"), // For book purchases
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'restrict' }),
+  orderId: integer("order_id").references(() => orders.id, { onDelete: 'set null' }), // For book purchases
   publicationSubmissionId: integer("publication_submission_id"), // For publication fees
-  schoolId: integer("school_id"), // For school-related payments
-  cultureId: integer("culture_id"), // For culture program payments
+  schoolId: integer("school_id").references(() => schools.id, { onDelete: 'set null' }), // For school-related payments
+  cultureId: integer("culture_id").references(() => cultureCategories.id, { onDelete: 'set null' }), // For culture program payments
   description: text("description"),
   customerEmail: text("customer_email").notNull(),
   customerName: text("customer_name").notNull(),
@@ -161,30 +188,48 @@ export const payments = pgTable("payments", {
   failureReason: text("failure_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    stripePaymentIntentIdx: uniqueIndex('payments_stripe_intent_idx').on(table.stripePaymentIntentId),
+    statusIdx: index('payments_status_idx').on(table.status),
+    userIdx: index('payments_user_idx').on(table.userId),
+    typeIdx: index('payments_type_idx').on(table.paymentType),
+    orderIdx: index('payments_order_idx').on(table.orderId),
+    createdAtIdx: index('payments_created_at_idx').on(table.createdAt),
+  };
 });
 
 // Admin notifications table - Track notifications sent to role-based admins
 export const adminNotifications = pgTable("admin_notifications", {
   id: serial("id").primaryKey(),
-  adminUserId: integer("admin_user_id").notNull(),
+  adminUserId: integer("admin_user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   notificationType: text("notification_type").notNull(), // payment_received, order_placed, publication_submitted, etc.
   title: text("title").notNull(),
   message: text("message").notNull(),
   priority: text("priority").default("medium"), // low, medium, high, urgent
   relatedEntityType: text("related_entity_type"), // payment, order, publication, school, culture
   relatedEntityId: integer("related_entity_id"),
-  paymentId: integer("payment_id"), // Link to payment if applicable
+  paymentId: integer("payment_id").references(() => payments.id, { onDelete: 'set null' }), // Link to payment if applicable
   isRead: boolean("is_read").default(false),
   readAt: timestamp("read_at"),
   emailSent: boolean("email_sent").default(false),
   emailSentAt: timestamp("email_sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    adminUserIdx: index('admin_notifications_user_idx').on(table.adminUserId),
+    typeIdx: index('admin_notifications_type_idx').on(table.notificationType),
+    readIdx: index('admin_notifications_read_idx').on(table.isRead),
+    priorityIdx: index('admin_notifications_priority_idx').on(table.priority),
+    paymentIdx: index('admin_notifications_payment_idx').on(table.paymentId),
+    createdAtIdx: index('admin_notifications_created_at_idx').on(table.createdAt),
+  };
 });
 
 // Orders table for e-commerce - Enhanced with multiple books support and shipping
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'restrict' }),
   orderItems: jsonb("order_items").notNull(), // Array of {bookId, quantity, price, title}
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   shippingAmount: decimal("shipping_amount", { precision: 10, scale: 2 }).default("0").notNull(),
@@ -199,15 +244,28 @@ export const orders = pgTable("orders", {
   adminNotified: boolean("admin_notified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userIdx: index('orders_user_idx').on(table.userId),
+    statusIdx: index('orders_status_idx').on(table.status),
+    createdAtIdx: index('orders_created_at_idx').on(table.createdAt),
+    emailIdx: index('orders_email_idx').on(table.customerEmail),
+  };
 });
 
 // Book stock table for inventory management
 export const bookStock = pgTable("book_stock", {
   id: serial("id").primaryKey(),
-  bookId: integer("book_id").notNull(),
+  bookId: integer("book_id").notNull().references(() => books.id, { onDelete: 'cascade' }),
   quantity: integer("quantity").notNull(),
   lastUpdated: timestamp("last_updated").defaultNow(),
-  updatedBy: integer("updated_by").notNull(), // admin user id
+  updatedBy: integer("updated_by").notNull().references(() => users.id, { onDelete: 'restrict' }), // admin user id
+}, (table) => {
+  return {
+    bookIdx: uniqueIndex('book_stock_book_idx').on(table.bookId),
+    quantityIdx: index('book_stock_quantity_idx').on(table.quantity),
+    updatedByIdx: index('book_stock_updated_by_idx').on(table.updatedBy),
+  };
 });
 
 // Create insert schemas
@@ -470,13 +528,57 @@ export const insertPublicationSubmissionSchema = createInsertSchema(publicationS
 export type PublicationSubmission = typeof publicationSubmissions.$inferSelect;
 export type InsertPublicationSubmission = z.infer<typeof insertPublicationSubmissionSchema>;
 
-// Payment types
-export type Payment = typeof payments.$inferSelect;
-export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+// Database Relations for referential integrity and query optimization
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(userSessions),
+  cartItems: many(cartItems),
+  orders: many(orders),
+  payments: many(payments),
+  adminNotifications: many(adminNotifications),
+  approvedPosts: many(communityPosts, { relationName: "approvedBy" }),
+  submittedPosts: many(communityPosts, { relationName: "submittedBy" }),
+}));
 
-// Admin notification types
-export type AdminNotification = typeof adminNotifications.$inferSelect;
-export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;
+export const booksRelations = relations(books, ({ many, one }) => ({
+  cartItems: many(cartItems),
+  stock: one(bookStock),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  user: one(users, { fields: [cartItems.userId], references: [users.id] }),
+  book: one(books, { fields: [cartItems.bookId], references: [books.id] }),
+}));
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, { fields: [orders.userId], references: [users.id] }),
+  payments: many(payments),
+}));
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  user: one(users, { fields: [payments.userId], references: [users.id] }),
+  order: one(orders, { fields: [payments.orderId], references: [orders.id] }),
+  school: one(schools, { fields: [payments.schoolId], references: [schools.id] }),
+  cultureCategory: one(cultureCategories, { fields: [payments.cultureId], references: [cultureCategories.id] }),
+}));
+
+export const adminNotificationsRelations = relations(adminNotifications, ({ one }) => ({
+  admin: one(users, { fields: [adminNotifications.adminUserId], references: [users.id] }),
+  payment: one(payments, { fields: [adminNotifications.paymentId], references: [payments.id] }),
+}));
+
+export const userSessionsRelations = relations(userSessions, ({ one }) => ({
+  user: one(users, { fields: [userSessions.userId], references: [users.id] }),
+}));
+
+export const communityPostsRelations = relations(communityPosts, ({ one }) => ({
+  author: one(users, { fields: [communityPosts.userId], references: [users.id], relationName: "submittedBy" }),
+  approver: one(users, { fields: [communityPosts.approvedBy], references: [users.id], relationName: "approvedBy" }),
+}));
+
+export const bookStockRelations = relations(bookStock, ({ one }) => ({
+  book: one(books, { fields: [bookStock.bookId], references: [books.id] }),
+  updatedByUser: one(users, { fields: [bookStock.updatedBy], references: [users.id] }),
+}));
 
 // Stats type
 export interface Stats {

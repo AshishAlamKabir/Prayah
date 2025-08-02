@@ -494,18 +494,9 @@ export class DatabaseStorage implements IStorage {
 
   // Cart operations
   async getCartItems(userId: number): Promise<(CartItem & { book: Book })[]> {
-    const result = await db
-      .select({
-        id: cartItems.id,
-        userId: cartItems.userId,
-        bookId: cartItems.bookId,
-        quantity: cartItems.quantity,
-        createdAt: cartItems.createdAt,
-        book: books
-      })
-      .from(cartItems)
-      .leftJoin(books, eq(cartItems.bookId, books.id))
-      .where(eq(cartItems.userId, userId));
+    // Use deadlock-safe implementation
+    const { deadlockSafeStorage } = await import("./deadlock-safe-storage");
+    const result = await deadlockSafeStorage.getCartItemsSafe(userId);
     
     return result.map(item => ({
       id: item.id,
@@ -518,26 +509,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addToCart(item: InsertCartItem): Promise<CartItem> {
-    // Check if item already exists in cart, update quantity if so
-    const existingItem = await db
-      .select()
-      .from(cartItems)
-      .where(and(eq(cartItems.userId, item.userId), eq(cartItems.bookId, item.bookId)));
-
-    if (existingItem.length > 0) {
-      const [updatedItem] = await db
-        .update(cartItems)
-        .set({ quantity: existingItem[0].quantity + (item.quantity || 1) })
-        .where(eq(cartItems.id, existingItem[0].id))
-        .returning();
-      return updatedItem;
-    }
-
-    const [cartItem] = await db
-      .insert(cartItems)
-      .values(item)
-      .returning();
-    return cartItem;
+    // Use deadlock-safe implementation
+    const { deadlockSafeStorage } = await import("./deadlock-safe-storage");
+    return deadlockSafeStorage.addToCartSafe(item.userId, item.bookId, item.quantity || 1);
   }
 
   async updateCartItem(id: number, quantity: number): Promise<CartItem | undefined> {
@@ -560,8 +534,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async clearCart(userId: number): Promise<boolean> {
-    const result = await db.delete(cartItems).where(eq(cartItems.userId, userId));
-    return (result.rowCount ?? 0) > 0;
+    // Use deadlock-safe implementation
+    const { deadlockSafeStorage } = await import("./deadlock-safe-storage");
+    return deadlockSafeStorage.clearCartSafe(userId);
   }
 
   // Book stock operations

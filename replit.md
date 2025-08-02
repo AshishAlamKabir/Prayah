@@ -7,6 +7,7 @@ Prayas is a full-stack web application designed as a digital hub for a study cir
 Preferred communication style: Simple, everyday language.
 Language preference: Remove "revolutionary" language - Prayas is a study circle focused on education and community development, not political revolution.
 Content preference: Replace community submission form with Prayas description and approved publications showcase on home page.
+Database requirements: Deadlock-free database schema with proper foreign keys, indexes, and transaction safety.
 
 ## System Architecture
 
