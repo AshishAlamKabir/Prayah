@@ -1,0 +1,364 @@
+{
+  "config": {
+    "configFile": "/home/runner/workspace/playwright.config.ts",
+    "rootDir": "/home/runner/workspace/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "test-results/html-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Samsung",
+        "name": "Mobile Samsung",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "iPad",
+        "name": "iPad",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Android Tablet",
+        "name": "Android Tablet",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Desktop 1366x768",
+        "name": "Desktop 1366x768",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Desktop 4K",
+        "name": "Desktop 4K",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Chrome Mobile Android 10",
+        "name": "Chrome Mobile Android 10",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/home/runner/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "iPhone SE",
+        "name": "iPhone SE",
+        "testDir": "/home/runner/workspace/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 4,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:5000",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "cross-browser.spec.ts",
+      "file": "cross-browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Cross-Browser Compatibility Tests",
+          "file": "cross-browser.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Homepage loads correctly across all browsers",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 8,
+                      "error": {
+                        "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Please install them with the following command:      ║\n║                                                      ║\n║     sudo npx playwright install-deps                 ║\n║                                                      ║\n║ Alternatively, use apt:                              ║\n║     sudo apt-get install libglib2.0-0t64\\            ║\n║         libnspr4\\                                    ║\n║         libnss3\\                                     ║\n║         libdbus-1-3\\                                 ║\n║         libatk1.0-0t64\\                              ║\n║         libatk-bridge2.0-0t64\\                       ║\n║         libatspi2.0-0t64\\                            ║\n║         libxcomposite1\\                              ║\n║         libxdamage1\\                                 ║\n║         libxext6\\                                    ║\n║         libxfixes3\\                                  ║\n║         libxrandr2\\                                  ║\n║         libgbm1\\                                     ║\n║         libxkbcommon0\\                               ║\n║         libasound2t64                                ║\n║                                                      ║\n║ <3 Playwright Team                                   ║\n╚══════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Please install them with the following command:      ║\n║                                                      ║\n║     sudo npx playwright install-deps                 ║\n║                                                      ║\n║ Alternatively, use apt:                              ║\n║     sudo apt-get install libglib2.0-0t64\\            ║\n║         libnspr4\\                                    ║\n║         libnss3\\                                     ║\n║         libdbus-1-3\\                                 ║\n║         libatk1.0-0t64\\                              ║\n║         libatk-bridge2.0-0t64\\                       ║\n║         libatspi2.0-0t64\\                            ║\n║         libxcomposite1\\                              ║\n║         libxdamage1\\                                 ║\n║         libxext6\\                                    ║\n║         libxfixes3\\                                  ║\n║         libxrandr2\\                                  ║\n║         libgbm1\\                                     ║\n║         libxkbcommon0\\                               ║\n║         libasound2t64                                ║\n║                                                      ║\n║ <3 Playwright Team                                   ║\n╚══════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Please install them with the following command:      ║\n║                                                      ║\n║     sudo npx playwright install-deps                 ║\n║                                                      ║\n║ Alternatively, use apt:                              ║\n║     sudo apt-get install libglib2.0-0t64\\            ║\n║         libnspr4\\                                    ║\n║         libnss3\\                                     ║\n║         libdbus-1-3\\                                 ║\n║         libatk1.0-0t64\\                              ║\n║         libatk-bridge2.0-0t64\\                       ║\n║         libatspi2.0-0t64\\                            ║\n║         libxcomposite1\\                              ║\n║         libxdamage1\\                                 ║\n║         libxext6\\                                    ║\n║         libxfixes3\\                                  ║\n║         libxrandr2\\                                  ║\n║         libgbm1\\                                     ║\n║         libxkbcommon0\\                               ║\n║         libasound2t64                                ║\n║                                                      ║\n║ <3 Playwright Team                                   ║\n╚══════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-02T05:31:43.060Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "988e5ab7a922d34581e7-30d48eceafdca66b9a51",
+              "file": "cross-browser.spec.ts",
+              "line": 12,
+              "column": 3
+            },
+            {
+              "title": "Homepage loads correctly across all browsers",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 6,
+                      "error": {
+                        "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Please install them with the following command:      ║\n║                                                      ║\n║     sudo npx playwright install-deps                 ║\n║                                                      ║\n║ Alternatively, use apt:                              ║\n║     sudo apt-get install libxext6\\                   ║\n║         libxrandr2\\                                  ║\n║         libxcomposite1\\                              ║\n║         libxcursor1\\                                 ║\n║         libxdamage1\\                                 ║\n║         libxfixes3\\                                  ║\n║         libxi6\\                                      ║\n║         libgtk-3-0t64\\                               ║\n║         libpangocairo-1.0-0\\                         ║\n║         libpango-1.0-0\\                              ║\n║         libatk1.0-0t64\\                              ║\n║         libcairo-gobject2\\                           ║\n║         libcairo2\\                                   ║\n║         libgdk-pixbuf-2.0-0\\                         ║\n║         libglib2.0-0t64\\                             ║\n║         libxrender1\\                                 ║\n║         libasound2t64\\                               ║\n║         libdbus-1-3                                  ║\n║                                                      ║\n║ <3 Playwright Team                                   ║\n╚══════════════════════════════════════════════════════╝",
+                        "stack": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Please install them with the following command:      ║\n║                                                      ║\n║     sudo npx playwright install-deps                 ║\n║                                                      ║\n║ Alternatively, use apt:                              ║\n║     sudo apt-get install libxext6\\                   ║\n║         libxrandr2\\                                  ║\n║         libxcomposite1\\                              ║\n║         libxcursor1\\                                 ║\n║         libxdamage1\\                                 ║\n║         libxfixes3\\                                  ║\n║         libxi6\\                                      ║\n║         libgtk-3-0t64\\                               ║\n║         libpangocairo-1.0-0\\                         ║\n║         libpango-1.0-0\\                              ║\n║         libatk1.0-0t64\\                              ║\n║         libcairo-gobject2\\                           ║\n║         libcairo2\\                                   ║\n║         libgdk-pixbuf-2.0-0\\                         ║\n║         libglib2.0-0t64\\                             ║\n║         libxrender1\\                                 ║\n║         libasound2t64\\                               ║\n║         libdbus-1-3                                  ║\n║                                                      ║\n║ <3 Playwright Team                                   ║\n╚══════════════════════════════════════════════════════╝"
+                      },
+                      "errors": [
+                        {
+                          "message": "Error: browserType.launch: \n╔══════════════════════════════════════════════════════╗\n║ Host system is missing dependencies to run browsers. ║\n║ Please install them with the following command:      ║\n║                                                      ║\n║     sudo npx playwright install-deps                 ║\n║                                                      ║\n║ Alternatively, use apt:                              ║\n║     sudo apt-get install libxext6\\                   ║\n║         libxrandr2\\                                  ║\n║         libxcomposite1\\                              ║\n║         libxcursor1\\                                 ║\n║         libxdamage1\\                                 ║\n║         libxfixes3\\                                  ║\n║         libxi6\\                                      ║\n║         libgtk-3-0t64\\                               ║\n║         libpangocairo-1.0-0\\                         ║\n║         libpango-1.0-0\\                              ║\n║         libatk1.0-0t64\\                              ║\n║         libcairo-gobject2\\                           ║\n║         libcairo2\\                                   ║\n║         libgdk-pixbuf-2.0-0\\                         ║\n║         libglib2.0-0t64\\                             ║\n║         libxrender1\\                                 ║\n║         libasound2t64\\                               ║\n║         libdbus-1-3                                  ║\n║                                                      ║\n║ <3 Playwright Team                                   ║\n╚══════════════════════════════════════════════════════╝"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-02T05:31:43.062Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "988e5ab7a922d34581e7-ba1c6aa398d9ef1a9dd1",
+              "file": "cross-browser.spec.ts",
+              "line": 12,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-02T05:31:41.900Z",
+    "duration": 2119.063,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
