@@ -19,7 +19,8 @@ import {
   insertSchoolNotificationSchema,
   insertCultureProgramSchema,
   insertCultureActivitySchema,
-  insertPublicationSubmissionSchema
+  insertPublicationSubmissionSchema,
+  insertSchoolFeePaymentSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -34,6 +35,7 @@ import roleAdminRoutes from "./routes/role-admin";
 import { registerPaymentRoutes } from "./routes/payments";
 import { registerAdminNotificationRoutes } from "./routes/admin-notifications";
 import { registerRazorpayRoutes } from "./routes/razorpay";
+import schoolFeePaymentRoutes from "./routes/school-fee-payments";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -1175,6 +1177,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register deadlock monitoring routes
   app.use("/api/monitoring", deadlockMonitoringRoutes);
+
+  // Register school fee payment routes
+  app.use("/api/fee-payments", schoolFeePaymentRoutes);
 
   // Health check endpoint for Docker
   app.get('/api/health', (req, res) => {

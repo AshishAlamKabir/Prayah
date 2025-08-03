@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, index, uniqueIndex, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, varchar, jsonb, index, uniqueIndex, foreignKey } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -528,6 +528,90 @@ export const insertPublicationSubmissionSchema = createInsertSchema(publicationS
 export type PublicationSubmission = typeof publicationSubmissions.$inferSelect;
 export type InsertPublicationSubmission = z.infer<typeof insertPublicationSubmissionSchema>;
 
+// School fee payments table for fee collection system
+export const schoolFeePayments = pgTable("school_fee_payments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  schoolId: integer("school_id").notNull().references(() => schools.id),
+  studentRollNo: varchar("student_roll_no", { length: 50 }).notNull(),
+  studentName: varchar("student_name", { length: 100 }).notNull(),
+  studentClass: varchar("student_class", { length: 50 }).notNull(),
+  feeMonth: varchar("fee_month", { length: 20 }).notNull(), // e.g., "January 2024"
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("INR"),
+  paymentStatus: varchar("payment_status", { length: 20 }).notNull().default("pending"), // pending, completed, failed, refunded
+  razorpayOrderId: varchar("razorpay_order_id", { length: 100 }),
+  razorpayPaymentId: varchar("razorpay_payment_id", { length: 100 }),
+  paymentMethod: varchar("payment_method", { length: 50 }), // UPI, card, netbanking, wallet
+  transactionFee: decimal("transaction_fee", { precision: 8, scale: 2 }).default("0.00"),
+  receiptNumber: varchar("receipt_number", { length: 50 }),
+  adminNotified: boolean("admin_notified").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  paidAt: timestamp("paid_at"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  // Indexes for performance and preventing duplicate payments
+  index("idx_school_fee_student_month").on(table.schoolId, table.studentRollNo, table.feeMonth),
+  index("idx_school_fee_user").on(table.userId),
+  index("idx_school_fee_status").on(table.paymentStatus),
+  index("idx_school_fee_school").on(table.schoolId),
+  index("idx_razorpay_order").on(table.razorpayOrderId),
+  // Prevent duplicate fee payments for same student/month
+  uniqueIndex("unique_student_fee_month").on(table.schoolId, table.studentRollNo, table.feeMonth)
+]);
+
+export const insertSchoolFeePaymentSchema = createInsertSchema(schoolFeePayments, {
+  amount: z.string().transform((val) => parseFloat(val)),
+  studentRollNo: z.string().min(1, "Roll number is required"),
+  studentName: z.string().min(2, "Student name must be at least 2 characters"),
+  studentClass: z.string().min(1, "Class is required"),
+  feeMonth: z.string().min(1, "Fee month is required"),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  paidAt: true,
+  razorpayOrderId: true,
+  razorpayPaymentId: true,
+  receiptNumber: true,
+  adminNotified: true,
+  paymentStatus: true,
+  currency: true,
+  paymentMethod: true,
+  transactionFee: true,
+});
+
+// Fee payment notification table for school admins
+export const feePaymentNotifications = pgTable("fee_payment_notifications", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schools.id),
+  feePaymentId: integer("fee_payment_id").notNull().references(() => schoolFeePayments.id),
+  adminUserId: integer("admin_user_id").notNull().references(() => users.id),
+  notificationType: varchar("notification_type", { length: 30 }).notNull().default("fee_payment_received"),
+  title: varchar("title", { length: 200 }).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_fee_notification_school_admin").on(table.schoolId, table.adminUserId),
+  index("idx_fee_notification_payment").on(table.feePaymentId),
+  index("idx_fee_notification_unread").on(table.isRead),
+]);
+
+export const insertFeePaymentNotificationSchema = createInsertSchema(feePaymentNotifications).omit({
+  id: true,
+  createdAt: true,
+  notificationType: true,
+});
+
+// School fee payment types
+export type SchoolFeePayment = typeof schoolFeePayments.$inferSelect;
+export type InsertSchoolFeePayment = z.infer<typeof insertSchoolFeePaymentSchema>;
+
+// Fee payment notification types
+export type FeePaymentNotification = typeof feePaymentNotifications.$inferSelect;
+export type InsertFeePaymentNotification = z.infer<typeof insertFeePaymentNotificationSchema>;
+
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(userSessions),
@@ -537,6 +621,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   adminNotifications: many(adminNotifications),
   approvedPosts: many(communityPosts, { relationName: "approvedBy" }),
   submittedPosts: many(communityPosts, { relationName: "submittedBy" }),
+  feePayments: many(schoolFeePayments),
+  feeNotifications: many(feePaymentNotifications),
 }));
 
 export const booksRelations = relations(books, ({ many, one }) => ({
@@ -578,6 +664,23 @@ export const communityPostsRelations = relations(communityPosts, ({ one }) => ({
 export const bookStockRelations = relations(bookStock, ({ one }) => ({
   book: one(books, { fields: [bookStock.bookId], references: [books.id] }),
   updatedByUser: one(users, { fields: [bookStock.updatedBy], references: [users.id] }),
+}));
+
+export const schoolFeePaymentsRelations = relations(schoolFeePayments, ({ one, many }) => ({
+  user: one(users, { fields: [schoolFeePayments.userId], references: [users.id] }),
+  school: one(schools, { fields: [schoolFeePayments.schoolId], references: [schools.id] }),
+  notifications: many(feePaymentNotifications),
+}));
+
+export const feePaymentNotificationsRelations = relations(feePaymentNotifications, ({ one }) => ({
+  school: one(schools, { fields: [feePaymentNotifications.schoolId], references: [schools.id] }),
+  feePayment: one(schoolFeePayments, { fields: [feePaymentNotifications.feePaymentId], references: [schoolFeePayments.id] }),
+  admin: one(users, { fields: [feePaymentNotifications.adminUserId], references: [users.id] }),
+}));
+
+export const schoolsRelations = relations(schools, ({ many }) => ({
+  feePayments: many(schoolFeePayments),
+  feeNotifications: many(feePaymentNotifications),
 }));
 
 // Stats type

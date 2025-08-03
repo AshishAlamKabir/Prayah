@@ -3,7 +3,7 @@ import { useRoute } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users, Phone, Mail, Globe, Star, Award } from "lucide-react";
+import { MapPin, Users, Phone, Mail, Globe, Star, Award, CreditCard } from "lucide-react";
 import { Link } from "wouter";
 import mohuramukh_logo from "@assets/mohura mukh logo_1753439814424.jpg";
 import brahmaputra_logo from "@assets/brahmaputra logo_1753439814424.jpg";
@@ -285,6 +285,24 @@ export default function SchoolDetail() {
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Fee Payment Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-blue-600 dark:text-blue-400">Fee Payment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Pay your school fees online securely through our payment portal.
+                </p>
+                <Button className="w-full mb-3" asChild>
+                  <Link href={`/schools/${school.id}/fee-payment`}>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Pay School Fee
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
 

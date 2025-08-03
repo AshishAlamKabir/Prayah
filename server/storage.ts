@@ -41,6 +41,12 @@ import {
   type InsertPayment,
   type AdminNotification,
   type InsertAdminNotification,
+  schoolFeePayments,
+  type SchoolFeePayment,
+  type InsertSchoolFeePayment,
+  feePaymentNotifications,
+  type FeePaymentNotification,
+  type InsertFeePaymentNotification,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, sql, count } from "drizzle-orm";
@@ -58,6 +64,7 @@ export interface IStorage {
     permissions?: string[];
   }): Promise<User | undefined>;
   getUsersByRole(role: string): Promise<User[]>;
+  getUsersWithSchoolPermission(schoolId: number): Promise<User[]>;
   
   // Authentication operations
   createUserSession(session: InsertUserSession): Promise<UserSession>;
@@ -146,6 +153,19 @@ export interface IStorage {
   markNotificationEmailSent(notificationId: number): Promise<AdminNotification | undefined>;
   getUnreadNotificationCount(adminUserId: number): Promise<number>;
 
+  // School fee payment operations
+  createSchoolFeePayment(payment: InsertSchoolFeePayment): Promise<SchoolFeePayment>;
+  getSchoolFeePayment(id: number): Promise<SchoolFeePayment | undefined>;
+  getSchoolFeePaymentByRazorpayOrderId(orderId: string): Promise<SchoolFeePayment | undefined>;
+  updateSchoolFeePaymentStatus(id: number, updates: Partial<SchoolFeePayment>): Promise<SchoolFeePayment | undefined>;
+  getSchoolFeePayments(schoolId?: number, userId?: number): Promise<SchoolFeePayment[]>;
+  checkDuplicateFeePayment(schoolId: number, studentRollNo: string, feeMonth: string): Promise<SchoolFeePayment | undefined>;
+
+  // Fee payment notification operations
+  createFeePaymentNotification(notification: InsertFeePaymentNotification): Promise<FeePaymentNotification>;
+  getFeePaymentNotifications(schoolId: number, adminUserId: number): Promise<FeePaymentNotification[]>;
+  markFeeNotificationAsRead(notificationId: number): Promise<boolean>;
+
   // Statistics
   getStats(): Promise<{
     totalSchools: number;
@@ -170,6 +190,16 @@ export class DatabaseStorage implements IStorage {
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
+  }
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    return db.select().from(users).where(eq(users.role, role));
+  }
+
+  async getUsersWithSchoolPermission(schoolId: number): Promise<User[]> {
+    return db.select().from(users).where(
+      sql`${users.role} = 'admin' OR ${users.schoolPermissions} @> ${JSON.stringify([schoolId])}`
+    );
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -803,6 +833,95 @@ export class DatabaseStorage implements IStorage {
       totalBooks: Number(bookCount?.count) || 0,
       totalMembers: Number(memberCount?.count) || 0,
     };
+  }
+
+  // School fee payment operations
+  async createSchoolFeePayment(payment: InsertSchoolFeePayment): Promise<SchoolFeePayment> {
+    const [feePayment] = await db
+      .insert(schoolFeePayments)
+      .values(payment)
+      .returning();
+    return feePayment;
+  }
+
+  async getSchoolFeePayment(id: number): Promise<SchoolFeePayment | undefined> {
+    const [payment] = await db
+      .select()
+      .from(schoolFeePayments)
+      .where(eq(schoolFeePayments.id, id));
+    return payment || undefined;
+  }
+
+  async getSchoolFeePaymentByRazorpayOrderId(orderId: string): Promise<SchoolFeePayment | undefined> {
+    const [payment] = await db
+      .select()
+      .from(schoolFeePayments)
+      .where(eq(schoolFeePayments.razorpayOrderId, orderId));
+    return payment || undefined;
+  }
+
+  async updateSchoolFeePaymentStatus(id: number, updates: Partial<SchoolFeePayment>): Promise<SchoolFeePayment | undefined> {
+    const [payment] = await db
+      .update(schoolFeePayments)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schoolFeePayments.id, id))
+      .returning();
+    return payment || undefined;
+  }
+
+  async getSchoolFeePayments(schoolId?: number, userId?: number): Promise<SchoolFeePayment[]> {
+    let query = db.select().from(schoolFeePayments);
+    
+    if (schoolId && userId) {
+      query = query.where(and(eq(schoolFeePayments.schoolId, schoolId), eq(schoolFeePayments.userId, userId)));
+    } else if (schoolId) {
+      query = query.where(eq(schoolFeePayments.schoolId, schoolId));
+    } else if (userId) {
+      query = query.where(eq(schoolFeePayments.userId, userId));
+    }
+    
+    return query.orderBy(desc(schoolFeePayments.createdAt));
+  }
+
+  async checkDuplicateFeePayment(schoolId: number, studentRollNo: string, feeMonth: string): Promise<SchoolFeePayment | undefined> {
+    const [payment] = await db
+      .select()
+      .from(schoolFeePayments)
+      .where(and(
+        eq(schoolFeePayments.schoolId, schoolId),
+        eq(schoolFeePayments.studentRollNo, studentRollNo),
+        eq(schoolFeePayments.feeMonth, feeMonth),
+        eq(schoolFeePayments.paymentStatus, "completed")
+      ));
+    return payment || undefined;
+  }
+
+  // Fee payment notification operations
+  async createFeePaymentNotification(notification: InsertFeePaymentNotification): Promise<FeePaymentNotification> {
+    const [feeNotification] = await db
+      .insert(feePaymentNotifications)
+      .values(notification)
+      .returning();
+    return feeNotification;
+  }
+
+  async getFeePaymentNotifications(schoolId: number, adminUserId: number): Promise<FeePaymentNotification[]> {
+    return db
+      .select()
+      .from(feePaymentNotifications)
+      .where(and(
+        eq(feePaymentNotifications.schoolId, schoolId),
+        eq(feePaymentNotifications.adminUserId, adminUserId)
+      ))
+      .orderBy(desc(feePaymentNotifications.createdAt));
+  }
+
+  async markFeeNotificationAsRead(notificationId: number): Promise<boolean> {
+    const result = await db
+      .update(feePaymentNotifications)
+      .set({ isRead: true })
+      .where(eq(feePaymentNotifications.id, notificationId));
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
