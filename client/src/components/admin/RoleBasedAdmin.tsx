@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { School, GraduationCap, Palette, Music, Theater, BookOpen, Users } from "lucide-react";
+import { School, GraduationCap, Palette, Music, Theater, BookOpen, Users, CreditCard } from "lucide-react";
+import SchoolFeeManagement from "./SchoolFeeManagement";
 
 interface RoleBasedDashboardData {
   user: {
@@ -145,13 +146,16 @@ export default function RoleBasedAdmin() {
 
       {/* Management Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           {(user.role === "admin" || user.role === "school_admin") && (
             <TabsTrigger value="schools">Schools</TabsTrigger>
           )}
           {(user.role === "admin" || user.role === "culture_admin") && (
             <TabsTrigger value="culture">Culture</TabsTrigger>
+          )}
+          {(user.role === "admin" || user.role === "school_admin") && (
+            <TabsTrigger value="fees">Fee Management</TabsTrigger>
           )}
           {user.role === "admin" && (
             <TabsTrigger value="users">User Management</TabsTrigger>
@@ -262,6 +266,10 @@ export default function RoleBasedAdmin() {
               </p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="fees">
+          <SchoolFeeManagement />
         </TabsContent>
 
         <TabsContent value="users">

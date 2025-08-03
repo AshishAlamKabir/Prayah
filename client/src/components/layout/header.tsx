@@ -23,6 +23,7 @@ export default function Header() {
     { name: "Art & Culture", href: "/culture" },
     { name: "Community", href: "/community" },
     { name: "Store", href: "/store" },
+    { name: "Fee Payment", href: "/fee-payment" },
     { name: "Publish Book", href: "/publish" },
   ];
 
