@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Book, GraduationCap, Palette, Users } from "lucide-react";
+import { Link } from "wouter";
 import type { School, Book as BookType, CultureCategory } from "@shared/schema";
 import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
@@ -153,9 +154,11 @@ export default function Home() {
                       <p className="text-gray-700 mb-4">{school.description}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-red-800 font-medium">{school.studentCount} Students</span>
-                        <Button className="bg-green-600 hover:bg-green-700">
-                          View Details
-                        </Button>
+                        <Link href={`/schools/${school.id}`}>
+                          <Button className="bg-green-600 hover:bg-green-700">
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>
@@ -165,9 +168,11 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <Button size="lg" className="bg-red-800 hover:bg-red-900 text-white px-8 py-4">
-              View All Schools
-            </Button>
+            <Link href="/schools">
+              <Button size="lg" className="bg-red-800 hover:bg-red-900 text-white px-8 py-4">
+                View All Schools
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -198,9 +203,11 @@ export default function Home() {
                   </div>
                   <h3 className="text-lg font-bold mb-3">{program.name}</h3>
                   <p className="text-gray-600 text-sm mb-4">{program.description}</p>
-                  <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
-                    Learn More
-                  </Button>
+                  <Link href="/culture">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                      Learn More
+                    </Button>
+                  </Link>
                 </Card>
               ))
             )}
@@ -254,12 +261,18 @@ export default function Home() {
                     </p>
                     <p className="text-gray-700 text-sm mb-4">{book.description}</p>
                     <div className="flex gap-2">
-                      <Button className="bg-green-600 hover:bg-green-700 text-white flex-1">
-                        Buy Book
-                      </Button>
-                      <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white">
-                        Free PDF
-                      </Button>
+                      <Link href={`/books/${book.id}`} className="flex-1">
+                        <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
+                          Buy Book
+                        </Button>
+                      </Link>
+                      {book.pdfUrl && (
+                        <a href={book.pdfUrl} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white">
+                            Free PDF
+                          </Button>
+                        </a>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -268,9 +281,11 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <Button size="lg" className="bg-red-800 hover:bg-red-900 text-white px-8 py-4">
-              Browse Full Catalog
-            </Button>
+            <Link href="/books">
+              <Button size="lg" className="bg-red-800 hover:bg-red-900 text-white px-8 py-4">
+                Browse Full Catalog
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
