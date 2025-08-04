@@ -29,7 +29,8 @@ import {
   optionalAuthMiddleware,
   generateSessionToken, 
   hashPassword, 
-  verifyPassword 
+  verifyPassword,
+  generateUserJWT
 } from "./auth";
 import roleAdminRoutes from "./routes/role-admin";
 import { registerPaymentRoutes } from "./routes/payments";
@@ -167,19 +168,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Create session
-      const token = generateSessionToken();
+      // Generate both session token and JWT for enhanced security
+      const sessionToken = generateSessionToken();
+      const jwtToken = generateUserJWT(user);
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
       await storage.createUserSession({
         userId: user.id,
-        token,
+        token: sessionToken,
         expiresAt,
       });
 
       const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword, token });
+      
+      // Set secure HTTP-only cookie for session token
+      res.cookie('session_token', sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      res.json({ 
+        user: userWithoutPassword, 
+        token: jwtToken, // JWT for client-side storage
+        sessionToken // Backward compatibility
+      });
     } catch (error) {
       console.error("Error logging in user:", error);
       res.status(500).json({ message: "Failed to log in" });
