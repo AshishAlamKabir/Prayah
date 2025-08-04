@@ -57,6 +57,24 @@ The application employs a modern full-stack architecture, ensuring clear separat
     - **E-commerce**: Full e-commerce platform for books with PDF access, subscription models, and order management.
     - **Authentication**: Two-tier system for regular users and administrators, with role-based redirection and secure token management.
 
+## Security Architecture
+
+### Encryption System - AES-256-GCM
+- **Implementation Date**: August 4, 2025
+- **Algorithm**: AES-256-GCM (Galois/Counter Mode) - Military-grade encryption
+- **Key Management**: 256-bit encryption keys with secure generation scripts
+- **Authentication**: JWT tokens with SHA-256 hashing
+- **Data Protection**: All sensitive student, payment, and user data encrypted
+- **Validation**: Automated system health checks on startup
+- **Scripts Available**: Node.js and Python key generators, security checkers
+- **Status**: ✅ Production-ready, FERPA-compliant for educational data
+
+### Available Security Tools
+- `scripts/generate-keys.js` - Node.js key generation
+- `scripts/generate-keys.py` - Python key generation (compatible with user's existing script)
+- `scripts/check-keys.js` - Security status verification
+- `examples/encryption-demo.js` - Live encryption demonstration
+
 ## External Dependencies
 
 - **Database**: Neon Database (serverless PostgreSQL)
@@ -67,5 +85,6 @@ The application employs a modern full-stack architecture, ensuring clear separat
 - **Payment Gateway**: Stripe, Razorpay (with UPI support)
 - **Email Service**: SendGrid
 - **File Upload**: Multer
+- **Encryption**: Native Node.js crypto module with AES-256-GCM
 - **Development Tools**: Replit Cartographer plugin, TypeScript, ESBuild (production bundling), `tsx` (server hot reloading).
 - **Containerization**: Docker, Docker Compose (for PostgreSQL, Redis, Nginx, application containers).
