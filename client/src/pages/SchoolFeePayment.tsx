@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { AlertCircle, School, CreditCard, CheckCircle2, Receipt, ArrowLeft } from "lucide-react";
+import { AlertCircle, School, CreditCard, CheckCircle2, Receipt, ArrowLeft, Calculator } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { School as SchoolType } from "@shared/schema";
 
@@ -51,7 +51,7 @@ export default function SchoolFeePayment() {
   });
 
   // Get fee structures for the school
-  const { data: feeStructures = [] } = useQuery({
+  const { data: feeStructures = [] } = useQuery<any[]>({
     queryKey: ["/api/schools", schoolId, "fee-structures"],
     enabled: !!schoolId,
   });
@@ -70,7 +70,7 @@ export default function SchoolFeePayment() {
   });
 
   // Get available classes from fee structures
-  const availableClasses = [...new Set(feeStructures.map((fs: any) => fs.className))];
+  const availableClasses = Array.from(new Set(feeStructures.map((fs: any) => fs.className))).sort();
   
   // Watch form values to calculate fees automatically
   const watchedSchoolId = form.watch("schoolId");
@@ -469,36 +469,35 @@ export default function SchoolFeePayment() {
                     fs.className === watchedClass && fs.feeType === watchedFeeType
                   );
                   
-                  if (feeStructure) {
-                    return (
-                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
-                          <Calculator className="h-4 w-4 mr-2" />
-                          Fee Structure for {watchedClass} - {watchedFeeType === 'monthly' ? 'Monthly Fee' : 'Yearly Admission Fee'}
-                        </h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-600">School Receives:</span>
-                            <div className="font-medium text-green-700">₹{feeStructure.schoolAmount}</div>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Payment Gateway Charge:</span>
-                            <div className="font-medium text-red-600">₹{(parseFloat(feeStructure.studentPaysAmount) - parseFloat(feeStructure.schoolAmount)).toFixed(2)}</div>
-                          </div>
-                          <div className="col-span-2 pt-2 border-t border-blue-200">
-                            <span className="text-gray-600">Total Amount You Pay:</span>
-                            <div className="font-bold text-lg text-blue-900">₹{feeStructure.studentPaysAmount}</div>
-                          </div>
-                          {feeStructure.installments > 1 && (
-                            <div className="col-span-2 text-sm text-blue-700">
-                              Can be paid in {feeStructure.installments} installments of ₹{Math.ceil(parseFloat(feeStructure.studentPaysAmount) / feeStructure.installments)} each
-                            </div>
-                          )}
+                  if (!feeStructure) return null;
+                  
+                  return (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                        <Calculator className="h-4 w-4 mr-2" />
+                        Fee Structure for {watchedClass} - {watchedFeeType === 'monthly' ? 'Monthly Fee' : 'Yearly Admission Fee'}
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">School Receives:</span>
+                          <div className="font-medium text-green-700">₹{feeStructure.schoolAmount}</div>
                         </div>
+                        <div>
+                          <span className="text-gray-600">Payment Gateway Charge:</span>
+                          <div className="font-medium text-red-600">₹{(parseFloat(feeStructure.studentPaysAmount) - parseFloat(feeStructure.schoolAmount)).toFixed(2)}</div>
+                        </div>
+                        <div className="col-span-2 pt-2 border-t border-blue-200">
+                          <span className="text-gray-600">Total Amount You Pay:</span>
+                          <div className="font-bold text-lg text-blue-900">₹{feeStructure.studentPaysAmount}</div>
+                        </div>
+                        {feeStructure.installments > 1 && (
+                          <div className="col-span-2 text-sm text-blue-700">
+                            Can be paid in {feeStructure.installments} installments of ₹{Math.ceil(parseFloat(feeStructure.studentPaysAmount) / feeStructure.installments)} each
+                          </div>
+                        )}
                       </div>
-                    );
-                  }
-                  return null;
+                    </div>
+                  );
                 })()}
 
                 <FormField
