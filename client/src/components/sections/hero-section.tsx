@@ -12,15 +12,14 @@ export default function HeroSection() {
           Empowering education, culture, and community development through digital learning and collaboration
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
-            size="lg" 
-            className="bg-green-600 hover:bg-green-700 px-8 py-4 text-lg font-semibold"
-            onClick={() => {
-              document.getElementById('community-form')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            Submit Community Post
-          </Button>
+          <Link href="/community">
+            <Button 
+              size="lg" 
+              className="bg-green-600 hover:bg-green-700 px-8 py-4 text-lg font-semibold"
+            >
+              Submit Community Post
+            </Button>
+          </Link>
           <Link href="/schools">
             <Button 
               size="lg"
