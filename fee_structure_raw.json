@@ -1,0 +1,106 @@
+{
+  "Sheet1": {
+    "headers": [
+      "Class",
+      "Renewal 25-26",
+      "Monthly 25-26"
+    ],
+    "data": [
+      {
+        "Class": "Ankur",
+        "Renewal 25-26": 3500,
+        "Monthly 25-26": 450
+      },
+      {
+        "Class": "Kunhi",
+        "Renewal 25-26": 3400,
+        "Monthly 25-26": 450
+      },
+      {
+        "Class": "Sopan",
+        "Renewal 25-26": 3400,
+        "Monthly 25-26": 450
+      },
+      {
+        "Class": "I",
+        "Renewal 25-26": 3900,
+        "Monthly 25-26": 450
+      },
+      {
+        "Class": "II",
+        "Renewal 25-26": 4300,
+        "Monthly 25-26": 470
+      },
+      {
+        "Class": "III",
+        "Renewal 25-26": 4300,
+        "Monthly 25-26": 500
+      },
+      {
+        "Class": "IV",
+        "Renewal 25-26": 4300,
+        "Monthly 25-26": 520
+      },
+      {
+        "Class": "V",
+        "Renewal 25-26": 4300,
+        "Monthly 25-26": 550
+      },
+      {
+        "Class": "VI",
+        "Renewal 25-26": 4400,
+        "Monthly 25-26": 560
+      },
+      {
+        "Class": "VII",
+        "Renewal 25-26": 4400,
+        "Monthly 25-26": 580
+      },
+      {
+        "Class": "VIII",
+        "Renewal 25-26": 4400,
+        "Monthly 25-26": 640
+      },
+      {
+        "Class": "IX",
+        "Renewal 25-26": 4900,
+        "Monthly 25-26": 750
+      },
+      {
+        "Class": "X",
+        "Renewal 25-26": 4900,
+        "Monthly 25-26": 800
+      },
+      {
+        "Class": "XI - ARTS",
+        "Renewal 25-26": "4600 x 3 Installment",
+        "Monthly 25-26": ""
+      },
+      {
+        "Class": "XI - COM",
+        "Renewal 25-26": "5000 x 3 Installment",
+        "Monthly 25-26": ""
+      },
+      {
+        "Class": "XI - SCI",
+        "Renewal 25-26": "5400 x 3 Installment",
+        "Monthly 25-26": ""
+      },
+      {
+        "Class": "XII - ARTS",
+        "Renewal 25-26": "4600 x 3 Installment",
+        "Monthly 25-26": ""
+      },
+      {
+        "Class": "XII - COM",
+        "Renewal 25-26": "5000 x 3 Installment",
+        "Monthly 25-26": ""
+      },
+      {
+        "Class": "XII - SCI",
+        "Renewal 25-26": "5400 x 3 Installment",
+        "Monthly 25-26": ""
+      }
+    ]
+  }
+}

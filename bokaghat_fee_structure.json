@@ -1,0 +1,237 @@
+{
+  "schoolName": "Bokaghat Jatiya Vidyalaya",
+  "academicYear": "2025-26",
+  "razorpayChargePercent": 2.36,
+  "feeStructure": {
+    "Ankur": {
+      "renewal": {
+        "schoolAmount": 3500,
+        "razorpayCharge": 83,
+        "studentPays": 3583,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 450,
+        "razorpayCharge": 11,
+        "studentPays": 461,
+        "installments": 1
+      }
+    },
+    "Kunhi": {
+      "renewal": {
+        "schoolAmount": 3400,
+        "razorpayCharge": 81,
+        "studentPays": 3481,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 450,
+        "razorpayCharge": 11,
+        "studentPays": 461,
+        "installments": 1
+      }
+    },
+    "Sopan": {
+      "renewal": {
+        "schoolAmount": 3400,
+        "razorpayCharge": 81,
+        "studentPays": 3481,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 450,
+        "razorpayCharge": 11,
+        "studentPays": 461,
+        "installments": 1
+      }
+    },
+    "I": {
+      "renewal": {
+        "schoolAmount": 3900,
+        "razorpayCharge": 93,
+        "studentPays": 3993,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 450,
+        "razorpayCharge": 11,
+        "studentPays": 461,
+        "installments": 1
+      }
+    },
+    "II": {
+      "renewal": {
+        "schoolAmount": 4300,
+        "razorpayCharge": 102,
+        "studentPays": 4402,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 470,
+        "razorpayCharge": 12,
+        "studentPays": 482,
+        "installments": 1
+      }
+    },
+    "III": {
+      "renewal": {
+        "schoolAmount": 4300,
+        "razorpayCharge": 102,
+        "studentPays": 4402,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 500,
+        "razorpayCharge": 12,
+        "studentPays": 512,
+        "installments": 1
+      }
+    },
+    "IV": {
+      "renewal": {
+        "schoolAmount": 4300,
+        "razorpayCharge": 102,
+        "studentPays": 4402,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 520,
+        "razorpayCharge": 13,
+        "studentPays": 533,
+        "installments": 1
+      }
+    },
+    "V": {
+      "renewal": {
+        "schoolAmount": 4300,
+        "razorpayCharge": 102,
+        "studentPays": 4402,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 550,
+        "razorpayCharge": 13,
+        "studentPays": 563,
+        "installments": 1
+      }
+    },
+    "VI": {
+      "renewal": {
+        "schoolAmount": 4400,
+        "razorpayCharge": 104,
+        "studentPays": 4504,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 560,
+        "razorpayCharge": 14,
+        "studentPays": 574,
+        "installments": 1
+      }
+    },
+    "VII": {
+      "renewal": {
+        "schoolAmount": 4400,
+        "razorpayCharge": 104,
+        "studentPays": 4504,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 580,
+        "razorpayCharge": 14,
+        "studentPays": 594,
+        "installments": 1
+      }
+    },
+    "VIII": {
+      "renewal": {
+        "schoolAmount": 4400,
+        "razorpayCharge": 104,
+        "studentPays": 4504,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 640,
+        "razorpayCharge": 16,
+        "studentPays": 656,
+        "installments": 1
+      }
+    },
+    "IX": {
+      "renewal": {
+        "schoolAmount": 4900,
+        "razorpayCharge": 116,
+        "studentPays": 5016,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 750,
+        "razorpayCharge": 18,
+        "studentPays": 768,
+        "installments": 1
+      }
+    },
+    "X": {
+      "renewal": {
+        "schoolAmount": 4900,
+        "razorpayCharge": 116,
+        "studentPays": 5016,
+        "installments": 1
+      },
+      "monthly": {
+        "schoolAmount": 800,
+        "razorpayCharge": 19,
+        "studentPays": 819,
+        "installments": 1
+      }
+    },
+    "XI - ARTS": {
+      "renewal": {
+        "schoolAmount": 4600,
+        "razorpayCharge": 109,
+        "studentPays": 4709,
+        "installments": 3
+      }
+    },
+    "XI - COM": {
+      "renewal": {
+        "schoolAmount": 5000,
+        "razorpayCharge": 118,
+        "studentPays": 5118,
+        "installments": 3
+      }
+    },
+    "XI - SCI": {
+      "renewal": {
+        "schoolAmount": 5400,
+        "razorpayCharge": 128,
+        "studentPays": 5528,
+        "installments": 3
+      }
+    },
+    "XII - ARTS": {
+      "renewal": {
+        "schoolAmount": 4600,
+        "razorpayCharge": 109,
+        "studentPays": 4709,
+        "installments": 3
+      }
+    },
+    "XII - COM": {
+      "renewal": {
+        "schoolAmount": 5000,
+        "razorpayCharge": 118,
+        "studentPays": 5118,
+        "installments": 3
+      }
+    },
+    "XII - SCI": {
+      "renewal": {
+        "schoolAmount": 5400,
+        "razorpayCharge": 128,
+        "studentPays": 5528,
+        "installments": 3
+      }
+    }
+  }
+}

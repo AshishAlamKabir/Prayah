@@ -20,7 +20,8 @@ import {
   insertCultureProgramSchema,
   insertCultureActivitySchema,
   insertPublicationSubmissionSchema,
-  insertSchoolFeePaymentSchema
+  insertSchoolFeePaymentSchema,
+  insertFeeStructureSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -1195,6 +1196,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register school fee payment routes
   app.use("/api/fee-payments", schoolFeePaymentRoutes);
+
+  // Fee structure routes for schools
+  app.get("/api/schools/:schoolId/fee-structures", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const academicYear = req.query.academicYear as string;
+      
+      const feeStructures = await storage.getFeeStructures(schoolId, academicYear);
+      res.json(feeStructures);
+    } catch (error: any) {
+      console.error("Error fetching fee structures:", error);
+      res.status(500).json({ error: "Failed to fetch fee structures" });
+    }
+  });
+
+  app.get("/api/schools/:schoolId/fee-structures/:className/:feeType", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const { className, feeType } = req.params;
+      const academicYear = req.query.academicYear as string;
+      
+      const feeStructure = await storage.getFeeStructureByClass(schoolId, className, feeType, academicYear);
+      
+      if (!feeStructure) {
+        return res.status(404).json({ error: "Fee structure not found" });
+      }
+      
+      res.json(feeStructure);
+    } catch (error: any) {
+      console.error("Error fetching fee structure:", error);
+      res.status(500).json({ error: "Failed to fetch fee structure" });
+    }
+  });
+
+  app.post("/api/schools/:schoolId/fee-structures", adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const parsed = insertFeeStructureSchema.safeParse({
+        ...req.body,
+        schoolId
+      });
+
+      if (!parsed.success) {
+        const errors = fromZodError(parsed.error);
+        return res.status(400).json({ error: errors.toString() });
+      }
+
+      const feeStructure = await storage.createFeeStructure(parsed.data);
+      res.status(201).json(feeStructure);
+    } catch (error: any) {
+      console.error("Error creating fee structure:", error);
+      res.status(500).json({ error: "Failed to create fee structure" });
+    }
+  });
+
+  app.post("/api/schools/:schoolId/fee-structures/bulk", adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const structures = req.body.structures;
+      
+      if (!Array.isArray(structures)) {
+        return res.status(400).json({ error: "Structures must be an array" });
+      }
+
+      const validatedStructures = structures.map(structure => {
+        const parsed = insertFeeStructureSchema.safeParse({
+          ...structure,
+          schoolId
+        });
+        
+        if (!parsed.success) {
+          throw new Error(`Invalid structure: ${fromZodError(parsed.error)}`);
+        }
+        
+        return parsed.data;
+      });
+
+      const createdStructures = await storage.bulkCreateFeeStructures(validatedStructures);
+      res.status(201).json(createdStructures);
+    } catch (error: any) {
+      console.error("Error creating fee structures:", error);
+      res.status(500).json({ error: error.message || "Failed to create fee structures" });
+    }
+  });
 
   // Health check endpoint for Docker
   app.get('/api/health', (req, res) => {

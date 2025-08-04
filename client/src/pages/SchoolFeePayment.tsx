@@ -17,14 +17,15 @@ import { AlertCircle, School, CreditCard, CheckCircle2, Receipt, ArrowLeft } fro
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { School as SchoolType } from "@shared/schema";
 
-// Fee payment form schema
+// Fee payment form schema with fee structure integration
 const feePaymentSchema = z.object({
   schoolId: z.number({ required_error: "Please select a school" }),
   studentRollNo: z.string().min(1, "Roll number is required"),
   studentName: z.string().min(2, "Student name must be at least 2 characters"),
   studentClass: z.string().min(1, "Class is required"),
-  feeMonth: z.string().min(1, "Fee month is required"),
-  amount: z.string().min(1, "Amount is required").transform((val) => parseFloat(val)),
+  feeType: z.string().min(1, "Fee type is required"),
+  feeMonth: z.string().optional(), // Optional for renewal fees
+  amount: z.number().min(1, "Amount is required"),
 });
 
 type FeePaymentForm = z.infer<typeof feePaymentSchema>;
@@ -49,6 +50,12 @@ export default function SchoolFeePayment() {
     enabled: !!schoolId,
   });
 
+  // Get fee structures for the school
+  const { data: feeStructures = [] } = useQuery({
+    queryKey: ["/api/schools", schoolId, "fee-structures"],
+    enabled: !!schoolId,
+  });
+
   const form = useForm<FeePaymentForm>({
     resolver: zodResolver(feePaymentSchema),
     defaultValues: {
@@ -56,10 +63,32 @@ export default function SchoolFeePayment() {
       studentRollNo: "",
       studentName: "",
       studentClass: "",
+      feeType: "",
       feeMonth: "",
       amount: 0,
     },
   });
+
+  // Get available classes from fee structures
+  const availableClasses = [...new Set(feeStructures.map((fs: any) => fs.className))];
+  
+  // Watch form values to calculate fees automatically
+  const watchedSchoolId = form.watch("schoolId");
+  const watchedClass = form.watch("studentClass");
+  const watchedFeeType = form.watch("feeType");
+
+  // Auto-calculate fee amount when class and fee type are selected
+  useEffect(() => {
+    if (watchedSchoolId && watchedClass && watchedFeeType && feeStructures.length > 0) {
+      const feeStructure = feeStructures.find((fs: any) => 
+        fs.className === watchedClass && fs.feeType === watchedFeeType
+      );
+      
+      if (feeStructure) {
+        form.setValue("amount", parseFloat(feeStructure.studentPaysAmount));
+      }
+    }
+  }, [watchedSchoolId, watchedClass, watchedFeeType, feeStructures, form]);
 
   // Create payment order mutation
   const createOrderMutation = useMutation({
@@ -351,9 +380,20 @@ export default function SchoolFeePayment() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Class *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter class" {...field} />
-                        </FormControl>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select class" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {availableClasses.map((className) => (
+                              <SelectItem key={className} value={className}>
+                                {className}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -374,7 +414,29 @@ export default function SchoolFeePayment() {
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="feeType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fee Type *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select fee type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="monthly">Monthly Fee</SelectItem>
+                          <SelectItem value="renewal">Yearly Admission Fee (Renewal)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {watchedFeeType === "monthly" && (
                   <FormField
                     control={form.control}
                     name="feeMonth"
@@ -399,28 +461,68 @@ export default function SchoolFeePayment() {
                       </FormItem>
                     )}
                   />
+                )}
 
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Fee Amount (₹) *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="Enter amount" 
-                            min="1"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                {/* Fee Breakdown Display */}
+                {watchedClass && watchedFeeType && feeStructures.length > 0 && (() => {
+                  const feeStructure = feeStructures.find((fs: any) => 
+                    fs.className === watchedClass && fs.feeType === watchedFeeType
+                  );
+                  
+                  if (feeStructure) {
+                    return (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                          <Calculator className="h-4 w-4 mr-2" />
+                          Fee Structure for {watchedClass} - {watchedFeeType === 'monthly' ? 'Monthly Fee' : 'Yearly Admission Fee'}
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">School Receives:</span>
+                            <div className="font-medium text-green-700">₹{feeStructure.schoolAmount}</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Payment Gateway Charge:</span>
+                            <div className="font-medium text-red-600">₹{(parseFloat(feeStructure.studentPaysAmount) - parseFloat(feeStructure.schoolAmount)).toFixed(2)}</div>
+                          </div>
+                          <div className="col-span-2 pt-2 border-t border-blue-200">
+                            <span className="text-gray-600">Total Amount You Pay:</span>
+                            <div className="font-bold text-lg text-blue-900">₹{feeStructure.studentPaysAmount}</div>
+                          </div>
+                          {feeStructure.installments > 1 && (
+                            <div className="col-span-2 text-sm text-blue-700">
+                              Can be paid in {feeStructure.installments} installments of ₹{Math.ceil(parseFloat(feeStructure.studentPaysAmount) / feeStructure.installments)} each
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fee Amount (₹) *</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="Amount will be calculated automatically" 
+                          min="1"
+                          step="0.01"
+                          readOnly
+                          {...field}
+                          value={field.value || ""}
+                          className="bg-gray-50"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <Alert>
                   <AlertCircle className="h-4 w-4" />

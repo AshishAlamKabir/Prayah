@@ -13,6 +13,7 @@ import {
   publicationSubmissions,
   payments,
   adminNotifications,
+  feeStructures,
   type User,
   type InsertUser,
   type CommunityPost,
@@ -47,6 +48,8 @@ import {
   feePaymentNotifications,
   type FeePaymentNotification,
   type InsertFeePaymentNotification,
+  type FeeStructure,
+  type InsertFeeStructure,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, sql, count } from "drizzle-orm";
@@ -894,6 +897,75 @@ export class DatabaseStorage implements IStorage {
         eq(schoolFeePayments.paymentStatus, "completed")
       ));
     return payment || undefined;
+  }
+
+  // Fee structure operations
+  async createFeeStructure(feeStructure: InsertFeeStructure): Promise<FeeStructure> {
+    const [structure] = await db
+      .insert(feeStructures)
+      .values(feeStructure)
+      .returning();
+    return structure;
+  }
+
+  async getFeeStructures(schoolId: number, academicYear?: string): Promise<FeeStructure[]> {
+    let query = db.select().from(feeStructures).where(eq(feeStructures.schoolId, schoolId));
+    
+    if (academicYear) {
+      query = query.where(and(
+        eq(feeStructures.schoolId, schoolId),
+        eq(feeStructures.academicYear, academicYear)
+      ));
+    }
+    
+    return query.orderBy(feeStructures.className, feeStructures.feeType);
+  }
+
+  async getFeeStructureByClass(schoolId: number, className: string, feeType: string, academicYear?: string): Promise<FeeStructure | undefined> {
+    let query = db.select().from(feeStructures)
+      .where(and(
+        eq(feeStructures.schoolId, schoolId),
+        eq(feeStructures.className, className),
+        eq(feeStructures.feeType, feeType),
+        eq(feeStructures.isActive, true)
+      ));
+    
+    if (academicYear) {
+      query = query.where(and(
+        eq(feeStructures.schoolId, schoolId),
+        eq(feeStructures.className, className),
+        eq(feeStructures.feeType, feeType),
+        eq(feeStructures.academicYear, academicYear),
+        eq(feeStructures.isActive, true)
+      ));
+    }
+    
+    const [structure] = await query;
+    return structure || undefined;
+  }
+
+  async updateFeeStructure(id: number, updates: Partial<InsertFeeStructure>): Promise<FeeStructure | undefined> {
+    const [structure] = await db
+      .update(feeStructures)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(feeStructures.id, id))
+      .returning();
+    return structure || undefined;
+  }
+
+  async deleteFeeStructure(id: number): Promise<boolean> {
+    const result = await db
+      .delete(feeStructures)
+      .where(eq(feeStructures.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async bulkCreateFeeStructures(structures: InsertFeeStructure[]): Promise<FeeStructure[]> {
+    const createdStructures = await db
+      .insert(feeStructures)
+      .values(structures)
+      .returning();
+    return createdStructures;
   }
 
   // Fee payment notification operations

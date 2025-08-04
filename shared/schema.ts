@@ -604,6 +604,35 @@ export const insertFeePaymentNotificationSchema = createInsertSchema(feePaymentN
   notificationType: true,
 });
 
+// Fee structures table for schools - Enhanced with Razorpay charges
+export const feeStructures = pgTable("fee_structures", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schools.id, { onDelete: 'cascade' }),
+  className: varchar("class_name", { length: 50 }).notNull(),
+  feeType: varchar("fee_type", { length: 20 }).notNull(), // 'monthly', 'renewal', 'admission'
+  schoolAmount: decimal("school_amount", { precision: 10, scale: 2 }).notNull(), // Amount school receives
+  razorpayChargePercent: decimal("razorpay_charge_percent", { precision: 5, scale: 4 }).default("2.36"), // 2.36%
+  razorpayFixedCharge: decimal("razorpay_fixed_charge", { precision: 10, scale: 2 }).default("0.00"),
+  studentPaysAmount: decimal("student_pays_amount", { precision: 10, scale: 2 }).notNull(), // Total amount student pays
+  installments: integer("installments").default(1),
+  academicYear: varchar("academic_year", { length: 20 }).default("2025-26"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    schoolClassIdx: index('fee_structures_school_class_idx').on(table.schoolId, table.className),
+    feeTypeIdx: index('fee_structures_fee_type_idx').on(table.feeType),
+    academicYearIdx: index('fee_structures_academic_year_idx').on(table.academicYear),
+  };
+});
+
+export const insertFeeStructureSchema = createInsertSchema(feeStructures).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // School fee payment types
 export type SchoolFeePayment = typeof schoolFeePayments.$inferSelect;
 export type InsertSchoolFeePayment = z.infer<typeof insertSchoolFeePaymentSchema>;
@@ -611,6 +640,10 @@ export type InsertSchoolFeePayment = z.infer<typeof insertSchoolFeePaymentSchema
 // Fee payment notification types
 export type FeePaymentNotification = typeof feePaymentNotifications.$inferSelect;
 export type InsertFeePaymentNotification = z.infer<typeof insertFeePaymentNotificationSchema>;
+
+// Fee structure types
+export type FeeStructure = typeof feeStructures.$inferSelect;
+export type InsertFeeStructure = z.infer<typeof insertFeeStructureSchema>;
 
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
@@ -678,10 +711,17 @@ export const feePaymentNotificationsRelations = relations(feePaymentNotification
   admin: one(users, { fields: [feePaymentNotifications.adminUserId], references: [users.id] }),
 }));
 
+export const feeStructuresRelations = relations(feeStructures, ({ one }) => ({
+  school: one(schools, { fields: [feeStructures.schoolId], references: [schools.id] }),
+}));
+
 export const schoolsRelations = relations(schools, ({ many }) => ({
   feePayments: many(schoolFeePayments),
   feeNotifications: many(feePaymentNotifications),
+  feeStructures: many(feeStructures),
 }));
+
+
 
 // Stats type
 export interface Stats {
