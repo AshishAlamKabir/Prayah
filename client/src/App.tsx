@@ -43,6 +43,8 @@ function Router() {
           <Route path="/culture/drama" component={Drama} />
           <Route path="/culture/poems" component={Poems} />
           <Route path="/culture/dance-drama-poems" component={DanceDramaPoems} />
+          <Route path="/books" component={BooksStore} />
+          <Route path="/books/:id" component={BooksStore} />
           <Route path="/store" component={BooksStore} />
           <Route path="/cart" component={Cart} />
           <Route path="/community" component={Community} />

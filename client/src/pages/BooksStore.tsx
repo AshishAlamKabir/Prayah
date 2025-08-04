@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { Book, Search, ShoppingCart, Download, Star, Lock, Crown } from "lucide-react";
+import { Book, Search, ShoppingCart, Download, Star, Lock, Crown, ArrowLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import AddToCartButton from "@/components/AddToCartButton";
-import { Link } from "wouter";
+import { Link, useRoute } from "wouter";
 
 export default function BooksStore() {
+  const [, params] = useRoute("/books/:id");
+  const bookId = params?.id ? parseInt(params.id) : null;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showSubscriptionOnly, setShowSubscriptionOnly] = useState(false);
@@ -20,6 +22,19 @@ export default function BooksStore() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Query for single book if ID is provided
+  const { data: singleBook, isLoading: singleBookLoading } = useQuery({
+    queryKey: ["/api/books", bookId],
+    queryFn: async () => {
+      const token = localStorage.getItem("auth-token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await apiRequest("GET", `/api/books/${bookId}`, undefined, headers);
+      return response.json();
+    },
+    enabled: !!bookId
+  });
+
+  // Query for all books if no specific ID
   const { data: books, isLoading } = useQuery({
     queryKey: ["/api/books", selectedCategory, showSubscriptionOnly],
     queryFn: async () => {
@@ -36,7 +51,8 @@ export default function BooksStore() {
       
       const response = await apiRequest("GET", `/api/books?${params.toString()}`, undefined, headers);
       return response.json();
-    }
+    },
+    enabled: !bookId
   });
 
   const orderMutation = useMutation({
@@ -135,10 +151,128 @@ export default function BooksStore() {
 
   const categories = [...new Set(books?.map((book: any) => book.category) || [])];
 
-  if (isLoading) {
+  if (isLoading || singleBookLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // Single book view
+  if (bookId && singleBook) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 dark:from-red-950 dark:to-green-950">
+        <div className="container mx-auto px-4 py-8">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <Link href="/books">
+              <Button variant="ghost" className="text-red-600 hover:text-red-700">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Books
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Book Image */}
+            <div className="flex justify-center">
+              <Card className="w-full max-w-md">
+                {singleBook.imageUrl ? (
+                  <img
+                    src={singleBook.imageUrl}
+                    alt={singleBook.title}
+                    className="w-full h-96 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full h-96 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900 dark:to-red-800 rounded-lg flex items-center justify-center">
+                    <Book className="w-24 h-24 text-red-600 dark:text-red-400" />
+                  </div>
+                )}
+              </Card>
+            </div>
+
+            {/* Book Details */}
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="secondary">{singleBook.category}</Badge>
+                  {singleBook.featured && (
+                    <Badge className="bg-yellow-500 text-yellow-900">
+                      <Star className="w-3 h-3 mr-1" />
+                      Featured
+                    </Badge>
+                  )}
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  {singleBook.title}
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
+                  by {singleBook.author}
+                  {singleBook.editor && <span className="text-gray-500"> • edited by {singleBook.editor}</span>}
+                </p>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  ₹{singleBook.price}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Description</h3>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {singleBook.description}
+                </p>
+              </div>
+
+              {singleBook.tags && singleBook.tags.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {singleBook.tags.map((tag: string, index: number) => (
+                      <Badge key={index} variant="outline">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => handlePurchase(singleBook)}
+                    disabled={orderMutation.isPending}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    {orderMutation.isPending ? "Processing..." : `Buy for ₹${singleBook.price}`}
+                  </Button>
+                  <AddToCartButton bookId={singleBook.id} />
+                </div>
+                
+                {singleBook.pdfUrl && (isSubscriber || !singleBook.subscriptionOnly) && (
+                  <a href={singleBook.pdfUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </Button>
+                  </a>
+                )}
+                
+                {singleBook.pdfUrl && !isSubscriber && singleBook.subscriptionOnly && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
+                    onClick={handleSubscribe}
+                  >
+                    <Lock className="w-4 h-4 mr-2" />
+                    Subscribe to Download PDF
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
