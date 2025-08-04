@@ -123,9 +123,17 @@ export default function BooksStore() {
     }
 
     orderMutation.mutate({
-      bookId: book.id,
-      amount: book.price,
-      isSubscription: false,
+      orderItems: [
+        {
+          bookId: book.id,
+          quantity: 1,
+          price: book.price,
+          title: book.title
+        }
+      ],
+      totalAmount: book.price,
+      customerName: user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.username || '',
+      customerEmail: user?.email || '',
       paymentMethod: "card"
     });
   };
