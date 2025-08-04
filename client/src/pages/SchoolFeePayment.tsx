@@ -14,6 +14,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { AlertCircle, School, CreditCard, CheckCircle2, Receipt, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { School as SchoolType } from "@shared/schema";
 
 // Fee payment form schema
 const feePaymentSchema = z.object({
@@ -37,12 +38,12 @@ export default function SchoolFeePayment() {
   const schoolId = params?.schoolId ? parseInt(params.schoolId) : null;
 
   // Get schools list
-  const { data: schools = [] } = useQuery({
+  const { data: schools = [] } = useQuery<SchoolType[]>({
     queryKey: ["/api/schools"],
   });
 
   // Get specific school if ID is provided
-  const { data: school } = useQuery({
+  const { data: school } = useQuery<SchoolType>({
     queryKey: ["/api/schools", schoolId],
     enabled: !!schoolId,
   });
@@ -175,13 +176,13 @@ export default function SchoolFeePayment() {
     createOrderMutation.mutate(data);
   };
 
-  const generateMonthOptions = () => {
+  const generateMonthOptions = (): string[] => {
     const months = [
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
     const currentYear = new Date().getFullYear();
-    const options = [];
+    const options: string[] = [];
 
     // Add current year and next year options
     for (let year = currentYear - 1; year <= currentYear + 1; year++) {
@@ -315,7 +316,7 @@ export default function SchoolFeePayment() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {schools.map((school: any) => (
+                            {schools.map((school) => (
                               <SelectItem key={school.id} value={school.id.toString()}>
                                 {school.name}
                               </SelectItem>

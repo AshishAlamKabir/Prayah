@@ -12,11 +12,18 @@ if (!process.env.JWT_SECRET) {
 
 // Ensure the encryption key is exactly 32 bytes for AES-256
 const encryptionKeyHex = process.env.ENCRYPTION_KEY;
-if (encryptionKeyHex.length !== 64) { // 32 bytes = 64 hex characters
-  throw new Error('ENCRYPTION_KEY must be exactly 64 hex characters (32 bytes) for AES-256');
-}
+let ENCRYPTION_KEY: Buffer;
 
-const ENCRYPTION_KEY = Buffer.from(encryptionKeyHex, 'hex');
+if (encryptionKeyHex.length === 64) {
+  // If it's already 64 hex characters, use it directly
+  ENCRYPTION_KEY = Buffer.from(encryptionKeyHex, 'hex');
+} else if (encryptionKeyHex.length === 32) {
+  // If it's 32 characters, treat it as a string and hash it to get 32 bytes
+  ENCRYPTION_KEY = Buffer.from(crypto.createHash('sha256').update(encryptionKeyHex).digest('hex').slice(0, 64), 'hex');
+} else {
+  // For any other length, create a proper 32-byte key
+  ENCRYPTION_KEY = crypto.scryptSync(encryptionKeyHex, 'prayas-salt', 32);
+}
 const JWT_SECRET = process.env.JWT_SECRET;
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16; // 16 bytes for AES

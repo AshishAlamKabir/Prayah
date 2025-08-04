@@ -40,10 +40,10 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
-// Rate limiting
+// Rate limiting - More permissive for development
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Higher limit for development
   message: {
     error: 'Too many requests from this IP, please try again later.'
   },
@@ -54,7 +54,7 @@ const limiter = rateLimit({
 // API-specific rate limiting
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Limit each IP to 50 API requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 500 : 50, // Higher limit for development
   message: {
     error: 'Too many API requests from this IP, please try again later.'
   }
@@ -63,7 +63,7 @@ const apiLimiter = rateLimit({
 // Auth-specific rate limiting (stricter)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 login attempts per windowMs
+  max: process.env.NODE_ENV === 'development' ? 50 : 5, // Higher limit for development
   message: {
     error: 'Too many authentication attempts, please try again later.'
   }
