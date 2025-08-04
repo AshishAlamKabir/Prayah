@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, MapPin, Users, Search } from "lucide-react";
+import { GraduationCap, MapPin, Users, Search, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import type { School } from "@shared/schema";
@@ -144,14 +144,25 @@ export default function Schools() {
                         </div>
                       )}
                       
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center text-red-800 font-medium">
                           <Users className="h-4 w-4 mr-1" />
                           <span className="text-sm">{school.studentCount || 0} Students</span>
                         </div>
-                        <Button className="bg-green-600 hover:bg-green-700">
-                          View Details
-                        </Button>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        <Link href={`/schools/${school.id}`}>
+                          <Button className="w-full bg-green-600 hover:bg-green-700">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Link href={`/schools/${school.id}/fee-payment`}>
+                          <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50">
+                            <CreditCard className="h-4 w-4 mr-2" />
+                            Pay School Fee
+                          </Button>
+                        </Link>
                       </div>
                       
                       {(school.contactEmail || school.contactPhone || school.website) && (
