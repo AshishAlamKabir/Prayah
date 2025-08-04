@@ -1,0 +1,236 @@
+[
+  {
+    "schoolId": 3,
+    "className": "Ankur",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3300",
+    "studentPaysAmount": "3380",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "Ankur",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "380",
+    "studentPaysAmount": "391",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "Kunhi",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3050",
+    "studentPaysAmount": "3124",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "Kunhi",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "390",
+    "studentPaysAmount": "402",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "Sopan",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3300",
+    "studentPaysAmount": "3380",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "Sopan",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "420",
+    "studentPaysAmount": "432",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "I",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3250",
+    "studentPaysAmount": "3329",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "I",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "450",
+    "studentPaysAmount": "463",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "II",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3250",
+    "studentPaysAmount": "3329",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "II",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "460",
+    "studentPaysAmount": "473",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "III",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3250",
+    "studentPaysAmount": "3329",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "III",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "500",
+    "studentPaysAmount": "514",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "IV",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3250",
+    "studentPaysAmount": "3329",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "IV",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "500",
+    "studentPaysAmount": "514",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "V",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3400",
+    "studentPaysAmount": "3483",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "V",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "540",
+    "studentPaysAmount": "555",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "VI",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3400",
+    "studentPaysAmount": "3483",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "VI",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "560",
+    "studentPaysAmount": "576",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "VII",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3400",
+    "studentPaysAmount": "3483",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "VII",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "580",
+    "studentPaysAmount": "596",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "VIII",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3400",
+    "studentPaysAmount": "3483",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "VIII",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "610",
+    "studentPaysAmount": "627",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "IX",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3600",
+    "studentPaysAmount": "3687",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "IX",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "650",
+    "studentPaysAmount": "668",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "X",
+    "feeType": "renewal",
+    "academicYear": "2025-26",
+    "schoolAmount": "3600",
+    "studentPaysAmount": "3687",
+    "installments": 1
+  },
+  {
+    "schoolId": 3,
+    "className": "X",
+    "feeType": "monthly",
+    "academicYear": "2025-26",
+    "schoolAmount": "700",
+    "studentPaysAmount": "719",
+    "installments": 1
+  }
+]
