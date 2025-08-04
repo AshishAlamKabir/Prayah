@@ -52,7 +52,6 @@ function Router() {
           <Route path="/role-admin" component={RoleBasedAdmin} />
           <Route path="/publish" component={BookPublication} />
           <Route path="/schools/:schoolId/fee-payment" component={SchoolFeePayment} />
-          <Route path="/fee-payment" component={SchoolFeePayment} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route component={NotFound} />

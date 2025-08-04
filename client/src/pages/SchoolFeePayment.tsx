@@ -250,10 +250,31 @@ export default function SchoolFeePayment() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">School Fee Payment</h1>
-          <p className="text-gray-600">
-            Pay your school fees securely through our online payment portal
-          </p>
+          {schoolId && school ? (
+            <>
+              <div className="flex items-center mb-4">
+                <Link href={`/schools/${schoolId}`}>
+                  <Button variant="ghost" size="sm" className="pl-0">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to {school.name}
+                  </Button>
+                </Link>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {school.name} - Fee Payment
+              </h1>
+              <p className="text-gray-600">
+                Pay your fees for {school.name} securely through our online payment portal
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">School Fee Payment</h1>
+              <p className="text-gray-600">
+                Pay your school fees securely through our online payment portal
+              </p>
+            </>
+          )}
         </div>
 
         <Card>
@@ -269,33 +290,43 @@ export default function SchoolFeePayment() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="schoolId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>School *</FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(parseInt(value))}
-                        value={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a school" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {schools.map((school: any) => (
-                            <SelectItem key={school.id} value={school.id.toString()}>
-                              {school.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {schoolId && school ? (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">School</label>
+                    <div className="flex items-center p-3 border rounded-md bg-gray-50">
+                      <School className="h-4 w-4 mr-2 text-gray-500" />
+                      <span className="font-medium">{school.name}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name="schoolId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>School *</FormLabel>
+                        <Select
+                          onValueChange={(value) => field.onChange(parseInt(value))}
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a school" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {schools.map((school: any) => (
+                              <SelectItem key={school.id} value={school.id.toString()}>
+                                {school.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
