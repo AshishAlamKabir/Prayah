@@ -1,0 +1,42 @@
+-- Clear existing fee structures for 2025-26
+DELETE FROM fee_structures WHERE school_id = 1 AND academic_year = '2025-26';
+
+-- Insert new fee structures for 2025-26
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'Ankur', 'renewal', '2025-26', '3500', '3585', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'Ankur', 'monthly', '2025-26', '450', '463', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'Kunhi', 'renewal', '2025-26', '3400', '3483', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'Kunhi', 'monthly', '2025-26', '450', '463', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'Sopan', 'renewal', '2025-26', '3400', '3483', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'Sopan', 'monthly', '2025-26', '450', '463', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'I', 'renewal', '2025-26', '3900', '3995', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'I', 'monthly', '2025-26', '450', '463', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'II', 'renewal', '2025-26', '4300', '4404', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'II', 'monthly', '2025-26', '470', '484', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'III', 'renewal', '2025-26', '4300', '4404', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'III', 'monthly', '2025-26', '500', '514', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'IV', 'renewal', '2025-26', '4300', '4404', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'IV', 'monthly', '2025-26', '520', '535', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'V', 'renewal', '2025-26', '4300', '4404', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'V', 'monthly', '2025-26', '550', '565', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'VI', 'renewal', '2025-26', '4400', '4506', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'VI', 'monthly', '2025-26', '560', '576', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'VII', 'renewal', '2025-26', '4400', '4506', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'VII', 'monthly', '2025-26', '580', '596', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'VIII', 'renewal', '2025-26', '4400', '4506', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'VIII', 'monthly', '2025-26', '640', '658', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'IX', 'renewal', '2025-26', '4900', '5018', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'IX', 'monthly', '2025-26', '750', '770', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'X', 'renewal', '2025-26', '4900', '5018', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'X', 'monthly', '2025-26', '800', '821', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XI - ARTS', 'renewal', '2025-26', '11200', '11467', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XI - ARTS', 'monthly', '2025-26', '1150', '1180', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XI - COM', 'renewal', '2025-26', '11200', '11467', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XI - COM', 'monthly', '2025-26', '1250', '1282', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XI - SCI', 'renewal', '2025-26', '11200', '11467', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XI - SCI', 'monthly', '2025-26', '1350', '1384', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XII - ARTS', 'renewal', '2025-26', '11200', '11467', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XII - ARTS', 'monthly', '2025-26', '1150', '1180', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XII - COM', 'renewal', '2025-26', '11200', '11467', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XII - COM', 'monthly', '2025-26', '1250', '1282', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XII - SCI', 'renewal', '2025-26', '11200', '11467', 1);
+INSERT INTO fee_structures (school_id, class_name, fee_type, academic_year, school_amount, student_pays_amount, installments) VALUES (1, 'XII - SCI', 'monthly', '2025-26', '1350', '1384', 1);
