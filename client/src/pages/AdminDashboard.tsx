@@ -31,7 +31,13 @@ import {
   Save,
   CreditCard,
   CheckCircle,
-  XCircle
+  XCircle,
+  Shield,
+  Settings,
+  Clock,
+  Eye,
+  Trash2,
+  Target
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -169,22 +175,27 @@ export default function AdminDashboard() {
   });
 
   const disablePaymentMutation = useMutation({
-    mutationFn: async (schoolId: number) => {
-      return apiRequest(`/api/admin/schools/${schoolId}/disable-payments`, {
-        method: "POST"
+    mutationFn: async ({ schoolId }: { schoolId: number }) => {
+      return apiRequest("PATCH", `/api/admin/schools/${schoolId}/payment-settings`, {
+        feePaymentEnabled: false,
+        paymentMethods: [],
+        adminApprovalRequired: true,
+        paymentConfig: {}
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/role-admin/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/schools"] });
       toast({
-        title: "Success",
-        description: "Fee payment disabled for school"
+        title: "Payment Access Disabled",
+        description: "Fee payment access has been disabled for this school. School admins will now see access denied.",
+        variant: "destructive",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to disable fee payment",
+        description: error.message || "Failed to disable payment access",
         variant: "destructive"
       });
     }
@@ -988,168 +999,251 @@ export default function AdminDashboard() {
           {user.role === "admin" && (
             <TabsContent value="payments" className="mt-6">
               <div className="space-y-6">
-                <div className="flex items-center gap-2 mb-6">
-                  <CreditCard className="w-5 h-5 text-red-600" />
-                  <h2 className="text-2xl font-bold text-red-700">Fee Payment Control</h2>
-                  <p className="text-gray-600 ml-2">Manage school fee payment access and configurations</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-red-600" />
+                    <h2 className="text-2xl font-bold text-red-700">Fee Payment Access Control</h2>
+                    <Badge variant="outline" className="ml-2">Super Admin Only</Badge>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Manage school-based fee payment permissions
+                  </div>
                 </div>
 
-                {/* School Payment Status Cards */}
-                <div className="grid gap-6">
-                  {schools?.map((school) => (
-                    <Card key={school.id} className="border-l-4 border-l-red-600">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <CardTitle className="text-lg">{school.name}</CardTitle>
-                            <p className="text-sm text-gray-600">{school.address}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {school.feePaymentEnabled ? (
-                              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Payment Enabled
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
-                                <XCircle className="w-3 h-3 mr-1" />
-                                Payment Disabled
-                              </Badge>
-                            )}
-                          </div>
+                {/* Payment Control Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center">
+                        <CheckCircle className="w-8 h-8 text-green-600" />
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-600">Payment Enabled</p>
+                          <p className="text-2xl font-bold">
+                            {dashboardData?.schools?.filter(school => school.feePaymentEnabled).length || 0}
+                          </p>
+                          <p className="text-xs text-gray-500">Schools with access</p>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {/* Current Configuration */}
-                          {school.feePaymentEnabled && (
-                            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                              <h4 className="font-medium text-sm text-gray-700">Current Configuration:</h4>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <span className="text-gray-600">Payment Methods:</span>
-                                  <p className="font-medium">
-                                    {school.paymentMethods?.length > 0 
-                                      ? school.paymentMethods.join(', ') 
-                                      : 'Not configured'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-600">Admin Approval:</span>
-                                  <p className="font-medium">
-                                    {school.adminApprovalRequired ? 'Required' : 'Not Required'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Action Buttons */}
-                          <div className="flex gap-2">
-                            {school.feePaymentEnabled ? (
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => disablePaymentMutation.mutate(school.id)}
-                                disabled={disablePaymentMutation.isPending}
-                              >
-                                {disablePaymentMutation.isPending ? (
-                                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                                ) : (
-                                  <XCircle className="w-4 h-4 mr-2" />
-                                )}
-                                Disable Payment
-                              </Button>
-                            ) : (
-                              <div className="flex gap-2">
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  className="bg-green-600 hover:bg-green-700"
-                                  onClick={() => enablePaymentMutation.mutate({
-                                    schoolId: school.id,
-                                    paymentMethods: ['razorpay', 'stripe'],
-                                    adminApprovalRequired: true
-                                  })}
-                                  disabled={enablePaymentMutation.isPending}
-                                >
-                                  {enablePaymentMutation.isPending ? (
-                                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                                  ) : (
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                  )}
-                                  Enable Payment (Approval Required)
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => enablePaymentMutation.mutate({
-                                    schoolId: school.id,
-                                    paymentMethods: ['razorpay', 'stripe'],
-                                    adminApprovalRequired: false
-                                  })}
-                                  disabled={enablePaymentMutation.isPending}
-                                >
-                                  Enable Payment (Direct)
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Statistics */}
-                          <div className="pt-4 border-t">
-                            <div className="grid grid-cols-3 gap-4 text-center">
-                              <div>
-                                <p className="text-2xl font-bold text-blue-600">0</p>
-                                <p className="text-xs text-gray-600">Pending Payments</p>
-                              </div>
-                              <div>
-                                <p className="text-2xl font-bold text-green-600">0</p>
-                                <p className="text-xs text-gray-600">Completed Payments</p>
-                              </div>
-                              <div>
-                                <p className="text-2xl font-bold text-red-600">₹0</p>
-                                <p className="text-xs text-gray-600">Total Collected</p>
-                              </div>
-                            </div>
-                          </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center">
+                        <XCircle className="w-8 h-8 text-red-600" />
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-600">Payment Disabled</p>
+                          <p className="text-2xl font-bold">
+                            {dashboardData?.schools?.filter(school => !school.feePaymentEnabled).length || 0}
+                          </p>
+                          <p className="text-xs text-gray-500">Schools restricted</p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center">
+                        <Shield className="w-8 h-8 text-blue-600" />
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-600">Admin Approval</p>
+                          <p className="text-2xl font-bold">
+                            {dashboardData?.schools?.filter(school => school.adminApprovalRequired).length || 0}
+                          </p>
+                          <p className="text-xs text-gray-500">Require approval</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center">
+                        <Settings className="w-8 h-8 text-purple-600" />
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-600">Total Schools</p>
+                          <p className="text-2xl font-bold">{dashboardData?.schools?.length || 0}</p>
+                          <p className="text-xs text-gray-500">Under management</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {/* Fee Payment Overview */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5" />
-                      Payment System Overview
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-4 gap-4 text-center">
-                      <div className="p-4 bg-blue-50 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600">
-                          {schools?.filter(s => s.feePaymentEnabled).length || 0}
+                {/* Role-Based Access Control Notice */}
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Shield className="w-5 h-5 text-blue-600" />
+                      <div>
+                        <p className="font-medium text-blue-900">Super Admin Access Control</p>
+                        <p className="text-sm text-blue-700">
+                          Only super admins can enable or disable fee payment access for schools. 
+                          School admins will see access denied if their school's payment access is disabled.
                         </p>
-                        <p className="text-sm text-gray-600">Schools with Payment Enabled</p>
-                      </div>
-                      <div className="p-4 bg-green-50 rounded-lg">
-                        <p className="text-2xl font-bold text-green-600">0</p>
-                        <p className="text-sm text-gray-600">Total Fee Payments Today</p>
-                      </div>
-                      <div className="p-4 bg-yellow-50 rounded-lg">
-                        <p className="text-2xl font-bold text-yellow-600">0</p>
-                        <p className="text-sm text-gray-600">Pending Approvals</p>
-                      </div>
-                      <div className="p-4 bg-red-50 rounded-lg">
-                        <p className="text-2xl font-bold text-red-600">₹0</p>
-                        <p className="text-sm text-gray-600">Total Revenue This Month</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Schools Payment Management */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <School className="w-5 h-5" />
+                      School Fee Payment Access Management
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Control which schools can access the fee payment system
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    {dashboardData?.schools && dashboardData.schools.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>School Details</TableHead>
+                              <TableHead>Payment Access</TableHead>
+                              <TableHead>Payment Methods</TableHead>
+                              <TableHead>Admin Approval</TableHead>
+                              <TableHead>Last Updated</TableHead>
+                              <TableHead>Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {dashboardData.schools.map((school) => (
+                              <TableRow key={school.id}>
+                                <TableCell>
+                                  <div className="flex items-center gap-3">
+                                    {school.imageUrl && (
+                                      <img 
+                                        src={school.imageUrl} 
+                                        alt={school.name}
+                                        className="w-10 h-10 object-cover rounded"
+                                      />
+                                    )}
+                                    <div>
+                                      <p className="font-medium">{school.name}</p>
+                                      <p className="text-sm text-gray-600">{school.location}</p>
+                                      <p className="text-xs text-gray-500">ID: {school.id}</p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Badge 
+                                      variant={school.feePaymentEnabled ? "default" : "secondary"}
+                                      className={school.feePaymentEnabled ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                                    >
+                                      {school.feePaymentEnabled ? (
+                                        <>
+                                          <CheckCircle className="w-3 h-3 mr-1" />
+                                          Enabled
+                                        </>
+                                      ) : (
+                                        <>
+                                          <XCircle className="w-3 h-3 mr-1" />
+                                          Disabled
+                                        </>
+                                      )}
+                                    </Badge>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-1 flex-wrap">
+                                    {(school.paymentMethods || ["razorpay"]).map((method) => (
+                                      <Badge key={method} variant="outline" className="text-xs">
+                                        {method.toUpperCase()}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={school.adminApprovalRequired ? "outline" : "secondary"}>
+                                    {school.adminApprovalRequired ? (
+                                      <>
+                                        <Shield className="w-3 h-3 mr-1" />
+                                        Required
+                                      </>
+                                    ) : (
+                                      "Not Required"
+                                    )}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm text-gray-600">
+                                  {school.updatedAt ? new Date(school.updatedAt).toLocaleDateString() : "Never"}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    {school.feePaymentEnabled ? (
+                                      <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => {
+                                          disablePaymentMutation.mutate({
+                                            schoolId: school.id
+                                          });
+                                        }}
+                                        disabled={disablePaymentMutation.isPending}
+                                      >
+                                        <XCircle className="w-4 h-4 mr-1" />
+                                        Disable Access
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        size="sm"
+                                        className="bg-green-600 hover:bg-green-700"
+                                        onClick={() => {
+                                          enablePaymentMutation.mutate({
+                                            schoolId: school.id,
+                                            paymentMethods: ["razorpay"],
+                                            adminApprovalRequired: true
+                                          });
+                                        }}
+                                        disabled={enablePaymentMutation.isPending}
+                                      >
+                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                        Enable Access
+                                      </Button>
+                                    )}
+                                    <Button size="sm" variant="outline">
+                                      <Settings className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <School className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-600">No schools found.</p>
+                        <p className="text-sm text-gray-500 mt-2">Schools will appear here once they are created in the system.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Access Control Instructions */}
+                <Card className="border-yellow-200 bg-yellow-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-yellow-900">Access Control Instructions</p>
+                        <ul className="text-sm text-yellow-800 mt-2 space-y-1">
+                          <li>• <strong>Enable Access:</strong> Allows school admins to access fee payment features</li>
+                          <li>• <strong>Disable Access:</strong> Blocks school admins from accessing fee payment features</li>
+                          <li>• <strong>Admin Approval:</strong> Requires super admin approval for fee payments</li>
+                          <li>• <strong>Payment Methods:</strong> Configure available payment gateways (Razorpay, Stripe)</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+
               </div>
             </TabsContent>
           )}

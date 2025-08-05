@@ -36,7 +36,9 @@ import {
 import { 
   requireSchoolAccess, 
   requireSchoolPermission, 
-  requireCulturePermission 
+  requireCulturePermission,
+  requireFeePaymentAccess,
+  requireAdmin
 } from "./auth-middleware";
 import roleAdminRoutes from "./routes/role-admin";
 import { registerPaymentRoutes } from "./routes/payments";
@@ -1516,8 +1518,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register deadlock monitoring routes
   app.use("/api/monitoring", deadlockMonitoringRoutes);
 
-  // Register school fee payment routes
-  app.use("/api/fee-payments", schoolFeePaymentRoutes);
+  // Register school fee payment routes (with fee payment access control)
+  app.use("/api/fee-payments", authMiddleware, requireFeePaymentAccess, schoolFeePaymentRoutes);
 
   // Fee structure routes for schools
   app.get("/api/schools/:schoolId/fee-structures", async (req, res) => {
@@ -1657,6 +1659,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to disable fee payment:", error);
       res.status(500).json({ message: "Failed to disable fee payment" });
+    }
+  });
+
+  // PATCH endpoint for updating school payment settings (used by frontend)
+  app.patch("/api/admin/schools/:schoolId/payment-settings", authMiddleware, requireAdmin, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const { feePaymentEnabled, paymentMethods, adminApprovalRequired, paymentConfig } = req.body;
+
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      // Update school payment configuration
+      const school = await storage.updateSchoolPaymentConfig(schoolId, {
+        feePaymentEnabled: feePaymentEnabled,
+        paymentMethods: paymentMethods || [],
+        adminApprovalRequired: adminApprovalRequired !== false
+      });
+
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      const message = feePaymentEnabled 
+        ? "Fee payment access enabled successfully" 
+        : "Fee payment access disabled successfully";
+
+      res.json({ 
+        success: true,
+        message,
+        school: {
+          id: school.id,
+          name: school.name,
+          feePaymentEnabled: school.feePaymentEnabled,
+          paymentMethods: school.paymentMethods,
+          adminApprovalRequired: school.adminApprovalRequired
+        }
+      });
+    } catch (error) {
+      console.error("Failed to update payment settings:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to update payment settings" 
+      });
     }
   });
 

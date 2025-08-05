@@ -6,6 +6,7 @@
 import { Router } from "express";
 import { storage } from "../storage";
 import { authMiddleware } from "../auth";
+import { requireFeePaymentAccess } from "../auth-middleware";
 import { insertSchoolFeePaymentSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import Razorpay from "razorpay";
@@ -24,7 +25,7 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 /**
  * Create school fee payment order
  */
-router.post('/create-order', authMiddleware, async (req, res) => {
+router.post('/create-order', authMiddleware, requireFeePaymentAccess, async (req, res) => {
   try {
     const validatedData = insertSchoolFeePaymentSchema.parse({
       ...req.body,

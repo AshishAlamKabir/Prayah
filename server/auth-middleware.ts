@@ -73,6 +73,62 @@ export const requireSchoolAccess = (req: AuthenticatedRequest, res: Response, ne
   next();
 };
 
+// Check if school admin has fee payment access enabled by super admin
+export const requireFeePaymentAccess = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+
+  const { role, schoolPermissions } = req.user;
+  
+  // Super admin always has access to fee payment controls
+  if (role === "admin") {
+    return next();
+  }
+
+  // For school admins, check if their school has fee payment enabled
+  if (role === "school_admin") {
+    if (!schoolPermissions || schoolPermissions.length === 0) {
+      return res.status(403).json({ 
+        message: "Access denied",
+        reason: "No school permissions assigned"
+      });
+    }
+
+    try {
+      // Check if any of the schools this admin manages has fee payment enabled
+      let hasPaymentAccess = false;
+      
+      for (const schoolId of schoolPermissions) {
+        const school = await storage.getSchool(schoolId);
+        if (school && school.feePaymentEnabled) {
+          hasPaymentAccess = true;
+          break;
+        }
+      }
+
+      if (!hasPaymentAccess) {
+        return res.status(403).json({
+          message: "Access denied",
+          reason: "Fee payment access has been disabled for your school(s) by the super admin. Please contact the super admin to enable access.",
+          schoolIds: schoolPermissions
+        });
+      }
+
+      return next();
+    } catch (error) {
+      console.error("Error checking fee payment access:", error);
+      return res.status(500).json({ 
+        message: "Error verifying payment access" 
+      });
+    }
+  }
+
+  return res.status(403).json({ 
+    message: "Insufficient permissions for fee payment access" 
+  });
+};
+
 // Check if user can manage a specific school
 export const requireSchoolPermission = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
