@@ -110,6 +110,11 @@ export default function AdminDashboard() {
     enabled: dashboardData?.user?.role === "admin"
   });
 
+  // Books query for management
+  const { data: books } = useQuery({
+    queryKey: ["/api/books"]
+  });
+
   // Update stock mutation
   const updateStockMutation = useMutation({
     mutationFn: async ({ bookId, quantity }: { bookId: number; quantity: number }) => {
@@ -395,11 +400,12 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="schools">Schools</TabsTrigger>
             <TabsTrigger value="culture">Culture</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="books">Book Management</TabsTrigger>
             {user.role === "admin" && <TabsTrigger value="analytics">Book Analytics</TabsTrigger>}
             {user.role === "admin" && <TabsTrigger value="payments">Fee Payment Control</TabsTrigger>}
           </TabsList>
@@ -476,6 +482,276 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Book Management Tab */}
+          <TabsContent value="books" className="mt-6">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-red-600" />
+                  <h2 className="text-2xl font-bold text-red-700">Book Management</h2>
+                  <p className="text-gray-600 ml-2">Manage book catalog and inventory</p>
+                </div>
+                <Button className="bg-red-600 hover:bg-red-700">
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Add New Book
+                </Button>
+              </div>
+
+              {/* Books Overview Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <BookOpen className="w-8 h-8 text-blue-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Total Books</p>
+                        <p className="text-2xl font-bold">{books?.length || 0}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <Package className="w-8 h-8 text-green-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">In Stock</p>
+                        <p className="text-2xl font-bold">{books?.filter(book => book.inStock).length || 0}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <AlertTriangle className="w-8 h-8 text-yellow-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Out of Stock</p>
+                        <p className="text-2xl font-bold">{books?.filter(book => !book.inStock).length || 0}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <DollarSign className="w-8 h-8 text-purple-600" />
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Total Value</p>
+                        <p className="text-2xl font-bold">
+                          ₹{books?.reduce((sum, book) => sum + parseFloat(book.price || "0"), 0).toLocaleString() || 0}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Books Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    All Books
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {books && books.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Book</TableHead>
+                            <TableHead>Author</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Stock Status</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Featured</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {books.map((book) => (
+                            <TableRow key={book.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  {book.imageUrl && (
+                                    <img 
+                                      src={book.imageUrl} 
+                                      alt={book.title}
+                                      className="w-10 h-10 object-cover rounded"
+                                    />
+                                  )}
+                                  <div>
+                                    <p className="font-medium">{book.title}</p>
+                                    <p className="text-sm text-gray-600">{book.description?.substring(0, 50)}...</p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{book.author}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{book.category}</Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">₹{book.price}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant={book.inStock ? "secondary" : "destructive"}
+                                  className={book.inStock ? "bg-green-100 text-green-800" : ""}
+                                >
+                                  {book.inStock ? "In Stock" : "Out of Stock"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{book.bookType}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                {book.featured && (
+                                  <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="outline">
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button size="sm" variant="outline">
+                                    View
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">No books available.</p>
+                      <Button className="mt-4 bg-red-600 hover:bg-red-700">
+                        <PlusCircle className="w-4 h-4 mr-2" />
+                        Add First Book
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Stock Management Section for Super Admin */}
+              {user.role === "admin" && bookStock && bookStock.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Package className="w-5 h-5" />
+                      Stock Management
+                      <Badge variant="outline" className="ml-2">Super Admin Only</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Book</TableHead>
+                            <TableHead>Current Stock</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Last Updated</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {bookStock.map((stock) => (
+                            <TableRow key={stock.id}>
+                              <TableCell>
+                                <div>
+                                  <p className="font-medium">{stock.book?.title}</p>
+                                  <p className="text-sm text-gray-600">{stock.book?.author}</p>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {editingStock[stock.id] ? (
+                                  <Input
+                                    type="number"
+                                    value={stockValues[stock.id] || stock.quantity}
+                                    onChange={(e) => setStockValues({
+                                      ...stockValues,
+                                      [stock.id]: parseInt(e.target.value) || 0
+                                    })}
+                                    className="w-20"
+                                    min="0"
+                                  />
+                                ) : (
+                                  <span className="font-medium">{stock.quantity}</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant={stock.quantity > 10 ? "secondary" : stock.quantity > 0 ? "outline" : "destructive"}
+                                  className={
+                                    stock.quantity > 10 ? "bg-green-100 text-green-800" :
+                                    stock.quantity > 0 ? "bg-yellow-100 text-yellow-800" : ""
+                                  }
+                                >
+                                  {stock.quantity > 10 ? "Good Stock" : 
+                                   stock.quantity > 0 ? "Low Stock" : "Out of Stock"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm text-gray-600">
+                                {new Date(stock.lastUpdated).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>
+                                {editingStock[stock.id] ? (
+                                  <div className="flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => {
+                                        const newQuantity = stockValues[stock.id] || stock.quantity;
+                                        updateStockMutation.mutate({
+                                          bookId: stock.bookId,
+                                          quantity: newQuantity
+                                        });
+                                        setEditingStock({...editingStock, [stock.id]: false});
+                                      }}
+                                      disabled={updateStockMutation.isPending}
+                                    >
+                                      <Save className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setEditingStock({...editingStock, [stock.id]: false});
+                                        setStockValues({...stockValues, [stock.id]: stock.quantity});
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setEditingStock({...editingStock, [stock.id]: true});
+                                      setStockValues({...stockValues, [stock.id]: stock.quantity});
+                                    }}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           {user.role === "admin" && (

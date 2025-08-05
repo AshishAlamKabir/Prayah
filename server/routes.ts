@@ -1690,6 +1690,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Book stock management endpoints for super admin
+  app.get("/api/admin/book-stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookStock = await storage.getBookStock();
+      res.json(bookStock);
+    } catch (error) {
+      console.error("Error fetching book stock:", error);
+      res.status(500).json({ message: "Failed to fetch book stock" });
+    }
+  });
+
+  app.patch("/api/admin/books/:bookId/stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookId = parseInt(req.params.bookId);
+      const { quantity } = req.body;
+
+      if (typeof quantity !== "number" || quantity < 0) {
+        return res.status(400).json({ message: "Invalid quantity" });
+      }
+
+      const updatedStock = await storage.updateBookStock(bookId, quantity, req.user.id);
+      res.json(updatedStock);
+    } catch (error) {
+      console.error("Error updating book stock:", error);
+      res.status(500).json({ message: "Failed to update book stock" });
+    }
+  });
+
+  app.get("/api/admin/book-analytics", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const analytics = await storage.getBookAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching book analytics:", error);
+      res.status(500).json({ message: "Failed to fetch book analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
