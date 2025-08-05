@@ -173,6 +173,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Book stock and analytics endpoints
+  app.get("/api/admin/book-analytics", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const [books, bookStock, orders] = await Promise.all([
+        storage.getBooks(),
+        storage.getAllBookStock(),
+        storage.getAllOrders()
+      ]);
+
+      // Calculate analytics
+      const totalBooks = books.length;
+      const totalStock = bookStock.reduce((sum, stock) => sum + stock.quantity, 0);
+      const lowStockBooks = bookStock.filter(stock => stock.quantity < 10);
+      const outOfStockBooks = bookStock.filter(stock => stock.quantity === 0);
+      
+      // Calculate recent sales (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentOrders = orders.filter(order => 
+        new Date(order.createdAt) > thirtyDaysAgo && order.status === 'completed'
+      );
+      
+      // Calculate revenue
+      const totalRevenue = recentOrders.reduce((sum, order) => 
+        sum + parseFloat(order.totalAmount.toString()), 0
+      );
+
+      // Top selling books
+      const bookSales: { [key: number]: number } = {};
+      recentOrders.forEach(order => {
+        if (Array.isArray(order.orderItems)) {
+          order.orderItems.forEach((item: any) => {
+            bookSales[item.bookId] = (bookSales[item.bookId] || 0) + item.quantity;
+          });
+        }
+      });
+
+      const topSellingBooks = Object.entries(bookSales)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 5)
+        .map(([bookId, quantity]) => {
+          const book = books.find(b => b.id === parseInt(bookId));
+          return { book, quantity };
+        });
+
+      // Category distribution
+      const categoryStats = books.reduce((acc, book) => {
+        acc[book.category] = (acc[book.category] || 0) + 1;
+        return acc;
+      }, {} as { [key: string]: number });
+
+      res.json({
+        totalBooks,
+        totalStock,
+        lowStockCount: lowStockBooks.length,
+        outOfStockCount: outOfStockBooks.length,
+        totalRevenue,
+        recentOrdersCount: recentOrders.length,
+        lowStockBooks: lowStockBooks.map(stock => ({
+          ...stock,
+          book: books.find(b => b.id === stock.bookId)
+        })),
+        outOfStockBooks: outOfStockBooks.map(stock => ({
+          ...stock,
+          book: books.find(b => b.id === stock.bookId)
+        })),
+        topSellingBooks,
+        categoryStats
+      });
+    } catch (error) {
+      console.error("Error fetching book analytics:", error);
+      res.status(500).json({ message: "Failed to fetch book analytics" });
+    }
+  });
+
+  app.get("/api/admin/book-stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookStock = await storage.getAllBookStock();
+      res.json(bookStock);
+    } catch (error) {
+      console.error("Error fetching book stock:", error);
+      res.status(500).json({ message: "Failed to fetch book stock" });
+    }
+  });
+
+  app.post("/api/admin/book-stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const { bookId, quantity } = req.body;
+      
+      if (!bookId || quantity === undefined) {
+        return res.status(400).json({ message: "Book ID and quantity are required" });
+      }
+
+      const stock = await storage.updateBookStock({
+        bookId: parseInt(bookId),
+        quantity: parseInt(quantity),
+        updatedBy: req.user.id
+      });
+
+      res.json(stock);
+    } catch (error) {
+      console.error("Error updating book stock:", error);
+      res.status(500).json({ message: "Failed to update book stock" });
+    }
+  });
+
+  app.patch("/api/admin/books/:id/stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookId = parseInt(req.params.id);
+      const { quantity } = req.body;
+      
+      if (quantity === undefined) {
+        return res.status(400).json({ message: "Quantity is required" });
+      }
+
+      const stock = await storage.updateBookStock({
+        bookId,
+        quantity: parseInt(quantity),
+        updatedBy: req.user.id
+      });
+
+      res.json(stock);
+    } catch (error) {
+      console.error("Error updating book stock:", error);
+      res.status(500).json({ message: "Failed to update book stock" });
+    }
+  });
+
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {
