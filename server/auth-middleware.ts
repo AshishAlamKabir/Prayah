@@ -74,61 +74,63 @@ export const requireSchoolAccess = (req: AuthenticatedRequest, res: Response, ne
 };
 
 // Check if user can manage a specific school
-export const requireSpecificSchoolAccess = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireSchoolPermission = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({ message: "Authentication required" });
   }
 
   const { role, schoolPermissions } = req.user;
-  const schoolId = parseInt(req.params.schoolId || req.body.schoolId);
-
+  
+  // Super admin can manage all schools
   if (role === "admin") {
-    return next(); // Super admin has access to all schools
+    return next();
   }
 
+  // Extract school ID from request (could be in params, body, or query)
+  const schoolId = parseInt(req.params.schoolId) || 
+                   parseInt(req.body.schoolId) || 
+                   parseInt(req.query.schoolId as string);
+
+  if (!schoolId) {
+    return res.status(400).json({ message: "School ID required" });
+  }
+
+  // Check if school admin has permission for this specific school
   if (role === "school_admin" && schoolPermissions?.includes(schoolId)) {
-    return next(); // School admin has access to their specific school
+    return next();
   }
 
-  return res.status(403).json({ message: "Access denied for this school" });
-};
-
-// Check if user can manage culture sections (super admin or culture admin)
-export const requireCultureAccess = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Authentication required" });
-  }
-
-  const { role } = req.user;
-  if (role === "admin") {
-    return next(); // Super admin has access to all culture sections
-  }
-
-  if (role !== "culture_admin") {
-    return res.status(403).json({ message: "Culture admin access required" });
-  }
-
-  next();
+  return res.status(403).json({ message: "Access denied: You can only manage your assigned schools" });
 };
 
 // Check if user can manage a specific culture category
-export const requireSpecificCultureAccess = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireCulturePermission = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({ message: "Authentication required" });
   }
 
   const { role, culturePermissions } = req.user;
-  const categoryId = parseInt(req.params.categoryId || req.body.categoryId);
-
+  
+  // Super admin can manage all culture categories
   if (role === "admin") {
-    return next(); // Super admin has access to all culture sections
+    return next();
   }
 
+  // Extract category ID from request
+  const categoryId = parseInt(req.params.categoryId) || 
+                     parseInt(req.body.categoryId) || 
+                     parseInt(req.query.categoryId as string);
+
+  if (!categoryId) {
+    return res.status(400).json({ message: "Category ID required" });
+  }
+
+  // Check if culture admin has permission for this specific category
   if (role === "culture_admin" && culturePermissions?.includes(categoryId)) {
-    return next(); // Culture admin has access to their specific section
+    return next();
   }
 
-  return res.status(403).json({ message: "Access denied for this culture section" });
+  return res.status(403).json({ message: "Access denied: You can only manage your assigned culture categories" });
 };
 
 // Check if user has specific permission

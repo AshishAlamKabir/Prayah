@@ -62,12 +62,30 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserSubscription(id: number, isSubscribed: boolean, expiry?: Date): Promise<User | undefined>;
   updateUserPermissions(userId: number, permissions: {
+    role?: string;
     schoolPermissions?: number[];
     culturePermissions?: number[];
     permissions?: string[];
   }): Promise<User | undefined>;
+  getAllUsersWithPermissions(): Promise<User[]>;
   getUsersByRole(role: string): Promise<User[]>;
   getUsersWithSchoolPermission(schoolId: number): Promise<User[]>;
+  createSchoolAdmin(adminData: {
+    username: string;
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    schoolPermissions: number[];
+  }): Promise<User>;
+  createCultureAdmin(adminData: {
+    username: string;
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    culturePermissions: number[];
+  }): Promise<User>;
   
   // Authentication operations
   createUserSession(session: InsertUserSession): Promise<UserSession>;
@@ -195,9 +213,7 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async getUsersByRole(role: string): Promise<User[]> {
-    return db.select().from(users).where(eq(users.role, role));
-  }
+
 
   async getUsersWithSchoolPermission(schoolId: number): Promise<User[]> {
     return db.select().from(users).where(
@@ -214,23 +230,99 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserPermissions(userId: number, permissions: {
+    role?: string;
     schoolPermissions?: number[];
     culturePermissions?: number[];
     permissions?: string[];
   }): Promise<User | undefined> {
-    const [updatedUser] = await db
+    const updateData: any = { updatedAt: new Date() };
+    
+    if (permissions.role !== undefined) {
+      updateData.role = permissions.role;
+    }
+    if (permissions.schoolPermissions !== undefined) {
+      updateData.schoolPermissions = permissions.schoolPermissions;
+    }
+    if (permissions.culturePermissions !== undefined) {
+      updateData.culturePermissions = permissions.culturePermissions;
+    }
+    if (permissions.permissions !== undefined) {
+      updateData.permissions = permissions.permissions;
+    }
+
+    const [user] = await db
       .update(users)
-      .set({
-        ...permissions,
-        updatedAt: new Date()
-      })
+      .set(updateData)
       .where(eq(users.id, userId))
       .returning();
-    return updatedUser || undefined;
+    return user || undefined;
   }
 
-  async getUsersByRole(role: string): Promise<User[]> {
-    return await db.select().from(users).where(eq(users.role, role));
+  async getAllUsersWithPermissions(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async createSchoolAdmin(adminData: {
+    username: string;
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    schoolPermissions: number[];
+  }): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: adminData.username,
+        email: adminData.email,
+        password: adminData.password,
+        firstName: adminData.firstName,
+        lastName: adminData.lastName,
+        role: "school_admin",
+        schoolPermissions: adminData.schoolPermissions,
+        culturePermissions: [],
+        permissions: []
+      })
+      .returning();
+    return user;
+  }
+
+  async createCultureAdmin(adminData: {
+    username: string;
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    culturePermissions: number[];
+  }): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: adminData.username,
+        email: adminData.email,
+        password: adminData.password,
+        firstName: adminData.firstName,
+        lastName: adminData.lastName,
+        role: "culture_admin",
+        schoolPermissions: [],
+        culturePermissions: adminData.culturePermissions,
+        permissions: []
+      })
+      .returning();
+    return user;
+  }
+
+  async updateUserSubscription(id: number, isSubscribed: boolean, expiry?: Date): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        isSubscribed, 
+        subscriptionExpiry: expiry,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
   }
 
   // Community post operations

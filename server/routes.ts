@@ -33,11 +33,18 @@ import {
   verifyPassword,
   generateUserJWT
 } from "./auth";
+import { 
+  requireSchoolAccess, 
+  requireSchoolPermission, 
+  requireCultureAccess, 
+  requireCulturePermission 
+} from "./auth-middleware";
 import roleAdminRoutes from "./routes/role-admin";
 import { registerPaymentRoutes } from "./routes/payments";
 import { registerAdminNotificationRoutes } from "./routes/admin-notifications";
 import { registerRazorpayRoutes } from "./routes/razorpay";
 import schoolFeePaymentRoutes from "./routes/school-fee-payments";
+import adminPermissionsRoutes from "./routes/admin-permissions";
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -758,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin school management endpoints
-  app.post("/api/admin/schools", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+  app.post("/api/admin/schools", authMiddleware, requireSchoolAccess, upload.array('mediaFile'), async (req, res) => {
     try {
       const {
         name,
@@ -809,7 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin route to create school activities
-  app.post("/api/admin/school-activities", adminMiddleware, upload.array('activityFiles'), async (req, res) => {
+  app.post("/api/admin/school-activities", authMiddleware, requireSchoolPermission, upload.array('activityFiles'), async (req, res) => {
     try {
       const files = req.files as Express.Multer.File[];
       const attachments = files ? files.map(file => ({
@@ -847,7 +854,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/school-notifications", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+  app.post("/api/admin/school-notifications", authMiddleware, requireSchoolPermission, upload.array('mediaFile'), async (req, res) => {
     try {
       const {
         title,
@@ -893,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/school-notifications", adminMiddleware, async (req, res) => {
+  app.get("/api/admin/school-notifications", authMiddleware, requireSchoolAccess, async (req, res) => {
     try {
       const notifications: any[] = []; // Placeholder for database query
       res.json(notifications);
@@ -907,7 +914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin culture management endpoints
-  app.post("/api/admin/culture-programs", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+  app.post("/api/admin/culture-programs", authMiddleware, requireCulturePermission, upload.array('mediaFile'), async (req, res) => {
     try {
       const {
         categoryId,
@@ -962,7 +969,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/culture-activities", adminMiddleware, upload.array('mediaFile'), async (req, res) => {
+  app.post("/api/admin/culture-activities", authMiddleware, requireCulturePermission, upload.array('mediaFile'), async (req, res) => {
     try {
       const {
         categoryId,
@@ -1181,6 +1188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register role-based admin routes
   app.use("/api/role-admin", roleAdminRoutes);
+  app.use("/api/admin/permissions", adminPermissionsRoutes);
 
   // Register payment routes
   registerPaymentRoutes(app);
@@ -1230,7 +1238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/schools/:schoolId/fee-structures", adminMiddleware, async (req, res) => {
+  app.post("/api/schools/:schoolId/fee-structures", authMiddleware, requireSchoolPermission, async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       const parsed = insertFeeStructureSchema.safeParse({
@@ -1251,7 +1259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/schools/:schoolId/fee-structures/bulk", adminMiddleware, async (req, res) => {
+  app.post("/api/schools/:schoolId/fee-structures/bulk", authMiddleware, requireSchoolPermission, async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       const structures = req.body.structures;
