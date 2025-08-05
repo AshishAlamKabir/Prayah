@@ -36,7 +36,6 @@ import {
 import { 
   requireSchoolAccess, 
   requireSchoolPermission, 
-  requireCultureAccess, 
   requireCulturePermission 
 } from "./auth-middleware";
 import roleAdminRoutes from "./routes/role-admin";
@@ -116,6 +115,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to upload files" });
     }
   });
+  // Role-based admin dashboard endpoint
+  app.get("/api/role-admin/dashboard", authMiddleware, async (req, res) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Check if user has admin role
+      if (!["admin", "school_admin", "culture_admin"].includes(user.role)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Get accessible schools and culture categories based on permissions
+      let accessibleSchools = [];
+      let accessibleCultureCategories = [];
+      let canManageAll = false;
+
+      if (user.role === "admin") {
+        // Super admin has access to everything
+        accessibleSchools = await storage.getSchools();
+        accessibleCultureCategories = await storage.getCultureCategories();
+        canManageAll = true;
+      } else if (user.role === "school_admin") {
+        // Get schools this admin can manage
+        const schoolPermissions = user.schoolPermissions || [];
+        if (schoolPermissions.length > 0) {
+          const allSchools = await storage.getSchools();
+          accessibleSchools = allSchools.filter(school => schoolPermissions.includes(school.id));
+        }
+      } else if (user.role === "culture_admin") {
+        // Get culture categories this admin can manage
+        const culturePermissions = user.culturePermissions || [];
+        if (culturePermissions.length > 0) {
+          const allCategories = await storage.getCultureCategories();
+          accessibleCultureCategories = allCategories.filter(category => culturePermissions.includes(category.id));
+        }
+      }
+
+      res.json({
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          schoolPermissions: user.schoolPermissions,
+          culturePermissions: user.culturePermissions
+        },
+        accessibleSchools,
+        accessibleCultureCategories,
+        canManageAll
+      });
+    } catch (error) {
+      console.error("Error fetching admin dashboard data:", error);
+      res.status(500).json({ message: "Failed to load dashboard data" });
+    }
+  });
+
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {

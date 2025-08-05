@@ -22,7 +22,6 @@ import Register from "@/pages/Register";
 import UserDashboard from "@/pages/UserDashboard";
 import BookPublication from "@/pages/BookPublication";
 import AdminDashboard from "@/pages/AdminDashboard";
-import RoleBasedAdmin from "@/components/admin/RoleBasedAdmin";
 import SchoolFeePayment from "@/pages/SchoolFeePayment";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
@@ -51,7 +50,6 @@ function Router() {
           <Route path="/user-dashboard" component={UserDashboard} />
           <Route path="/admin-dashboard" component={AdminDashboard} />
           <Route path="/admin" component={AdminDashboard} />
-          <Route path="/role-admin" component={RoleBasedAdmin} />
           <Route path="/publish" component={BookPublication} />
           <Route path="/schools/:schoolId/fee-payment" component={SchoolFeePayment} />
           <Route path="/login" component={Login} />
