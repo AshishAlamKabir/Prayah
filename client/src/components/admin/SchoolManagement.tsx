@@ -667,17 +667,17 @@ export default function SchoolManagement() {
                   <div>
                     <Label htmlFor="school">Target School</Label>
                     <Select
-                      value={notificationForm.schoolId?.toString() || ""}
+                      value={notificationForm.schoolId?.toString() || "all"}
                       onValueChange={(value) => setNotificationForm(prev => ({ 
                         ...prev, 
-                        schoolId: value ? parseInt(value) : null 
+                        schoolId: value && value !== "all" ? parseInt(value) : null 
                       }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select school (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Schools</SelectItem>
+                        <SelectItem value="all">All Schools</SelectItem>
                         {Array.isArray(schools) ? schools.map((school: any) => (
                           <SelectItem key={school.id} value={school.id.toString()}>
                             {school.name}
