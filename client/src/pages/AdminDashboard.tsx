@@ -412,15 +412,17 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="schools">Schools</TabsTrigger>
-            <TabsTrigger value="culture">Culture</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="books">Book Management</TabsTrigger>
-            {user.role === "admin" && <TabsTrigger value="analytics">Book Analytics</TabsTrigger>}
-            {user.role === "admin" && <TabsTrigger value="payments">Fee Payment Control</TabsTrigger>}
-          </TabsList>
+          <div className="w-full overflow-x-auto">
+            <TabsList className="flex w-full min-w-fit justify-start gap-1 bg-gray-100 p-1 rounded-lg">
+              <TabsTrigger value="overview" className="whitespace-nowrap px-3 py-2 text-sm">Overview</TabsTrigger>
+              <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>
+              <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>
+              <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>
+              <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>
+              {user.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
+              {user.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
+            </TabsList>
+          </div>
 
           <TabsContent value="overview" className="mt-6">
             <Card>
