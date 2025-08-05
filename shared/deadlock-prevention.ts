@@ -37,20 +37,35 @@ export class DeadlockFreeOperations {
       const [book] = await tx.select({ id: books.id, inStock: books.inStock }).from(books).where(eq(books.id, bookId));
       if (!book || !book.inStock) throw new Error('Book not available');
       
-      // Use PostgreSQL UPSERT to handle concurrent inserts safely
-      const result = await tx
-        .insert(cartItems)
-        .values({ userId, bookId, quantity })
-        .onConflictDoUpdate({
-          target: [cartItems.userId, cartItems.bookId],
-          set: { 
-            quantity: cartItems.quantity + quantity,
-            createdAt: new Date()
-          }
-        })
-        .returning();
+      // Check if item already exists in cart
+      const [existingItem] = await tx
+        .select()
+        .from(cartItems)
+        .where(and(
+          eq(cartItems.userId, userId),
+          eq(cartItems.bookId, bookId)
+        ));
       
-      return result[0];
+      let result;
+      if (existingItem) {
+        // Update existing item quantity
+        [result] = await tx
+          .update(cartItems)
+          .set({ 
+            quantity: existingItem.quantity + quantity,
+            createdAt: new Date()
+          })
+          .where(eq(cartItems.id, existingItem.id))
+          .returning();
+      } else {
+        // Insert new cart item
+        [result] = await tx
+          .insert(cartItems)
+          .values({ userId, bookId, quantity })
+          .returning();
+      }
+      
+      return result;
     });
   }
 

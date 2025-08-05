@@ -343,6 +343,14 @@ export const insertAdminNotificationSchema = createInsertSchema(adminNotificatio
   createdAt: true,
 });
 
+// Payment types
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+
+// Admin notification types
+export type AdminNotification = typeof adminNotifications.$inferSelect;
+export type InsertAdminNotification = z.infer<typeof insertAdminNotificationSchema>;
+
 // School notifications table
 export const schoolNotifications = pgTable("school_notifications", {
   id: serial("id").primaryKey(),

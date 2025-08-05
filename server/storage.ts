@@ -842,7 +842,25 @@ export class DatabaseStorage implements IStorage {
   async createSchoolFeePayment(payment: InsertSchoolFeePayment): Promise<SchoolFeePayment> {
     const [feePayment] = await db
       .insert(schoolFeePayments)
-      .values(payment)
+      .values({
+        userId: payment.userId,
+        amount: payment.amount.toString(),
+        schoolId: payment.schoolId,
+        studentRollNo: payment.studentRollNo,
+        studentName: payment.studentName,
+        studentClass: payment.studentClass,
+        feeMonth: payment.feeMonth,
+        feeType: payment.feeType,
+        academicYear: payment.academicYear,
+        razorpayOrderId: payment.razorpayOrderId,
+        receiptNumber: payment.receiptNumber,
+        paymentStatus: payment.paymentStatus,
+        currency: payment.currency,
+        paymentMethod: payment.paymentMethod,
+        transactionFee: payment.transactionFee,
+        razorpayPaymentId: payment.razorpayPaymentId,
+        adminNotified: payment.adminNotified || false
+      })
       .returning();
     return feePayment;
   }
@@ -873,17 +891,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSchoolFeePayments(schoolId?: number, userId?: number): Promise<SchoolFeePayment[]> {
-    let query = db.select().from(schoolFeePayments);
-    
     if (schoolId && userId) {
-      query = query.where(and(eq(schoolFeePayments.schoolId, schoolId), eq(schoolFeePayments.userId, userId)));
+      return await db.select().from(schoolFeePayments)
+        .where(and(eq(schoolFeePayments.schoolId, schoolId), eq(schoolFeePayments.userId, userId)))
+        .orderBy(desc(schoolFeePayments.createdAt));
     } else if (schoolId) {
-      query = query.where(eq(schoolFeePayments.schoolId, schoolId));
+      return await db.select().from(schoolFeePayments)
+        .where(eq(schoolFeePayments.schoolId, schoolId))
+        .orderBy(desc(schoolFeePayments.createdAt));
     } else if (userId) {
-      query = query.where(eq(schoolFeePayments.userId, userId));
+      return await db.select().from(schoolFeePayments)
+        .where(eq(schoolFeePayments.userId, userId))
+        .orderBy(desc(schoolFeePayments.createdAt));
     }
     
-    return query.orderBy(desc(schoolFeePayments.createdAt));
+    return await db.select().from(schoolFeePayments)
+      .orderBy(desc(schoolFeePayments.createdAt));
   }
 
   async checkDuplicateFeePayment(schoolId: number, studentRollNo: string, feeMonth: string): Promise<SchoolFeePayment | undefined> {
@@ -909,38 +932,40 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getFeeStructures(schoolId: number, academicYear?: string): Promise<FeeStructure[]> {
-    let query = db.select().from(feeStructures).where(eq(feeStructures.schoolId, schoolId));
-    
     if (academicYear) {
-      query = query.where(and(
-        eq(feeStructures.schoolId, schoolId),
-        eq(feeStructures.academicYear, academicYear)
-      ));
+      return await db.select().from(feeStructures)
+        .where(and(
+          eq(feeStructures.schoolId, schoolId),
+          eq(feeStructures.academicYear, academicYear)
+        ))
+        .orderBy(feeStructures.className, feeStructures.feeType);
     }
     
-    return query.orderBy(feeStructures.className, feeStructures.feeType);
+    return await db.select().from(feeStructures)
+      .where(eq(feeStructures.schoolId, schoolId))
+      .orderBy(feeStructures.className, feeStructures.feeType);
   }
 
   async getFeeStructureByClass(schoolId: number, className: string, feeType: string, academicYear?: string): Promise<FeeStructure | undefined> {
-    let query = db.select().from(feeStructures)
+    if (academicYear) {
+      const [structure] = await db.select().from(feeStructures)
+        .where(and(
+          eq(feeStructures.schoolId, schoolId),
+          eq(feeStructures.className, className),
+          eq(feeStructures.feeType, feeType),
+          eq(feeStructures.academicYear, academicYear),
+          eq(feeStructures.isActive, true)
+        ));
+      return structure || undefined;
+    }
+    
+    const [structure] = await db.select().from(feeStructures)
       .where(and(
         eq(feeStructures.schoolId, schoolId),
         eq(feeStructures.className, className),
         eq(feeStructures.feeType, feeType),
         eq(feeStructures.isActive, true)
       ));
-    
-    if (academicYear) {
-      query = query.where(and(
-        eq(feeStructures.schoolId, schoolId),
-        eq(feeStructures.className, className),
-        eq(feeStructures.feeType, feeType),
-        eq(feeStructures.academicYear, academicYear),
-        eq(feeStructures.isActive, true)
-      ));
-    }
-    
-    const [structure] = await query;
     return structure || undefined;
   }
 
