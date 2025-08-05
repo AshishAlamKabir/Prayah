@@ -8,6 +8,7 @@ Preferred communication style: Simple, everyday language.
 Language preference: Remove "revolutionary" language - Prayas is a study circle focused on education and community development, not political revolution.
 Content preference: Replace community submission form with Prayas description and approved publications showcase on home page.
 Database requirements: Deadlock-free database schema with proper foreign keys, indexes, and transaction safety.
+UI/UX preferences: Clean, organized tab layouts with proper spacing and responsive design for admin interfaces.
 
 ## System Architecture
 
@@ -54,6 +55,7 @@ The application employs a modern full-stack architecture, ensuring clear separat
     - **Book Publication**: User manuscript submission, admin review workflow (pending, approved, payment pending, rejected, published), secure PDF upload (50MB limit), and payment integration.
     - **Cultural Program Management**: Admin interface for program creation (instructor info, fees, scheduling), activity publishing, social media integration, and media uploads. Supports various program types and age groups.
     - **School Management**: Admin interface for creating school profiles (contact info, statistics, programs), notification system for announcements, and media gallery management. Supports multi-file uploads.
+    - **Fee Payment Access Control**: Super admin controlled system where payment functionality can be enabled/disabled per school. School admins are blocked from fee payment features when access is disabled by super admin.
     - **E-commerce**: Full e-commerce platform for books with PDF access, subscription models, and order management.
     - **Authentication**: Two-tier system for regular users and administrators, with role-based redirection and secure token management.
 
