@@ -60,6 +60,7 @@ interface DashboardData {
   accessibleSchools: any[];
   accessibleCultureCategories: any[];
   canManageAll: boolean;
+  schools?: any[]; // For backward compatibility and fee payment control
 }
 
 interface BookAnalytics {
@@ -124,10 +125,7 @@ export default function AdminDashboard() {
   // Update stock mutation
   const updateStockMutation = useMutation({
     mutationFn: async ({ bookId, quantity }: { bookId: number; quantity: number }) => {
-      return apiRequest(`/api/admin/books/${bookId}/stock`, {
-        method: "PATCH",
-        body: { quantity }
-      });
+      return apiRequest("PATCH", `/api/admin/books/${bookId}/stock`, { quantity });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-stock"] });
@@ -153,16 +151,19 @@ export default function AdminDashboard() {
       paymentMethods: string[];
       adminApprovalRequired: boolean;
     }) => {
-      return apiRequest(`/api/admin/schools/${schoolId}/enable-payments`, {
-        method: "POST",
-        body: { paymentMethods, adminApprovalRequired }
+      return apiRequest("PATCH", `/api/admin/schools/${schoolId}/payment-settings`, {
+        feePaymentEnabled: true,
+        paymentMethods,
+        adminApprovalRequired,
+        paymentConfig: {}
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/role-admin/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/schools"] });
       toast({
-        title: "Success",
-        description: "Fee payment enabled for school"
+        title: "Payment Access Enabled",
+        description: "Fee payment access has been enabled for this school. School admins can now access payment features.",
       });
     },
     onError: (error: any) => {
@@ -1019,7 +1020,7 @@ export default function AdminDashboard() {
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Payment Enabled</p>
                           <p className="text-2xl font-bold">
-                            {dashboardData?.schools?.filter(school => school.feePaymentEnabled).length || 0}
+                            {(dashboardData?.schools || dashboardData?.accessibleSchools || []).filter((school: any) => school.feePaymentEnabled).length || 0}
                           </p>
                           <p className="text-xs text-gray-500">Schools with access</p>
                         </div>
@@ -1033,7 +1034,7 @@ export default function AdminDashboard() {
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Payment Disabled</p>
                           <p className="text-2xl font-bold">
-                            {dashboardData?.schools?.filter(school => !school.feePaymentEnabled).length || 0}
+                            {(dashboardData?.schools || dashboardData?.accessibleSchools || []).filter((school: any) => !school.feePaymentEnabled).length || 0}
                           </p>
                           <p className="text-xs text-gray-500">Schools restricted</p>
                         </div>
@@ -1047,7 +1048,7 @@ export default function AdminDashboard() {
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Admin Approval</p>
                           <p className="text-2xl font-bold">
-                            {dashboardData?.schools?.filter(school => school.adminApprovalRequired).length || 0}
+                            {(dashboardData?.schools || dashboardData?.accessibleSchools || []).filter((school: any) => school.adminApprovalRequired).length || 0}
                           </p>
                           <p className="text-xs text-gray-500">Require approval</p>
                         </div>
@@ -1060,7 +1061,7 @@ export default function AdminDashboard() {
                         <Settings className="w-8 h-8 text-purple-600" />
                         <div className="ml-4">
                           <p className="text-sm font-medium text-gray-600">Total Schools</p>
-                          <p className="text-2xl font-bold">{dashboardData?.schools?.length || 0}</p>
+                          <p className="text-2xl font-bold">{(dashboardData?.schools || dashboardData?.accessibleSchools || []).length || 0}</p>
                           <p className="text-xs text-gray-500">Under management</p>
                         </div>
                       </div>
@@ -1096,7 +1097,7 @@ export default function AdminDashboard() {
                     </p>
                   </CardHeader>
                   <CardContent>
-                    {dashboardData?.schools && dashboardData.schools.length > 0 ? (
+                    {(dashboardData?.schools || dashboardData?.accessibleSchools) && (dashboardData?.schools || dashboardData?.accessibleSchools)?.length > 0 ? (
                       <div className="overflow-x-auto">
                         <Table>
                           <TableHeader>
@@ -1110,7 +1111,7 @@ export default function AdminDashboard() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {dashboardData.schools.map((school) => (
+                            {(dashboardData.schools || dashboardData.accessibleSchools || []).map((school: any) => (
                               <TableRow key={school.id}>
                                 <TableCell>
                                   <div className="flex items-center gap-3">
