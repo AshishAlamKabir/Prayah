@@ -28,7 +28,10 @@ import {
   ShoppingCart,
   BarChart3,
   Edit,
-  Save
+  Save,
+  CreditCard,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -127,6 +130,56 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: error.message || "Failed to update book stock",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // School payment management mutations
+  const enablePaymentMutation = useMutation({
+    mutationFn: async ({ schoolId, paymentMethods, adminApprovalRequired }: {
+      schoolId: number;
+      paymentMethods: string[];
+      adminApprovalRequired: boolean;
+    }) => {
+      return apiRequest(`/api/admin/schools/${schoolId}/enable-payments`, {
+        method: "POST",
+        body: { paymentMethods, adminApprovalRequired }
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/role-admin/dashboard"] });
+      toast({
+        title: "Success",
+        description: "Fee payment enabled for school"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to enable fee payment",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const disablePaymentMutation = useMutation({
+    mutationFn: async (schoolId: number) => {
+      return apiRequest(`/api/admin/schools/${schoolId}/disable-payments`, {
+        method: "POST"
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/role-admin/dashboard"] });
+      toast({
+        title: "Success",
+        description: "Fee payment disabled for school"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to disable fee payment",
         variant: "destructive"
       });
     }
@@ -342,12 +395,13 @@ export default function AdminDashboard() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="schools">Schools</TabsTrigger>
             <TabsTrigger value="culture">Culture</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             {user.role === "admin" && <TabsTrigger value="analytics">Book Analytics</TabsTrigger>}
+            {user.role === "admin" && <TabsTrigger value="payments">Fee Payment Control</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
@@ -650,6 +704,176 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
                 )}
+              </div>
+            </TabsContent>
+          )}
+
+          {/* Fee Payment Control Tab - Super Admin Only */}
+          {user.role === "admin" && (
+            <TabsContent value="payments" className="mt-6">
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <CreditCard className="w-5 h-5 text-red-600" />
+                  <h2 className="text-2xl font-bold text-red-700">Fee Payment Control</h2>
+                  <p className="text-gray-600 ml-2">Manage school fee payment access and configurations</p>
+                </div>
+
+                {/* School Payment Status Cards */}
+                <div className="grid gap-6">
+                  {schools?.map((school) => (
+                    <Card key={school.id} className="border-l-4 border-l-red-600">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="text-lg">{school.name}</CardTitle>
+                            <p className="text-sm text-gray-600">{school.address}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {school.feePaymentEnabled ? (
+                              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Payment Enabled
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">
+                                <XCircle className="w-3 h-3 mr-1" />
+                                Payment Disabled
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {/* Current Configuration */}
+                          {school.feePaymentEnabled && (
+                            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                              <h4 className="font-medium text-sm text-gray-700">Current Configuration:</h4>
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <span className="text-gray-600">Payment Methods:</span>
+                                  <p className="font-medium">
+                                    {school.paymentMethods?.length > 0 
+                                      ? school.paymentMethods.join(', ') 
+                                      : 'Not configured'}
+                                  </p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-600">Admin Approval:</span>
+                                  <p className="font-medium">
+                                    {school.adminApprovalRequired ? 'Required' : 'Not Required'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            {school.feePaymentEnabled ? (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => disablePaymentMutation.mutate(school.id)}
+                                disabled={disablePaymentMutation.isPending}
+                              >
+                                {disablePaymentMutation.isPending ? (
+                                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                                ) : (
+                                  <XCircle className="w-4 h-4 mr-2" />
+                                )}
+                                Disable Payment
+                              </Button>
+                            ) : (
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  className="bg-green-600 hover:bg-green-700"
+                                  onClick={() => enablePaymentMutation.mutate({
+                                    schoolId: school.id,
+                                    paymentMethods: ['razorpay', 'stripe'],
+                                    adminApprovalRequired: true
+                                  })}
+                                  disabled={enablePaymentMutation.isPending}
+                                >
+                                  {enablePaymentMutation.isPending ? (
+                                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                                  ) : (
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                  )}
+                                  Enable Payment (Approval Required)
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => enablePaymentMutation.mutate({
+                                    schoolId: school.id,
+                                    paymentMethods: ['razorpay', 'stripe'],
+                                    adminApprovalRequired: false
+                                  })}
+                                  disabled={enablePaymentMutation.isPending}
+                                >
+                                  Enable Payment (Direct)
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Statistics */}
+                          <div className="pt-4 border-t">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                              <div>
+                                <p className="text-2xl font-bold text-blue-600">0</p>
+                                <p className="text-xs text-gray-600">Pending Payments</p>
+                              </div>
+                              <div>
+                                <p className="text-2xl font-bold text-green-600">0</p>
+                                <p className="text-xs text-gray-600">Completed Payments</p>
+                              </div>
+                              <div>
+                                <p className="text-2xl font-bold text-red-600">₹0</p>
+                                <p className="text-xs text-gray-600">Total Collected</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Fee Payment Overview */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      Payment System Overview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-4 gap-4 text-center">
+                      <div className="p-4 bg-blue-50 rounded-lg">
+                        <p className="text-2xl font-bold text-blue-600">
+                          {schools?.filter(s => s.feePaymentEnabled).length || 0}
+                        </p>
+                        <p className="text-sm text-gray-600">Schools with Payment Enabled</p>
+                      </div>
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <p className="text-2xl font-bold text-green-600">0</p>
+                        <p className="text-sm text-gray-600">Total Fee Payments Today</p>
+                      </div>
+                      <div className="p-4 bg-yellow-50 rounded-lg">
+                        <p className="text-2xl font-bold text-yellow-600">0</p>
+                        <p className="text-sm text-gray-600">Pending Approvals</p>
+                      </div>
+                      <div className="p-4 bg-red-50 rounded-lg">
+                        <p className="text-2xl font-bold text-red-600">₹0</p>
+                        <p className="text-sm text-gray-600">Total Revenue This Month</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
           )}

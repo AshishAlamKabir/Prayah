@@ -123,6 +123,12 @@ export interface IStorage {
   getSchool(id: number): Promise<School | undefined>;
   createSchool(school: InsertSchool): Promise<School>;
   updateSchool(id: number, school: Partial<InsertSchool>): Promise<School | undefined>;
+  updateSchoolPaymentSettings(id: number, settings: {
+    feePaymentEnabled: boolean;
+    paymentMethods: string[];
+    paymentConfig: any;
+    adminApprovalRequired: boolean;
+  }): Promise<School | undefined>;
   deleteSchool(id: number): Promise<boolean>;
   createSchoolActivity(activity: any): Promise<SchoolActivity>;
 
@@ -163,6 +169,11 @@ export interface IStorage {
   getPaymentById(id: number): Promise<Payment | undefined>;
   getPaymentByStripeId(stripePaymentIntentId: string): Promise<Payment | undefined>;
   updatePaymentStatus(id: number, status: string, stripeChargeId?: string, failureReason?: string): Promise<Payment | undefined>;
+  
+  // School fee payment operations
+  createSchoolFeePayment(feePayment: any): Promise<any>;
+  getSchoolFeePayments(schoolId?: number): Promise<any[]>;
+  updateSchoolFeePaymentStatus(id: number, status: string): Promise<any | undefined>;
   getPaymentsByUser(userId: number): Promise<Payment[]>;
   getPaymentsByType(paymentType: string): Promise<Payment[]>;
   markPaymentAdminsNotified(paymentId: number, notificationsSent: string[]): Promise<Payment | undefined>;
@@ -391,6 +402,26 @@ export class DatabaseStorage implements IStorage {
     const [school] = await db
       .update(schools)
       .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(schools.id, id))
+      .returning();
+    return school || undefined;
+  }
+
+  async updateSchoolPaymentSettings(id: number, settings: {
+    feePaymentEnabled: boolean;
+    paymentMethods: string[];
+    paymentConfig: any;
+    adminApprovalRequired: boolean;
+  }): Promise<School | undefined> {
+    const [school] = await db
+      .update(schools)
+      .set({
+        feePaymentEnabled: settings.feePaymentEnabled,
+        paymentMethods: settings.paymentMethods,
+        paymentConfig: settings.paymentConfig,
+        adminApprovalRequired: settings.adminApprovalRequired,
+        updatedAt: new Date()
+      })
       .where(eq(schools.id, id))
       .returning();
     return school || undefined;
@@ -849,6 +880,52 @@ export class DatabaseStorage implements IStorage {
       .where(eq(payments.id, paymentId))
       .returning();
     return payment || undefined;
+  }
+
+  // School fee payment operations
+  async createSchoolFeePayment(feePayment: InsertSchoolFeePayment): Promise<SchoolFeePayment> {
+    const [newFeePayment] = await db
+      .insert(schoolFeePayments)
+      .values(feePayment)
+      .returning();
+    return newFeePayment;
+  }
+
+  async getSchoolFeePayments(schoolId?: number): Promise<SchoolFeePayment[]> {
+    if (schoolId) {
+      return await db.select().from(schoolFeePayments).where(eq(schoolFeePayments.schoolId, schoolId)).orderBy(desc(schoolFeePayments.createdAt));
+    }
+    return await db.select().from(schoolFeePayments).orderBy(desc(schoolFeePayments.createdAt));
+  }
+
+  async updateSchoolFeePaymentStatus(id: number, status: string): Promise<SchoolFeePayment | undefined> {
+    const [feePayment] = await db
+      .update(schoolFeePayments)
+      .set({ 
+        status, 
+        updatedAt: new Date() 
+      })
+      .where(eq(schoolFeePayments.id, id))
+      .returning();
+    return feePayment || undefined;
+  }
+
+  async updateSchoolPaymentConfig(schoolId: number, config: {
+    feePaymentEnabled: boolean;
+    paymentMethods: string[];
+    adminApprovalRequired: boolean;
+  }): Promise<School | undefined> {
+    const [school] = await db
+      .update(schools)
+      .set({
+        feePaymentEnabled: config.feePaymentEnabled,
+        paymentMethods: config.paymentMethods,
+        adminApprovalRequired: config.adminApprovalRequired,
+        updatedAt: new Date()
+      })
+      .where(eq(schools.id, schoolId))
+      .returning();
+    return school || undefined;
   }
 
   // Admin notification operations

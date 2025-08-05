@@ -72,6 +72,11 @@ export const schools = pgTable("schools", {
   website: text("website"),
   achievements: text("achievements").array(),
   facilities: text("facilities").array(),
+  // Fee payment configuration
+  feePaymentEnabled: boolean("fee_payment_enabled").default(false),
+  paymentMethods: jsonb("payment_methods").default(["razorpay"]), // Available payment methods
+  paymentConfig: jsonb("payment_config").default({}), // Payment gateway configurations
+  adminApprovalRequired: boolean("admin_approval_required").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -268,6 +273,33 @@ export const bookStock = pgTable("book_stock", {
   };
 });
 
+// School fee payments table for managing student fee payments
+export const schoolFeePayments = pgTable("school_fee_payments", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schools.id, { onDelete: 'cascade' }),
+  studentName: text("student_name").notNull(),
+  className: text("class_name").notNull(),
+  feeType: text("fee_type").notNull(), // monthly, annual, admission, examination, etc.
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  contactDetails: jsonb("contact_details").default({}), // phone, email, address
+  status: text("status").default("pending"), // pending, approved, completed, cancelled
+  paymentMethod: text("payment_method"), // razorpay, stripe, cash
+  paymentLink: text("payment_link"), // Generated payment gateway link
+  adminApprovalRequired: boolean("admin_approval_required").default(true),
+  approvedBy: integer("approved_by").references(() => users.id, { onDelete: 'set null' }),
+  approvedAt: timestamp("approved_at"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    schoolIdx: index('school_fee_payments_school_idx').on(table.schoolId),
+    statusIdx: index('school_fee_payments_status_idx').on(table.status),
+    studentIdx: index('school_fee_payments_student_idx').on(table.studentName),
+    createdAtIdx: index('school_fee_payments_created_at_idx').on(table.createdAt),
+  };
+});
+
 // Create insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -330,6 +362,15 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
 export const insertBookStockSchema = createInsertSchema(bookStock).omit({
   id: true,
   lastUpdated: true,
+});
+
+export const insertSchoolFeePaymentSchema = createInsertSchema(schoolFeePayments).omit({
+  id: true,
+  approvedBy: true,
+  approvedAt: true,
+  paidAt: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertPaymentSchema = createInsertSchema(payments).omit({
@@ -491,6 +532,10 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type BookStock = typeof bookStock.$inferSelect;
 export type InsertBookStock = z.infer<typeof insertBookStockSchema>;
 
+// School fee payment types
+export type SchoolFeePayment = typeof schoolFeePayments.$inferSelect;
+export type InsertSchoolFeePayment = z.infer<typeof insertSchoolFeePaymentSchema>;
+
 export type SchoolNotification = typeof schoolNotifications.$inferSelect;
 export type InsertSchoolNotification = z.infer<typeof insertSchoolNotificationSchema>;
 
@@ -536,58 +581,7 @@ export const insertPublicationSubmissionSchema = createInsertSchema(publicationS
 export type PublicationSubmission = typeof publicationSubmissions.$inferSelect;
 export type InsertPublicationSubmission = z.infer<typeof insertPublicationSubmissionSchema>;
 
-// School fee payments table for fee collection system
-export const schoolFeePayments = pgTable("school_fee_payments", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  schoolId: integer("school_id").notNull().references(() => schools.id),
-  studentRollNo: varchar("student_roll_no", { length: 50 }).notNull(),
-  studentName: varchar("student_name", { length: 100 }).notNull(),
-  studentClass: varchar("student_class", { length: 50 }).notNull(),
-  feeMonth: varchar("fee_month", { length: 20 }).notNull(), // e.g., "January 2024"
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).notNull().default("INR"),
-  paymentStatus: varchar("payment_status", { length: 20 }).notNull().default("pending"), // pending, completed, failed, refunded
-  razorpayOrderId: varchar("razorpay_order_id", { length: 100 }),
-  razorpayPaymentId: varchar("razorpay_payment_id", { length: 100 }),
-  paymentMethod: varchar("payment_method", { length: 50 }), // UPI, card, netbanking, wallet
-  transactionFee: decimal("transaction_fee", { precision: 8, scale: 2 }).default("0.00"),
-  receiptNumber: varchar("receipt_number", { length: 50 }),
-  adminNotified: boolean("admin_notified").notNull().default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  paidAt: timestamp("paid_at"),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  // Indexes for performance and preventing duplicate payments
-  index("idx_school_fee_student_month").on(table.schoolId, table.studentRollNo, table.feeMonth),
-  index("idx_school_fee_user").on(table.userId),
-  index("idx_school_fee_status").on(table.paymentStatus),
-  index("idx_school_fee_school").on(table.schoolId),
-  index("idx_razorpay_order").on(table.razorpayOrderId),
-  // Prevent duplicate fee payments for same student/month
-  uniqueIndex("unique_student_fee_month").on(table.schoolId, table.studentRollNo, table.feeMonth)
-]);
 
-export const insertSchoolFeePaymentSchema = createInsertSchema(schoolFeePayments, {
-  amount: z.string().transform((val) => parseFloat(val)),
-  studentRollNo: z.string().min(1, "Roll number is required"),
-  studentName: z.string().min(2, "Student name must be at least 2 characters"),
-  studentClass: z.string().min(1, "Class is required"),
-  feeMonth: z.string().min(1, "Fee month is required"),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  paidAt: true,
-  razorpayOrderId: true,
-  razorpayPaymentId: true,
-  receiptNumber: true,
-  adminNotified: true,
-  paymentStatus: true,
-  currency: true,
-  paymentMethod: true,
-  transactionFee: true,
-});
 
 // Fee payment notification table for school admins
 export const feePaymentNotifications = pgTable("fee_payment_notifications", {
@@ -595,8 +589,8 @@ export const feePaymentNotifications = pgTable("fee_payment_notifications", {
   schoolId: integer("school_id").notNull().references(() => schools.id),
   feePaymentId: integer("fee_payment_id").notNull().references(() => schoolFeePayments.id),
   adminUserId: integer("admin_user_id").notNull().references(() => users.id),
-  notificationType: varchar("notification_type", { length: 30 }).notNull().default("fee_payment_received"),
-  title: varchar("title", { length: 200 }).notNull(),
+  notificationType: text("notification_type").notNull().default("fee_payment_received"),
+  title: text("title").notNull(),
   message: text("message").notNull(),
   isRead: boolean("is_read").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -708,8 +702,8 @@ export const bookStockRelations = relations(bookStock, ({ one }) => ({
 }));
 
 export const schoolFeePaymentsRelations = relations(schoolFeePayments, ({ one, many }) => ({
-  user: one(users, { fields: [schoolFeePayments.userId], references: [users.id] }),
   school: one(schools, { fields: [schoolFeePayments.schoolId], references: [schools.id] }),
+  approver: one(users, { fields: [schoolFeePayments.approvedBy], references: [users.id] }),
   notifications: many(feePaymentNotifications),
 }));
 

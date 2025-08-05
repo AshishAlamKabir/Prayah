@@ -301,6 +301,135 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super admin school payment management endpoints
+  app.post("/api/admin/schools/:schoolId/enable-payments", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const { paymentMethods, paymentConfig, adminApprovalRequired } = req.body;
+
+      // Only super admin can enable/disable payments
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Only super admin can manage payment settings" });
+      }
+
+      const updatedSchool = await storage.updateSchoolPaymentSettings(schoolId, {
+        feePaymentEnabled: true,
+        paymentMethods: paymentMethods || ["razorpay"],
+        paymentConfig: paymentConfig || {},
+        adminApprovalRequired: adminApprovalRequired !== undefined ? adminApprovalRequired : true
+      });
+
+      res.json({
+        success: true,
+        message: "Fee payment enabled for school",
+        school: updatedSchool
+      });
+    } catch (error) {
+      console.error("Error enabling school payments:", error);
+      res.status(500).json({ message: "Failed to enable payments" });
+    }
+  });
+
+  app.post("/api/admin/schools/:schoolId/disable-payments", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+
+      // Only super admin can enable/disable payments
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Only super admin can manage payment settings" });
+      }
+
+      const updatedSchool = await storage.updateSchoolPaymentSettings(schoolId, {
+        feePaymentEnabled: false,
+        paymentMethods: [],
+        paymentConfig: {},
+        adminApprovalRequired: true
+      });
+
+      res.json({
+        success: true,
+        message: "Fee payment disabled for school",
+        school: updatedSchool
+      });
+    } catch (error) {
+      console.error("Error disabling school payments:", error);
+      res.status(500).json({ message: "Failed to disable payments" });
+    }
+  });
+
+  app.get("/api/schools/:schoolId/payment-status", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const school = await storage.getSchool(schoolId);
+
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      res.json({
+        feePaymentEnabled: school.feePaymentEnabled || false,
+        paymentMethods: school.paymentMethods || [],
+        adminApprovalRequired: school.adminApprovalRequired !== false
+      });
+    } catch (error) {
+      console.error("Error checking payment status:", error);
+      res.status(500).json({ message: "Failed to check payment status" });
+    }
+  });
+
+  // Enhanced fee payment endpoint with admin control
+  app.post("/api/schools/:schoolId/fee-payment", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const school = await storage.getSchool(schoolId);
+
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      // Check if fee payment is enabled for this school
+      if (!school.feePaymentEnabled) {
+        return res.status(403).json({ 
+          message: "Fee payment is not enabled for this school. Please contact administration.",
+          enabled: false 
+        });
+      }
+
+      // Continue with existing fee payment logic
+      const { studentName, className, feeType, amount, contactDetails } = req.body;
+
+      // Validate required fields
+      if (!studentName || !className || !feeType || !amount) {
+        return res.status(400).json({ 
+          message: "Missing required fields: studentName, className, feeType, amount" 
+        });
+      }
+
+      // Create fee payment record
+      const feePayment = await storage.createSchoolFeePayment({
+        schoolId,
+        studentName,
+        className,
+        feeType,
+        amount: parseFloat(amount),
+        contactDetails: contactDetails || {},
+        status: "pending",
+        paymentMethod: "razorpay", // Default to razorpay
+        adminApprovalRequired: school.adminApprovalRequired !== false
+      });
+
+      res.json({
+        success: true,
+        message: "Fee payment request created successfully",
+        paymentId: feePayment.id,
+        requiresApproval: school.adminApprovalRequired !== false
+      });
+    } catch (error) {
+      console.error("Error processing fee payment:", error);
+      res.status(500).json({ message: "Failed to process fee payment" });
+    }
+  });
+
   // Authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -1483,6 +1612,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       memory: process.memoryUsage(),
       environment: process.env.NODE_ENV || 'development'
     });
+  });
+
+  // Super admin school payment control endpoints
+  app.post("/api/admin/schools/:schoolId/enable-payments", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const { paymentMethods, adminApprovalRequired } = req.body;
+
+      // Update school payment configuration
+      const school = await storage.updateSchoolPaymentConfig(schoolId, {
+        feePaymentEnabled: true,
+        paymentMethods: paymentMethods || ['razorpay', 'stripe'],
+        adminApprovalRequired: adminApprovalRequired !== false
+      });
+
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      res.json({ message: "Fee payment enabled successfully", school });
+    } catch (error) {
+      console.error("Failed to enable fee payment:", error);
+      res.status(500).json({ message: "Failed to enable fee payment" });
+    }
+  });
+
+  app.post("/api/admin/schools/:schoolId/disable-payments", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+
+      // Disable school payment system
+      const school = await storage.updateSchoolPaymentConfig(schoolId, {
+        feePaymentEnabled: false,
+        paymentMethods: [],
+        adminApprovalRequired: true
+      });
+
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      res.json({ message: "Fee payment disabled successfully", school });
+    } catch (error) {
+      console.error("Failed to disable fee payment:", error);
+      res.status(500).json({ message: "Failed to disable fee payment" });
+    }
+  });
+
+  // Fee payment management endpoints
+  app.get("/api/admin/fee-payments", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = req.query.schoolId ? parseInt(req.query.schoolId as string) : undefined;
+      const feePayments = await storage.getSchoolFeePayments(schoolId);
+      res.json(feePayments);
+    } catch (error) {
+      console.error("Failed to fetch fee payments:", error);
+      res.status(500).json({ message: "Failed to fetch fee payments" });
+    }
+  });
+
+  app.patch("/api/admin/fee-payments/:paymentId/status", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const paymentId = parseInt(req.params.paymentId);
+      const { status } = req.body;
+
+      const feePayment = await storage.updateSchoolFeePaymentStatus(paymentId, status);
+      
+      if (!feePayment) {
+        return res.status(404).json({ message: "Fee payment not found" });
+      }
+
+      res.json({ message: "Payment status updated successfully", feePayment });
+    } catch (error) {
+      console.error("Failed to update payment status:", error);
+      res.status(500).json({ message: "Failed to update payment status" });
+    }
   });
 
   const httpServer = createServer(app);
