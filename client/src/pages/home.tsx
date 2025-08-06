@@ -43,42 +43,63 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-6">About Prayas Study Circle</h2>
-            <div className="text-left max-w-3xl mx-auto space-y-6">
+            <div className="text-left max-w-4xl mx-auto space-y-6">
               <p className="text-lg leading-relaxed">
-                Prayas is a dedicated study circle committed to fostering education, cultural preservation, and community development 
-                across Assam. Our mission is to create a network of educational institutions and cultural programs that empower 
-                individuals through knowledge, skill development, and cultural awareness.
-              </p>
-              <p className="text-lg leading-relaxed">
-                We believe in the transformative power of education and the importance of preserving our rich cultural heritage 
-                while adapting to modern challenges. Through our schools, cultural programs, and educational resources, we strive 
-                to build stronger, more informed communities.
+                Prayas Adhyayan Chakra (প্ৰয়াস অধ্যয়ন চক্ৰ, PACB) is a non-profit, non-governmental organization 
+                founded in 1996 in Bokakhat, Assam. Guided by the constitutional values of equality, justice, 
+                and fraternity, PACB works to create an equitable society through education and cultural 
+                preservation, particularly focusing on marginalized communities.
               </p>
               
-              <div className="mt-8">
-                <h3 className="text-2xl font-semibold mb-4">Our Goals & Objectives</h3>
-                <ul className="space-y-3 text-lg">
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-3">•</span>
-                    Establish and support quality educational institutions in rural and urban areas
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-3">•</span>
-                    Preserve and promote Assamese culture through arts, music, drama, and literature
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-3">•</span>
-                    Provide accessible educational resources and books to communities
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-3">•</span>
-                    Foster critical thinking and social awareness among students and community members
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-green-400 mr-3">•</span>
-                    Create platforms for knowledge sharing and community collaboration
-                  </li>
-                </ul>
+              <div className="grid md:grid-cols-2 gap-8 mt-8">
+                <div>
+                  <h3 className="text-2xl font-semibold mb-4">Our Journey</h3>
+                  <p className="text-lg leading-relaxed mb-4">
+                    PACB began as a grassroots study circle serving rural areas around Bokakhat, addressing 
+                    the educational needs of economically disadvantaged children. Our early initiatives included 
+                    awareness campaigns encouraging students to pursue formal education and textbook distribution 
+                    drives for families unable to afford educational materials.
+                  </p>
+                  <p className="text-lg leading-relaxed">
+                    A significant milestone came in 2005 with the establishment of Bokakhat Jatiya Vidyalay, 
+                    which has since grown into a network of four schools serving impoverished communities in 
+                    remote and riverine areas.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-semibold mb-4">Our Mission</h3>
+                  <p className="text-lg leading-relaxed mb-4">
+                    PACB is deeply committed to preserving and promoting the languages and cultures of Assam's 
+                    diverse communities, with particular attention to those historically marginalized and 
+                    discriminated against.
+                  </p>
+                  <p className="text-lg leading-relaxed">
+                    Through our network of educational and cultural institutions, we work to build stronger, 
+                    more informed communities that celebrate their heritage while embracing progress.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-10">
+                <h3 className="text-2xl font-semibold mb-6">Current Initiatives</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                    <h4 className="text-xl font-bold mb-3 text-green-400">Educational Network</h4>
+                    <p className="text-lg">Four schools affiliated to Assam Jatiya Bidyalay, Guwahati, implementing scientific and evidence-based educational practices</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                    <h4 className="text-xl font-bold mb-3 text-green-400">Cultural Programs</h4>
+                    <p className="text-lg">Four programs providing arts and cultural education, fostering dialogue around progressive literature and cultural expression</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                    <h4 className="text-xl font-bold mb-3 text-green-400">Publications & Literature</h4>
+                    <p className="text-lg">An in-house publication and book rally campaign promoting progressive literature and regional writers</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                    <h4 className="text-xl font-bold mb-3 text-green-400">Community Impact</h4>
+                    <p className="text-lg">Nearly three decades of service upholding the belief that education is the most powerful instrument for realizing an equal and just society</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
