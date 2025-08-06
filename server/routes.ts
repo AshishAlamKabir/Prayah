@@ -361,6 +361,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/schools/:schoolId/payment-status", async (req, res) => {
     try {
+      // Add cache headers - payment status changes infrequently
+      res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
       const schoolId = parseInt(req.params.schoolId);
       const school = await storage.getSchool(schoolId);
 
@@ -735,6 +737,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Community posts endpoints
   app.get("/api/community-posts", async (req, res) => {
     try {
+      // Add cache headers
+      res.set('Cache-Control', 'public, max-age=180'); // Cache for 3 minutes
       const status = req.query.status as string;
       const posts = await storage.getCommunityPosts(status);
       res.json(posts);
@@ -818,6 +822,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Schools endpoints
   app.get("/api/schools", async (req, res) => {
     try {
+      // Add cache headers to improve performance
+      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
       const schools = await storage.getSchools();
       res.json(schools);
     } catch (error) {
@@ -858,6 +864,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Culture categories endpoints
   app.get("/api/culture-categories", async (req, res) => {
     try {
+      // Add cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
       const categories = await storage.getCultureCategories();
       res.json(categories);
     } catch (error) {
@@ -884,6 +892,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Books endpoints
   app.get("/api/books", async (req, res) => {
     try {
+      // Add cache headers to improve performance
+      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
       const category = req.query.category as string;
       const books = category 
         ? await storage.getBooksByCategory(category)
@@ -927,6 +937,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Published works endpoints
   app.get("/api/published-works", async (req, res) => {
     try {
+      // Add cache headers for better performance
+      res.set('Cache-Control', 'public, max-age=240'); // Cache for 4 minutes
       const featured = req.query.featured === "true";
       const status = req.query.status as string;
       
