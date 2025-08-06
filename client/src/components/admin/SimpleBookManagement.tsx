@@ -43,6 +43,8 @@ export default function SimpleBookManagement() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   
+  console.log("SimpleBookManagement rendered, showForm:", showForm);
+  
   const [formData, setFormData] = useState<BookFormData>({
     title: "",
     author: "",
@@ -447,7 +449,10 @@ export default function SimpleBookManagement() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-red-800">Book Management</h1>
         <Button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            console.log("Add New Book button clicked");
+            setShowForm(true);
+          }}
           className="bg-red-800 hover:bg-red-900"
         >
           <Plus className="w-4 h-4 mr-2" />
