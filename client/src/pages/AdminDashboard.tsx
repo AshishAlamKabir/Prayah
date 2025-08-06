@@ -241,6 +241,15 @@ export default function AdminDashboard() {
 
   const { user, accessibleSchools, accessibleCultureCategories, canManageAll } = dashboardData;
 
+  // Check if user has admin privileges (super admin, school admin, or culture admin)
+  const isAdmin = user.role === "admin" || user.role === "school_admin" || user.role === "culture_admin";
+  
+  // If not an admin, redirect to main site
+  if (!isAdmin) {
+    window.location.href = "/";
+    return null;
+  }
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "admin": return <Users className="w-6 h-6" />;
@@ -415,10 +424,10 @@ export default function AdminDashboard() {
           <div className="w-full overflow-x-auto">
             <TabsList className="flex w-full min-w-fit justify-start gap-1 bg-gray-100 p-1 rounded-lg">
               <TabsTrigger value="overview" className="whitespace-nowrap px-3 py-2 text-sm">Overview</TabsTrigger>
-              <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>
-              <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>
-              <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>
-              <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>
+              {(user.role === "admin" || user.role === "school_admin") && <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>}
+              {(user.role === "admin" || user.role === "culture_admin") && <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>}
+              {user.role === "admin" && <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>}
+              {user.role === "admin" && <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>}
               {user.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
               {user.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
             </TabsList>
