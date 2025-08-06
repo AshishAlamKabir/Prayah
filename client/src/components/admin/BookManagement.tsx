@@ -129,10 +129,11 @@ export default function BookManagement() {
       setCoverImageFile(null);
       setPdfFile(null);
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Error adding book:", error);
       toast({
         title: "Error",
-        description: "Failed to add book. Please try again.",
+        description: error?.message || "Failed to add book. Please try again.",
         variant: "destructive",
       });
     },
