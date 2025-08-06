@@ -722,6 +722,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Statistics endpoint
   app.get("/api/stats", async (req, res) => {
     try {
+      // Add cache headers to reduce repeated requests
+      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
       const stats = await storage.getStats();
       res.json(stats);
     } catch (error) {

@@ -1115,16 +1115,19 @@ export class DatabaseStorage implements IStorage {
     totalBooks: number;
     totalMembers: number;
   }> {
-    const [schoolCount] = await db.select({ count: count() }).from(schools);
-    const [postCount] = await db.select({ count: count() }).from(communityPosts);
-    const [bookCount] = await db.select({ count: count() }).from(books);
-    const [memberCount] = await db.select({ count: count() }).from(users);
+    // Execute all count queries in parallel for better performance
+    const [schoolCountResult, postCountResult, bookCountResult, memberCountResult] = await Promise.all([
+      db.select({ count: count() }).from(schools),
+      db.select({ count: count() }).from(communityPosts),
+      db.select({ count: count() }).from(books),
+      db.select({ count: count() }).from(users)
+    ]);
 
     return {
-      totalSchools: Number(schoolCount?.count) || 0,
-      totalPosts: Number(postCount?.count) || 0,
-      totalBooks: Number(bookCount?.count) || 0,
-      totalMembers: Number(memberCount?.count) || 0,
+      totalSchools: Number(schoolCountResult[0]?.count) || 0,
+      totalPosts: Number(postCountResult[0]?.count) || 0,
+      totalBooks: Number(bookCountResult[0]?.count) || 0,
+      totalMembers: Number(memberCountResult[0]?.count) || 0,
     };
   }
 
