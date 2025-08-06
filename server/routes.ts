@@ -1789,9 +1789,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Book management endpoints for super admin
-  app.post("/api/admin/books", authMiddleware, adminMiddleware, async (req, res) => {
+  // Enhanced book management endpoint with file upload support
+  app.post("/api/admin/books", authMiddleware, adminMiddleware, upload.fields([
+    { name: 'coverImage', maxCount: 1 },
+    { name: 'pdfFile', maxCount: 1 }
+  ]), async (req, res) => {
     try {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       const bookData = req.body;
       
       // Validate required fields
@@ -1801,21 +1805,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create the book
-      const book = await storage.createBook(bookData);
+      // Process uploaded files
+      let imageUrl = "";
+      let pdfUrl = "";
       
-      // If initial stock quantity is provided, create stock record
-      if (bookData.quantity && bookData.quantity > 0) {
-        await storage.updateBookStock(book.id, bookData.quantity, req.user.id);
+      if (files.coverImage) {
+        imageUrl = `/uploads/${files.coverImage[0].filename}`;
+      }
+      
+      if (files.pdfFile) {
+        pdfUrl = `/uploads/${files.pdfFile[0].filename}`;
+      }
+
+      // Parse tags if they're a JSON string
+      let tags = [];
+      if (bookData.tags) {
+        try {
+          tags = typeof bookData.tags === 'string' ? JSON.parse(bookData.tags) : bookData.tags;
+        } catch (e) {
+          tags = bookData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean);
+        }
+      }
+
+      // Prepare book data for database
+      const processedBookData = {
+        title: bookData.title,
+        author: bookData.author,
+        editor: bookData.editor || "",
+        description: bookData.description || "",
+        category: bookData.category || "",
+        price: parseFloat(bookData.price),
+        isbn: bookData.isbn || "",
+        tags: tags,
+        subscriptionOnly: bookData.subscriptionOnly === 'true',
+        featured: bookData.featured === 'true',
+        imageUrl: imageUrl,
+        pdfUrl: pdfUrl,
+        bookType: bookData.bookType || "paperback",
+        inStock: true
+      };
+
+      // Create the book
+      const book = await storage.createBook(processedBookData);
+      
+      // Create initial stock record if quantity provided
+      const quantity = parseInt(bookData.quantity) || 0;
+      if (quantity > 0) {
+        await storage.updateBookStock(book.id, quantity, req.user.id);
       }
 
       res.status(201).json({ 
-        message: "Book added successfully", 
-        book 
+        message: "Book added successfully to store", 
+        book,
+        imageUrl,
+        pdfUrl
       });
     } catch (error) {
       console.error("Error adding book:", error);
-      res.status(500).json({ message: "Failed to add book" });
+      res.status(500).json({ message: "Failed to add book to store" });
     }
   });
 
