@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { cache } from "./cache";
 import deadlockMonitoringRoutes from "./routes/deadlock-monitoring";
 import multer from "multer";
 import path from "path";
@@ -721,12 +722,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Statistics endpoint
+  // Statistics endpoint with memory cache
   app.get("/api/stats", async (req, res) => {
     try {
-      // Add cache headers to reduce repeated requests
-      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
-      const stats = await storage.getStats();
+      const cacheKey = "stats";
+      let stats = cache.get(cacheKey);
+      
+      if (!stats) {
+        stats = await storage.getStats();
+        cache.set(cacheKey, stats, 3 * 60 * 1000); // Cache for 3 minutes
+      }
+      
+      res.set('Cache-Control', 'public, max-age=180'); // Browser cache 3 minutes
       res.json(stats);
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -734,13 +741,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Community posts endpoints
+  // Community posts endpoints with memory cache
   app.get("/api/community-posts", async (req, res) => {
     try {
-      // Add cache headers
-      res.set('Cache-Control', 'public, max-age=180'); // Cache for 3 minutes
       const status = req.query.status as string;
-      const posts = await storage.getCommunityPosts(status);
+      const cacheKey = status ? `community-posts:${status}` : "community-posts:all";
+      
+      let posts = cache.get(cacheKey);
+      if (!posts) {
+        posts = await storage.getCommunityPosts(status);
+        cache.set(cacheKey, posts, 3 * 60 * 1000); // Cache for 3 minutes
+      }
+      
+      res.set('Cache-Control', 'public, max-age=180'); // Browser cache 3 minutes
       res.json(posts);
     } catch (error) {
       console.error("Error fetching community posts:", error);
@@ -819,12 +832,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Schools endpoints
+  // Schools endpoints with memory cache
   app.get("/api/schools", async (req, res) => {
     try {
-      // Add cache headers to improve performance
-      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
-      const schools = await storage.getSchools();
+      const cacheKey = "schools";
+      let schools = cache.get(cacheKey);
+      
+      if (!schools) {
+        schools = await storage.getSchools();
+        cache.set(cacheKey, schools, 5 * 60 * 1000); // Cache for 5 minutes
+      }
+      
+      res.set('Cache-Control', 'public, max-age=300'); // Browser cache 5 minutes
       res.json(schools);
     } catch (error) {
       console.error("Error fetching schools:", error);
@@ -861,12 +880,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Culture categories endpoints
+  // Culture categories endpoints with memory cache
   app.get("/api/culture-categories", async (req, res) => {
     try {
-      // Add cache headers for better performance
-      res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
-      const categories = await storage.getCultureCategories();
+      const cacheKey = "culture-categories";
+      let categories = cache.get(cacheKey);
+      
+      if (!categories) {
+        categories = await storage.getCultureCategories();
+        cache.set(cacheKey, categories, 10 * 60 * 1000); // Cache for 10 minutes
+      }
+      
+      res.set('Cache-Control', 'public, max-age=600'); // Browser cache 10 minutes
       res.json(categories);
     } catch (error) {
       console.error("Error fetching culture categories:", error);
@@ -889,15 +914,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Books endpoints
+  // Books endpoints with memory cache
   app.get("/api/books", async (req, res) => {
     try {
-      // Add cache headers to improve performance
-      res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
       const category = req.query.category as string;
-      const books = category 
-        ? await storage.getBooksByCategory(category)
-        : await storage.getBooks();
+      const cacheKey = category ? `books:category:${category}` : "books:all";
+      
+      let books = cache.get(cacheKey);
+      if (!books) {
+        books = category 
+          ? await storage.getBooksByCategory(category)
+          : await storage.getBooks();
+        cache.set(cacheKey, books, 5 * 60 * 1000); // Cache for 5 minutes
+      }
+      
+      res.set('Cache-Control', 'public, max-age=300'); // Browser cache 5 minutes
       res.json(books);
     } catch (error) {
       console.error("Error fetching books:", error);

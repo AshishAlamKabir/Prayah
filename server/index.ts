@@ -6,6 +6,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDeadlockPrevention, scheduleMaintenanceTasks } from "./init-deadlock-prevention";
 import { validateEncryptionSystem } from "./encryption";
+import { preloadCriticalData } from "./cache";
 
 const app = express();
 
@@ -121,6 +122,11 @@ app.use((req, res, next) => {
   
   // Schedule maintenance tasks
   scheduleMaintenanceTasks();
+  
+  // Preload critical data into cache for faster response times
+  setTimeout(() => {
+    preloadCriticalData();
+  }, 2000); // Wait 2 seconds for server to fully start
   
   const server = await registerRoutes(app);
 

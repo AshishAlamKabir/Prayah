@@ -16,12 +16,14 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create pool with additional configuration for stability
+// Create pool with optimized configuration for performance
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  max: 20, // Increase pool size
+  min: 2,  // Keep minimum connections warm
+  idleTimeoutMillis: 60000, // Keep connections longer
+  connectionTimeoutMillis: 5000, // Reduce timeout for faster failure
+  acquireTimeoutMillis: 5000,
 });
 
 export const db = drizzle({ client: pool, schema });
