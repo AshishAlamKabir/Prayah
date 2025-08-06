@@ -8,7 +8,7 @@ import { CheckCircle, XCircle, Clock, Users, FileText, BarChart3, Eye } from "lu
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import BasicBookForm from "@/components/admin/BasicBookForm";
+import BookManager from "@/components/admin/BookManager";
 import type { CommunityPost } from "@shared/schema";
 
 export default function Admin() {
@@ -284,7 +284,7 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="books" className="space-y-6">
-              <BasicBookForm />
+              <BookManager />
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">
