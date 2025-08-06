@@ -89,7 +89,10 @@ export default function Home() {
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
                     <h4 className="text-xl font-bold mb-3 text-green-400">Cultural Programs</h4>
-                    <p className="text-lg">Four programs providing arts and cultural education, fostering dialogue around progressive literature and cultural expression</p>
+                    <div className="text-lg space-y-2">
+                      <p>• Five programs providing arts and cultural education</p>
+                      <p>• A community library and an art gallery</p>
+                    </div>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
                     <h4 className="text-xl font-bold mb-3 text-green-400">Publications & Literature</h4>
