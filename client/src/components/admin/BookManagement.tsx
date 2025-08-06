@@ -99,7 +99,10 @@ export default function BookManagement() {
   // Add new book mutation
   const addBookMutation = useMutation({
     mutationFn: async (bookData: any) => {
-      return await apiRequest("POST", "/api/admin/books", bookData);
+      console.log("Making API request to add book:", bookData);
+      const response = await apiRequest("POST", "/api/admin/books", bookData);
+      console.log("API response:", response);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/books"] });
@@ -161,6 +164,9 @@ export default function BookManagement() {
   });
 
   const handleAddBook = async () => {
+    console.log("Add Book button clicked");
+    console.log("Form data:", newBookForm);
+    
     if (!newBookForm.title || !newBookForm.author || !newBookForm.price) {
       toast({
         title: "Missing Information",
@@ -176,6 +182,7 @@ export default function BookManagement() {
 
       // Upload files if they exist
       if (coverImageFile || pdfFile) {
+        console.log("Uploading files...");
         const formData = new FormData();
         if (coverImageFile) {
           formData.append('coverImage', coverImageFile);
@@ -198,11 +205,12 @@ export default function BookManagement() {
         ...newBookForm,
         imageUrl,
         pdfUrl,
-        isbn: newBookForm.isbn,
+        isbn: newBookForm.isbn || "",
         tags: newBookForm.tags.split(",").map(tag => tag.trim()).filter(Boolean),
         price: parseFloat(newBookForm.price.toString()),
       };
 
+      console.log("Submitting book data:", bookData);
       addBookMutation.mutate(bookData);
     } catch (error) {
       console.error("Error uploading files:", error);
