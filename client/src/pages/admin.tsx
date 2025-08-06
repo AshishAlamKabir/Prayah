@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Clock, Users, FileText, BarChart3, Eye } from "lu
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import BookManagement from "@/components/admin/BookManagement";
 import type { CommunityPost } from "@shared/schema";
 
 export default function Admin() {
@@ -283,42 +284,7 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="books" className="space-y-6">
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Book & PDF Management</h3>
-                <p className="text-gray-600">Upload new books, manage PDF files, and control access to digital publications.</p>
-              </div>
-              
-              <div className="grid gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Upload New Book</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <Button className="bg-green-600 hover:bg-green-700">
-                        Add New Book
-                      </Button>
-                      <p className="text-sm text-gray-600">
-                        Upload new books with PDF files, set pricing, and manage subscription access.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Existing Books</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <p className="text-gray-600">Manage existing book inventory, update PDFs, and modify access permissions.</p>
-                      <Button variant="outline">
-                        View All Books
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <BookManagement />
             </TabsContent>
 
             <TabsContent value="content" className="space-y-6">
