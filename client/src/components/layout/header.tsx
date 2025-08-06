@@ -192,8 +192,8 @@ export default function Header() {
                         <p className="text-xs opacity-75">({user?.role})</p>
                         {isSubscribed && <Crown className="w-4 h-4 text-yellow-400 mx-auto mt-1" />}
                       </div>
-                      {user?.role === "admin" ? (
-                        <Link href="/admin-dashboard">
+                      {hasAdminAccess ? (
+                        <Link href="/role-admin">
                           <Button 
                             variant="outline" 
                             className="w-full text-white border-white hover:bg-white hover:text-red-800" 
