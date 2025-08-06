@@ -3,7 +3,7 @@ import { Link } from "wouter";
 
 export default function HeroSection() {
   return (
-    <section className="logo-red-bg text-white py-20">
+    <section className="bg-red-800 text-white py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
           Prayas Study Circle Platform
@@ -15,7 +15,7 @@ export default function HeroSection() {
           <Link href="/community">
             <Button 
               size="lg" 
-              className="prayas-green-bg hover:bg-green-700 px-8 py-4 text-lg font-semibold"
+              className="bg-green-600 hover:bg-green-700 px-8 py-4 text-lg font-semibold"
             >
               Submit Community Post
             </Button>
@@ -23,7 +23,7 @@ export default function HeroSection() {
           <Link href="/schools">
             <Button 
               size="lg"
-              className="prayas-green-bg hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold"
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold"
             >
               Explore Platform
             </Button>

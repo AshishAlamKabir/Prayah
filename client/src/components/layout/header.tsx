@@ -34,7 +34,7 @@ export default function Header() {
   };
 
   return (
-    <header className="logo-red-bg text-white shadow-lg sticky top-0 z-50 border-b border-red-600">
+    <header className="bg-red-800 text-white shadow-lg sticky top-0 z-50 border-b border-red-700">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4 md:py-5">
           <Link href="/">
@@ -142,16 +142,13 @@ export default function Header() {
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="md:hidden text-white border-white/30 hover:border-white/50"
-                  style={{ backgroundColor: 'var(--deep-red)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--revolutionary-red)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--deep-red)'}
+                  className="md:hidden text-white bg-red-700 border-white/30 hover:bg-red-600 hover:border-white/50"
                 >
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="logo-red-bg text-white border-red-600 w-[280px] sm:w-[350px]">
+              <SheetContent side="right" className="bg-red-800 text-white border-red-700 w-[280px] sm:w-[350px]">
                 <div className="flex flex-col space-y-4 mt-8">
                   {navigation.map((item) => (
                     <Link key={item.name} href={item.href}>

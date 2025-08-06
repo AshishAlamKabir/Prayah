@@ -39,7 +39,7 @@ export default function Home() {
       <CommunitySection />
       
       {/* About Prayas Section */}
-      <section className="logo-red-bg text-white py-20">
+      <section className="bg-red-800 text-white py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-6">About Prayas Study Circle</h2>
@@ -153,9 +153,9 @@ export default function Home() {
                       <p className="text-gray-600 mb-3">{school.location}</p>
                       <p className="text-gray-700 mb-4">{school.description}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-logo-red font-medium">{school.studentCount} Students</span>
+                        <span className="text-sm text-red-800 font-medium">{school.studentCount} Students</span>
                         <Link href={`/schools/${school.id}`}>
-                          <Button className="prayas-green-bg hover:bg-green-700">
+                          <Button className="bg-green-600 hover:bg-green-700">
                             View Details
                           </Button>
                         </Link>
@@ -169,7 +169,7 @@ export default function Home() {
           
           <div className="text-center mt-12">
             <Link href="/schools">
-              <Button size="lg" className="logo-red-bg hover:bg-red-700 text-white px-8 py-4">
+              <Button size="lg" className="bg-red-800 hover:bg-red-900 text-white px-8 py-4">
                 View All Schools
               </Button>
             </Link>
@@ -178,7 +178,7 @@ export default function Home() {
       </section>
 
       {/* Culture Programs */}
-      <section className="logo-red-bg text-white py-20">
+      <section className="bg-red-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Art & Culture Programs</h2>
@@ -198,13 +198,13 @@ export default function Home() {
             ) : (
               featuredPrograms.map((program) => (
                 <Card key={program.id} className="revolutionary-card bg-white text-gray-900 p-6">
-                  <div className="text-logo-red text-3xl mb-4">
+                  <div className="text-red-800 text-3xl mb-4">
                     <Palette className="h-8 w-8" />
                   </div>
                   <h3 className="text-lg font-bold mb-3">{program.name}</h3>
                   <p className="text-gray-600 text-sm mb-4">{program.description}</p>
                   <Link href="/culture">
-                    <Button className="prayas-green-bg hover:bg-green-700 text-white w-full">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
                       Learn More
                     </Button>
                   </Link>
@@ -262,13 +262,13 @@ export default function Home() {
                     <p className="text-gray-700 text-sm mb-4">{book.description}</p>
                     <div className="flex gap-2">
                       <Link href={`/books/${book.id}`} className="flex-1">
-                        <Button className="prayas-green-bg hover:bg-green-700 text-white w-full">
+                        <Button className="bg-green-600 hover:bg-green-700 text-white w-full">
                           Buy Book
                         </Button>
                       </Link>
                       {book.pdfUrl && (
                         <a href={book.pdfUrl} target="_blank" rel="noopener noreferrer">
-                          <Button variant="outline" className="border-prayas-green text-prayas-green hover:prayas-green-bg hover:text-white">
+                          <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white">
                             Free PDF
                           </Button>
                         </a>
@@ -282,7 +282,7 @@ export default function Home() {
           
           <div className="text-center mt-12">
             <Link href="/books">
-              <Button size="lg" className="logo-red-bg hover:bg-red-700 text-white px-8 py-4">
+              <Button size="lg" className="bg-red-800 hover:bg-red-900 text-white px-8 py-4">
                 Browse Full Catalog
               </Button>
             </Link>
