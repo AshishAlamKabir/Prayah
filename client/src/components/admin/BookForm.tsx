@@ -168,7 +168,7 @@ export default function BookForm() {
     // Add all text fields
     Object.entries(formData).forEach(([key, value]) => {
       if (key === 'tags') {
-        formDataToSend.append(key, JSON.stringify(value.split(",").map(tag => tag.trim()).filter(Boolean)));
+        formDataToSend.append(key, JSON.stringify(value.split(",").map((tag: string) => tag.trim()).filter(Boolean)));
       } else {
         formDataToSend.append(key, value.toString());
       }
