@@ -287,6 +287,7 @@ export default function BookManagement() {
                             min="0"
                             className="w-20"
                             placeholder="Qty"
+                            id={`stock-input-${stock.bookId}`}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 const newQty = parseInt((e.target as HTMLInputElement).value);
@@ -300,7 +301,7 @@ export default function BookManagement() {
                           <Button
                             size="sm"
                             onClick={() => {
-                              const input = document.querySelector(`input[placeholder="Qty"]`) as HTMLInputElement;
+                              const input = document.getElementById(`stock-input-${stock.bookId}`) as HTMLInputElement;
                               const newQty = parseInt(input?.value || '0');
                               if (!isNaN(newQty)) {
                                 handleStockUpdate(stock.bookId, newQty);

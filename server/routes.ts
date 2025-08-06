@@ -1789,6 +1789,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Book management endpoints for super admin
+  app.post("/api/admin/books", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookData = req.body;
+      
+      // Validate required fields
+      if (!bookData.title || !bookData.author || !bookData.price) {
+        return res.status(400).json({ 
+          message: "Missing required fields: title, author, price" 
+        });
+      }
+
+      // Create the book
+      const book = await storage.createBook(bookData);
+      
+      // If initial stock quantity is provided, create stock record
+      if (bookData.quantity && bookData.quantity > 0) {
+        await storage.updateBookStock(book.id, bookData.quantity, req.user.id);
+      }
+
+      res.status(201).json({ 
+        message: "Book added successfully", 
+        book 
+      });
+    } catch (error) {
+      console.error("Error adding book:", error);
+      res.status(500).json({ message: "Failed to add book" });
+    }
+  });
+
   // Book stock management endpoints for super admin
   app.get("/api/admin/book-stock", authMiddleware, adminMiddleware, async (req, res) => {
     try {
@@ -1797,6 +1827,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching book stock:", error);
       res.status(500).json({ message: "Failed to fetch book stock" });
+    }
+  });
+
+  app.post("/api/admin/book-stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const { bookId, quantity } = req.body;
+
+      if (typeof bookId !== "number" || typeof quantity !== "number" || quantity < 0) {
+        return res.status(400).json({ message: "Invalid bookId or quantity" });
+      }
+
+      const updatedStock = await storage.updateBookStock(bookId, quantity, req.user.id);
+      res.json(updatedStock);
+    } catch (error) {
+      console.error("Error updating book stock:", error);
+      res.status(500).json({ message: "Failed to update book stock" });
     }
   });
 
