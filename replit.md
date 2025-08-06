@@ -9,6 +9,7 @@ Language preference: Remove "revolutionary" language - Prayas is a study circle 
 Content preference: Replace community submission form with Prayas description and approved publications showcase on home page.
 Database requirements: Deadlock-free database schema with proper foreign keys, indexes, and transaction safety.
 UI/UX preferences: Clean, organized tab layouts with proper spacing and responsive design for admin interfaces.
+Color theme preference: Match the red color theme throughout the platform with the official logo colors.
 
 ## System Architecture
 
@@ -48,7 +49,7 @@ The application employs a modern full-stack architecture, ensuring clear separat
 - **Database Operations**: Drizzle ORM for type-safe queries; IStorage abstraction; Drizzle Kit for migrations; connection pooling.
 
 ### System Design Choices
-- **UI/UX**: Socialist-themed design (red and green palette) using shadcn/ui templates.
+- **UI/UX**: Logo-matched design with authentic red and green color palette derived from the official Prayas logo, implemented using CSS custom properties and shadcn/ui templates.
 - **Technical Implementations**: Comprehensive authentication with `bcrypt`, role-based access control, file upload systems (Multer), payment backend with Stripe and Razorpay integrations, email notifications (SendGrid).
 - **Feature Specifications**:
     - **Payment System**: Supports book purchases, subscriptions, publication fees, school fees, and cultural program payments. Includes admin notifications and a payment method selector (Stripe/Razorpay).

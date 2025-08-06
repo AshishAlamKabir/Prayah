@@ -13,7 +13,7 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(0, 62.8%, 30.6%); /* Revolutionary red */
+  --primary: hsl(0, 85%, 45%); /* Logo-matched red */
   --primary-foreground: hsl(0, 0%, 98%);
   --secondary: hsl(60, 4.8%, 95.9%);
   --secondary-foreground: hsl(24, 9.8%, 10%);
@@ -24,11 +24,13 @@
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
   
-  /* Revolutionary theme colors */
-  --revolutionary-red: hsl(0, 62.8%, 30.6%);
-  --deep-red: hsl(0, 62.8%, 25%);
-  --socialist-green: hsl(120, 40%, 25%);
-  --light-green: hsl(120, 55%, 45%);
+  /* Revolutionary theme colors - matching logo */
+  --revolutionary-red: hsl(0, 85%, 45%); /* Bright red matching logo header */
+  --deep-red: hsl(0, 75%, 35%); /* Darker red for hover states */
+  --logo-red: hsl(0, 80%, 50%); /* Logo's exact red tone */
+  --socialist-green: hsl(120, 60%, 25%); /* Deep green matching logo footer */
+  --light-green: hsl(120, 55%, 45%); /* Lighter green for accents */
+  --prayas-green: hsl(120, 70%, 30%); /* Logo's exact green tone */
 }
 
 .dark {
@@ -42,13 +44,13 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(0, 62.8%, 30.6%);
+  --primary: hsl(0, 85%, 45%);
   --primary-foreground: hsl(0, 0%, 98%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
   --accent: hsl(240, 3.7%, 15.9%);
   --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive: hsl(0, 85%, 45%);
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
   --radius: 0.5rem;
@@ -86,15 +88,19 @@
   }
   
   .btn-revolutionary {
-    @apply bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200;
+    background-color: var(--prayas-green);
+    @apply hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200;
   }
   
   .btn-secondary-revolutionary {
-    @apply border-2 border-white hover:bg-white text-white hover:text-red-800 font-semibold py-3 px-6 rounded-lg transition-colors duration-200;
+    @apply border-2 border-white hover:bg-white text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200;
+  }
+  .btn-secondary-revolutionary:hover {
+    color: var(--logo-red);
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - matching logo colors */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -104,7 +110,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--revolutionary-red);
+  background: var(--logo-red);
   border-radius: 4px;
 }
 
@@ -112,10 +118,35 @@
   background: var(--deep-red);
 }
 
-/* Focus styles */
+/* Focus styles - using logo red */
 .focus-revolutionary:focus {
   outline: none;
   ring: 2px;
-  ring-color: var(--revolutionary-red);
+  ring-color: var(--logo-red);
   ring-opacity: 0.5;
+}
+
+/* Additional logo-matched color utilities */
+.logo-red-bg {
+  background-color: var(--logo-red);
+}
+
+.prayas-green-bg {
+  background-color: var(--prayas-green);
+}
+
+.text-logo-red {
+  color: var(--logo-red);
+}
+
+.text-prayas-green {
+  color: var(--prayas-green);
+}
+
+.border-logo-red {
+  border-color: var(--logo-red);
+}
+
+.border-prayas-green {
+  border-color: var(--prayas-green);
 }
