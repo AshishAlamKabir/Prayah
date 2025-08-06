@@ -63,11 +63,15 @@ export default function SimpleBookManagement() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Fetch books and analytics
-  const { data: books = [], isLoading: booksLoading } = useQuery({
+  const { data: books = [], isLoading: booksLoading } = useQuery<Book[]>({
     queryKey: ["/api/books"],
   });
 
-  const { data: analytics } = useQuery({
+  const { data: analytics } = useQuery<{
+    totalBooks: number;
+    totalStock: number;
+    lowStockBooks: number;
+  }>({
     queryKey: ["/api/admin/book-analytics"],
   });
 
@@ -501,7 +505,7 @@ export default function SimpleBookManagement() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Featured</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {books.filter((book: Book) => book.featured).length}
+                  {(books as Book[]).filter((book: Book) => book.featured).length}
                 </p>
               </div>
               <Users className="h-8 w-8 text-blue-600" />
@@ -515,7 +519,7 @@ export default function SimpleBookManagement() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5 text-red-600" />
-            Book Inventory ({books.length})
+            Book Inventory ({(books as Book[]).length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -524,7 +528,7 @@ export default function SimpleBookManagement() {
               <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full mx-auto"></div>
               <p className="mt-2 text-gray-600">Loading books...</p>
             </div>
-          ) : books.length === 0 ? (
+          ) : (books as Book[]).length === 0 ? (
             <div className="text-center py-8">
               <BookIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-4">No books in store yet</p>
@@ -538,7 +542,7 @@ export default function SimpleBookManagement() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {books.map((book: Book) => (
+              {(books as Book[]).map((book: Book) => (
                 <Card key={book.id} className="border border-gray-200">
                   <CardContent className="p-4">
                     <div className="flex gap-4">
