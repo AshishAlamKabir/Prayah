@@ -362,8 +362,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/schools/:schoolId/payment-status", async (req, res) => {
     try {
-      // Add cache headers - payment status changes infrequently
-      res.set('Cache-Control', 'public, max-age=600'); // Cache for 10 minutes
+      // No caching for payment status - this is critical security data
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       const schoolId = parseInt(req.params.schoolId);
       const school = await storage.getSchool(schoolId);
 
@@ -1727,6 +1730,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!school) {
         return res.status(404).json({ message: "School not found" });
       }
+
+      // Clear cache to ensure fresh data is served immediately
+      cache.delete("schools");
+      cache.delete(`school:${schoolId}`);
 
       const message = feePaymentEnabled 
         ? "Fee payment access enabled successfully" 

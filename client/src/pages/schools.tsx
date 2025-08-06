@@ -13,16 +13,29 @@ import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
 
 // Component to show fee payment button only if enabled
 function FeePaymentButton({ schoolId }: { schoolId: number }) {
-  const { data: paymentStatus } = useQuery<{
+  const { data: paymentStatus, isLoading } = useQuery<{
     feePaymentEnabled: boolean;
     paymentMethods: string[];
     adminApprovalRequired: boolean;
   }>({
     queryKey: ["/api/schools", schoolId, "payment-status"],
+    staleTime: 0, // Always fetch fresh data for payment status
+    cacheTime: 0, // Don't cache this critical security data
   });
 
+  // Show loading state briefly
+  if (isLoading) {
+    return (
+      <Button disabled variant="outline" className="w-full border-gray-300 text-gray-400">
+        <CreditCard className="h-4 w-4 mr-2" />
+        Loading...
+      </Button>
+    );
+  }
+
+  // Hide button completely if payment is disabled
   if (!paymentStatus?.feePaymentEnabled) {
-    return null; // Don't show button if payment is disabled
+    return null;
   }
 
   return (
