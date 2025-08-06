@@ -50,6 +50,16 @@ export default function SchoolFeePayment() {
     enabled: !!schoolId,
   });
 
+  // Check payment status for this school
+  const { data: paymentStatus } = useQuery<{
+    feePaymentEnabled: boolean;
+    paymentMethods: string[];
+    adminApprovalRequired: boolean;
+  }>({
+    queryKey: ["/api/schools", schoolId, "payment-status"],
+    enabled: !!schoolId,
+  });
+
   // Get fee structures for the school
   const { data: feeStructures = [] } = useQuery<any[]>({
     queryKey: ["/api/schools", schoolId, "fee-structures"],
@@ -233,6 +243,30 @@ export default function SchoolFeePayment() {
             You need to be logged in to make a fee payment. Please log in first.
           </AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  // Check if fee payment is enabled for this school
+  if (schoolId && paymentStatus && !paymentStatus.feePaymentEnabled) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Fee payment is currently disabled for this school. Please contact the administration for assistance.
+          </AlertDescription>
+        </Alert>
+        <div className="mt-4">
+          <Button 
+            variant="outline" 
+            onClick={() => window.history.back()}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Go Back
+          </Button>
+        </div>
       </div>
     );
   }

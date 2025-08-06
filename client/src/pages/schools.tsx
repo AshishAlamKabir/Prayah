@@ -11,6 +11,30 @@ import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
 import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
 import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
 
+// Component to show fee payment button only if enabled
+function FeePaymentButton({ schoolId }: { schoolId: number }) {
+  const { data: paymentStatus } = useQuery<{
+    feePaymentEnabled: boolean;
+    paymentMethods: string[];
+    adminApprovalRequired: boolean;
+  }>({
+    queryKey: ["/api/schools", schoolId, "payment-status"],
+  });
+
+  if (!paymentStatus?.feePaymentEnabled) {
+    return null; // Don't show button if payment is disabled
+  }
+
+  return (
+    <Link href={`/schools/${schoolId}/fee-payment`}>
+      <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50">
+        <CreditCard className="h-4 w-4 mr-2" />
+        Pay School Fee
+      </Button>
+    </Link>
+  );
+}
+
 export default function Schools() {
   const [searchTerm, setSearchTerm] = useState("");
   
@@ -157,12 +181,7 @@ export default function Schools() {
                             View Details
                           </Button>
                         </Link>
-                        <Link href={`/schools/${school.id}/fee-payment`}>
-                          <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50">
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Pay School Fee
-                          </Button>
-                        </Link>
+                        <FeePaymentButton schoolId={school.id} />
                       </div>
                       
                       {(school.contactEmail || school.contactPhone || school.website) && (
