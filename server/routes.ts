@@ -97,6 +97,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Login endpoint
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      const isValidPassword = await verifyPassword(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      const sessionToken = generateSessionToken();
+      await storage.createUserSession({
+        userId: user.id,
+        token: sessionToken,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000)
+      });
+      
+      const userJWT = generateUserJWT(user);
+      
+      res.cookie('auth_token', sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000
+      });
+      
+      res.json({ user: userJWT, token: sessionToken });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Current user endpoint
+  app.get("/api/auth/me", authMiddleware, async (req, res) => {
+    try {
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      res.json({ user });
+    } catch (error) {
+      console.error("Get current user error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Logout endpoint
+  app.post("/api/auth/logout", authMiddleware, async (req, res) => {
+    try {
+      const token = req.cookies.auth_token;
+      if (token) {
+        await storage.deleteUserSession(token);
+      }
+      
+      res.clearCookie('auth_token');
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Books endpoints
   app.get("/api/books", async (req, res) => {
     try {

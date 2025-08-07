@@ -33,15 +33,15 @@ export default function BooksStore() {
   const queryClient = useQueryClient();
 
   // Fetch books from the API
-  const { data: books = [], isLoading } = useQuery({
+  const { data: books = [], isLoading } = useQuery<Book[]>({
     queryKey: ['/api/books'],
   });
 
   // Get unique genres for filter
-  const genres = Array.from(new Set(books.map((book: Book) => book.genre).filter(Boolean)));
+  const genres = Array.from(new Set(books.map((book) => book.genre).filter(Boolean)));
 
   // Filter books based on search and genre
-  const filteredBooks = books.filter((book: Book) => {
+  const filteredBooks = books.filter((book) => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGenre = selectedGenre === "all" || book.genre === selectedGenre;
@@ -194,7 +194,7 @@ export default function BooksStore() {
 
             {/* Books Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredBooks.map((book: Book) => (
+              {filteredBooks.map((book) => (
                 <Card key={book.id} className="hover:shadow-lg transition-shadow duration-200">
                   <CardHeader className="pb-3">
                     {book.imageUrl ? (
