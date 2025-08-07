@@ -21,8 +21,8 @@ export default function Header() {
     { name: "Home", href: "/" },
     { name: "Schools", href: "/schools" },
     { name: "Art & Culture", href: "/culture" },
+    { name: "Books", href: "/books" },
     { name: "Community", href: "/community" },
-    { name: "Store", href: "/store" },
     { name: "Publish Book", href: "/publish" },
   ];
 

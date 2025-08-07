@@ -14,8 +14,7 @@ import Dance from "@/pages/culture/Dance";
 import Drama from "@/pages/culture/Drama";
 import Poems from "@/pages/culture/Poems";
 import DanceDramaPoems from "@/pages/culture/DanceDramaPoems";
-import BooksStore from "@/pages/BooksStore";
-import Cart from "@/pages/Cart";
+import Books from "@/pages/books";
 import Community from "@/pages/Community";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -42,10 +41,8 @@ function Router() {
           <Route path="/culture/drama" component={Drama} />
           <Route path="/culture/poems" component={Poems} />
           <Route path="/culture/dance-drama-poems" component={DanceDramaPoems} />
-          <Route path="/books" component={BooksStore} />
-          <Route path="/books/:id" component={BooksStore} />
-          <Route path="/store" component={BooksStore} />
-          <Route path="/cart" component={Cart} />
+          <Route path="/books" component={Books} />
+          <Route path="/books/:id" component={Books} />
           <Route path="/community" component={Community} />
           <Route path="/user-dashboard" component={UserDashboard} />
           <Route path="/admin-dashboard" component={AdminDashboard} />

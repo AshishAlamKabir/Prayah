@@ -7,7 +7,7 @@
 
 import { db } from "../server/db";
 import { eq, and, inArray } from "drizzle-orm";
-import { users, cartItems, books, payments, orders, adminNotifications, userSessions } from "./schema";
+import { users, books, payments, adminNotifications, userSessions } from "./schema";
 
 /**
  * Consistent table access ordering to prevent deadlocks:

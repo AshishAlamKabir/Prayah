@@ -1,10 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Book, Search, Download, ShoppingCart } from "lucide-react";
+import { Book, Search, Download, Eye } from "lucide-react";
 import { useState } from "react";
 import type { Book as BookType } from "@shared/schema";
 
@@ -32,10 +31,10 @@ export default function Books() {
       <section className="bg-red-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Revolutionary Literature
+            Educational Library
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            Access to transformative books, free PDFs, and published works that inspire change
+            Explore our collection of educational books, publications, and resources for learning
           </p>
         </div>
       </section>
@@ -133,7 +132,9 @@ export default function Books() {
                         <span className="bg-red-800 text-white text-xs px-2 py-1 rounded-full">
                           {book.category}
                         </span>
-                        <span className="text-green-600 font-bold text-lg">₹{book.price}</span>
+                        <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full">
+                          Educational
+                        </span>
                       </div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{book.title}</h3>
                       <p className="text-gray-600 text-sm mb-3">
@@ -154,22 +155,21 @@ export default function Books() {
                       )}
                       
                       <div className="flex gap-2">
-                        <Button 
-                          className="bg-green-600 hover:bg-green-700 text-white flex-1 flex items-center justify-center gap-2"
-                          disabled={!book.inStock}
-                        >
-                          <ShoppingCart className="h-4 w-4" />
-                          {book.inStock ? "Buy Book" : "Out of Stock"}
-                        </Button>
                         {book.pdfUrl && (
-                          <Button 
-                            variant="outline" 
-                            className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white flex items-center justify-center gap-1"
+                          <button 
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center justify-center gap-2 flex-1"
+                            onClick={() => window.open(book.pdfUrl!, '_blank')}
                           >
                             <Download className="h-4 w-4" />
-                            PDF
-                          </Button>
+                            Read PDF
+                          </button>
                         )}
+                        <button 
+                          className="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded flex items-center justify-center gap-1"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Details
+                        </button>
                       </div>
                     </CardContent>
                   </Card>
@@ -184,44 +184,44 @@ export default function Books() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Featured Collections</h3>
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">Educational Collections</h3>
             <p className="text-lg text-gray-600">
-              Curated collections of essential revolutionary literature
+              Curated collections of educational and cultural literature
             </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-red-50 p-6 rounded-lg text-center">
               <Book className="h-12 w-12 text-red-800 mx-auto mb-4" />
-              <h4 className="text-xl font-bold text-gray-900 mb-3">Political Theory</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Educational Theory</h4>
               <p className="text-gray-700 mb-4">
-                Essential texts on revolutionary theory, class struggle, and political economy.
+                Essential texts on educational philosophy, pedagogy, and learning theory.
               </p>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
                 Explore Collection
-              </Button>
+              </button>
             </div>
             
             <div className="bg-green-50 p-6 rounded-lg text-center">
               <Book className="h-12 w-12 text-green-800 mx-auto mb-4" />
-              <h4 className="text-xl font-bold text-gray-900 mb-3">Educational Reform</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Cultural Studies</h4>
               <p className="text-gray-700 mb-4">
-                Progressive education theory and practice for transformative learning.
+                Cultural heritage, arts, and community development resources.
               </p>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
                 Explore Collection
-              </Button>
+              </button>
             </div>
             
             <div className="bg-blue-50 p-6 rounded-lg text-center">
               <Book className="h-12 w-12 text-blue-800 mx-auto mb-4" />
-              <h4 className="text-xl font-bold text-gray-900 mb-3">Historical Analysis</h4>
+              <h4 className="text-xl font-bold text-gray-900 mb-3">Historical Research</h4>
               <p className="text-gray-700 mb-4">
-                Critical examination of historical events from a people's perspective.
+                Historical analysis and research from academic perspectives.
               </p>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
                 Explore Collection
-              </Button>
+              </button>
             </div>
           </div>
         </div>

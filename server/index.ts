@@ -4,7 +4,7 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeDeadlockPrevention, scheduleMaintenanceTasks } from "./init-deadlock-prevention";
+// Removed deadlock prevention - simplified e-commerce removal
 import { validateEncryptionSystem } from "./encryption";
 import { preloadCriticalData } from "./cache";
 
@@ -117,11 +117,7 @@ app.use((req, res, next) => {
     process.exit(1);
   }
   
-  // Initialize deadlock prevention system
-  await initializeDeadlockPrevention();
-  
-  // Schedule maintenance tasks
-  scheduleMaintenanceTasks();
+  // Removed deadlock prevention - simplified e-commerce removal
   
   // Preload critical data into cache for faster response times
   setTimeout(() => {

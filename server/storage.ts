@@ -6,9 +6,7 @@ import {
   books,
   publishedWorks,
   userSessions,
-  orders,
-  cartItems,
-  bookStock,
+  // Removed orders, cartItems, bookStock - e-commerce removed
   schoolActivities,
   publicationSubmissions,
   payments,
@@ -28,12 +26,7 @@ import {
   type InsertPublishedWork,
   type UserSession,
   type InsertUserSession,
-  type Order,
-  type InsertOrder,
-  type CartItem,
-  type InsertCartItem,
-  type BookStock,
-  type InsertBookStock,
+  // Removed Order, CartItem, BookStock types - e-commerce removed
   type SchoolActivity,
   type InsertSchoolActivity,
   type PublicationSubmission,
@@ -92,24 +85,9 @@ export interface IStorage {
   getUserBySessionToken(token: string): Promise<User | undefined>;
   deleteUserSession(token: string): Promise<boolean>;
   
-  // Cart operations
-  getCartItems(userId: number): Promise<(CartItem & { book: Book })[]>;
-  addToCart(item: InsertCartItem): Promise<CartItem>;
-  updateCartItem(id: number, quantity: number): Promise<CartItem | undefined>;
-  removeFromCart(id: number): Promise<boolean>;
-  clearCart(userId: number): Promise<boolean>;
+  // Removed cart operations - e-commerce removed
 
-  // Order operations
-  createOrder(order: InsertOrder): Promise<Order>;
-  getOrdersByUser(userId: number): Promise<Order[]>;
-  getAllOrders(): Promise<Order[]>;
-  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
-  markOrderNotified(id: number): Promise<Order | undefined>;
-
-  // Book stock operations
-  getBookStock(bookId: number): Promise<BookStock | undefined>;
-  updateBookStock(stock: InsertBookStock): Promise<BookStock>;
-  getAllBookStock(): Promise<(BookStock & { book: Book })[]>;
+  // Removed order and stock operations - e-commerce removed
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -147,14 +125,9 @@ export interface IStorage {
   updateBook(id: number, book: Partial<InsertBook>): Promise<Book | undefined>;
   deleteBook(id: number): Promise<boolean>;
 
-  // Book stock operations
-  getBookStock(): Promise<any[]>;
-  updateBookStock(bookId: number, quantity: number, updatedBy: number): Promise<any>;
+  // Removed stock analytics - e-commerce removed
   getBookAnalytics(): Promise<{
     totalBooks: number;
-    totalStock: number;
-    lowStockCount: number;
-    outOfStockCount: number;
     totalValue: number;
     averagePrice: number;
   }>;
@@ -769,104 +742,7 @@ export class DatabaseStorage implements IStorage {
     return order || undefined;
   }
 
-  // Cart operations
-  async getCartItems(userId: number): Promise<(CartItem & { book: Book })[]> {
-    // Use deadlock-safe implementation
-    const { deadlockSafeStorage } = await import("./deadlock-safe-storage");
-    const result = await deadlockSafeStorage.getCartItemsSafe(userId);
-    
-    return result.map(item => ({
-      id: item.id,
-      userId: item.userId,
-      bookId: item.bookId,
-      quantity: item.quantity,
-      createdAt: item.createdAt,
-      book: item.book!
-    }));
-  }
-
-  async addToCart(item: InsertCartItem): Promise<CartItem> {
-    // Use deadlock-safe implementation
-    const { deadlockSafeStorage } = await import("./deadlock-safe-storage");
-    return deadlockSafeStorage.addToCartSafe(item.userId, item.bookId, item.quantity || 1);
-  }
-
-  async updateCartItem(id: number, quantity: number): Promise<CartItem | undefined> {
-    if (quantity <= 0) {
-      await this.removeFromCart(id);
-      return undefined;
-    }
-
-    const [item] = await db
-      .update(cartItems)
-      .set({ quantity })
-      .where(eq(cartItems.id, id))
-      .returning();
-    return item || undefined;
-  }
-
-  async removeFromCart(id: number): Promise<boolean> {
-    const result = await db.delete(cartItems).where(eq(cartItems.id, id));
-    return (result.rowCount ?? 0) > 0;
-  }
-
-  async clearCart(userId: number): Promise<boolean> {
-    // Use deadlock-safe implementation
-    const { deadlockSafeStorage } = await import("./deadlock-safe-storage");
-    return deadlockSafeStorage.clearCartSafe(userId);
-  }
-
-  // Book stock operations
-  async getBookStock(bookId: number): Promise<BookStock | undefined> {
-    const [stock] = await db.select().from(bookStock).where(eq(bookStock.bookId, bookId));
-    return stock || undefined;
-  }
-
-  async updateBookStock(stock: InsertBookStock): Promise<BookStock> {
-    const existingStock = await this.getBookStock(stock.bookId);
-    
-    if (existingStock) {
-      const [updatedStock] = await db
-        .update(bookStock)
-        .set({ 
-          quantity: stock.quantity, 
-          lastUpdated: new Date(), 
-          updatedBy: stock.updatedBy 
-        })
-        .where(eq(bookStock.bookId, stock.bookId))
-        .returning();
-      return updatedStock;
-    }
-
-    const [newStock] = await db
-      .insert(bookStock)
-      .values(stock)
-      .returning();
-    return newStock;
-  }
-
-  async getAllBookStock(): Promise<(BookStock & { book: Book })[]> {
-    const result = await db
-      .select({
-        id: bookStock.id,
-        bookId: bookStock.bookId,
-        quantity: bookStock.quantity,
-        lastUpdated: bookStock.lastUpdated,
-        updatedBy: bookStock.updatedBy,
-        book: books
-      })
-      .from(bookStock)
-      .leftJoin(books, eq(bookStock.bookId, books.id));
-
-    return result.map(item => ({
-      id: item.id,
-      bookId: item.bookId,
-      quantity: item.quantity,
-      lastUpdated: item.lastUpdated,
-      updatedBy: item.updatedBy,
-      book: item.book || {} as Book
-    }));
-  }
+  // Removed cart and stock operations - e-commerce functionality removed
 
   // Enhanced published work operations
   async updatePublishedWorkStatus(id: number, status: string, approvedBy?: number): Promise<PublishedWork | undefined> {

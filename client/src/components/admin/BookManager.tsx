@@ -67,13 +67,12 @@ export default function BookManager() {
               // Validation
               const title = formData.get('title') as string;
               const author = formData.get('author') as string;
-              const price = formData.get('price') as string;
               const coverImage = formData.get('coverImage') as File;
               
-              if (!title || !author || !price) {
+              if (!title || !author) {
                 toast({
                   title: "Missing Information",
-                  description: "Please fill in title, author, and price",
+                  description: "Please fill in title and author",
                   variant: "destructive"
                 });
                 return;
@@ -89,9 +88,11 @@ export default function BookManager() {
               }
               
               // Add default values
+              formData.set('price', '0');
+              formData.set('quantity', '0');
               formData.set('subscriptionOnly', 'false');
               formData.set('featured', 'false');
-              formData.set('bookType', 'paperback');
+              formData.set('bookType', 'educational');
               formData.set('tags', JSON.stringify([]));
               
               handleAddBook(formData);
@@ -119,18 +120,7 @@ export default function BookManager() {
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="price">Price (₹) *</Label>
-                    <Input
-                      id="price"
-                      name="price"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      required
-                    />
-                  </div>
+
 
                   <div>
                     <Label htmlFor="category">Category</Label>
@@ -141,16 +131,7 @@ export default function BookManager() {
                     />
                   </div>
 
-                  <div>
-                    <Label htmlFor="quantity">Stock</Label>
-                    <Input
-                      id="quantity"
-                      name="quantity"
-                      type="number"
-                      min="0"
-                      defaultValue="0"
-                    />
-                  </div>
+
                 </div>
 
                 <div className="space-y-4">

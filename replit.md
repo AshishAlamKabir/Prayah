@@ -13,7 +13,7 @@ Color theme preference: Match the red color theme throughout the platform with t
 
 ## System Architecture
 
-The application employs a modern full-stack architecture, ensuring clear separation and efficient interaction between client and server components.
+The application employs a modern full-stack architecture focused on educational content management and fee payment processing, with complete removal of e-commerce functionality as of August 7, 2025.
 
 ### Frontend Architecture
 - **Framework**: React 18 with TypeScript
@@ -39,9 +39,9 @@ The application employs a modern full-stack architecture, ensuring clear separat
 - **Path Aliases**: Configured for clean imports (`@/`, `@shared/`, `@assets/`)
 
 ### Key Components
-- **Data Models**: Users (roles, subscriptions), User Sessions, Community Posts (approval workflow), Schools, Culture Categories, Books (e-commerce, PDF access), Published Works (admin approval), Orders.
-- **Frontend Pages**: Home, Schools (directory & detail), Culture (showcase for various arts), Books (catalog), Store (e-commerce, subscriptions), Login/Register, Admin dashboard.
-- **UI Components**: Full shadcn/ui library, custom `RevolutionaryCard`, validated form components, responsive layout components.
+- **Data Models**: Users (roles, permissions), User Sessions, Community Posts (approval workflow), Schools, Culture Categories, Books (educational catalog), Published Works (admin approval), School Fee Payments, Fee Structures.
+- **Frontend Pages**: Home, Schools (directory & detail), Culture (showcase for various arts), Books (educational catalog), Community, Login/Register, Admin dashboard.
+- **UI Components**: Full shadcn/ui library, validated form components, responsive layout components with red/green color theme.
 
 ### Data Flow
 - **Client-Server Communication**: RESTful API endpoints; TanStack Query for caching and synchronization; Zod schemas for validation; comprehensive error handling.
@@ -57,7 +57,7 @@ The application employs a modern full-stack architecture, ensuring clear separat
     - **Cultural Program Management**: Admin interface for program creation (instructor info, fees, scheduling), activity publishing, social media integration, and media uploads. Supports various program types and age groups.
     - **School Management**: Admin interface for creating school profiles (contact info, statistics, programs), notification system for announcements, and media gallery management. Supports multi-file uploads.
     - **Fee Payment Access Control**: Super admin controlled system where payment functionality can be enabled/disabled per school. School admins are blocked from fee payment features when access is disabled by super admin.
-    - **E-commerce**: Full e-commerce platform for books with PDF access, subscription models, and order management.
+    - **Educational Content**: Books catalog for reference and reading without purchase functionality (e-commerce removed August 2025).
     - **Authentication**: Two-tier system for regular users and administrators, with role-based redirection and secure token management.
 
 ## Security Architecture
