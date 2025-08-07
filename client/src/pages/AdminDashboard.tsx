@@ -48,10 +48,31 @@ interface DashboardData {
 }
 
 export default function AdminDashboard() {
+  // All hooks must be called at the top before any conditional returns
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  
+  // Check if user has admin permissions
+  const hasAdminAccess = user?.role === 'admin' || user?.role === 'school_admin' || user?.role === 'culture_admin';
+  
+  // Fetch dashboard data only after authentication is confirmed
+  const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
+    queryKey: ["/api/role-admin/dashboard"],
+    retry: 1,
+    enabled: !!user && hasAdminAccess && isAuthenticated
+  });
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Error Loading Dashboard",
+        description: "Failed to load dashboard data. Please try again.",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
 
   // Check authentication first
   if (authLoading) {
@@ -85,9 +106,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
-  // Check if user has admin permissions
-  const hasAdminAccess = user?.role === 'admin' || user?.role === 'school_admin' || user?.role === 'culture_admin';
   
   if (!hasAdminAccess) {
     return (
@@ -106,23 +124,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
-  // Fetch dashboard data only after authentication is confirmed
-  const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
-    queryKey: ["/api/role-admin/dashboard"],
-    retry: 1,
-    enabled: !!user && hasAdminAccess
-  });
-
-  useEffect(() => {
-    if (error) {
-      toast({
-        title: "Error Loading Dashboard",
-        description: "Failed to load dashboard data. Please try again.",
-        variant: "destructive"
-      });
-    }
-  }, [error, toast]);
 
   if (isLoading) {
     return (
