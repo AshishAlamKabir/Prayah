@@ -50,7 +50,7 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Schools</p>
-                    <p className="text-2xl font-bold">{schools.length}</p>
+                    <p className="text-2xl font-bold">{schools?.length || 0}</p>
                   </div>
                   <School className="w-8 h-8 text-blue-600" />
                 </div>
@@ -62,7 +62,7 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">Culture Categories</p>
-                    <p className="text-2xl font-bold">{cultureCategories.length}</p>
+                    <p className="text-2xl font-bold">{cultureCategories?.length || 0}</p>
                   </div>
                   <Palette className="w-8 h-8 text-green-600" />
                 </div>

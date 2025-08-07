@@ -243,10 +243,8 @@ export default function AdminDashboard() {
 
           <TabsContent value="overview" className="mt-6">
             <SuperAdminPanel 
-              user={dashboardUser} 
-              accessibleSchools={accessibleSchools}
-              accessibleCultureCategories={accessibleCultureCategories}
-              canManageAll={canManageAll}
+              schools={accessibleSchools}
+              cultureCategories={accessibleCultureCategories}
             />
           </TabsContent>
 
@@ -254,8 +252,7 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <SchoolAdminPanel 
-                  user={dashboardUser}
-                  accessibleSchools={accessibleSchools}
+                  schools={accessibleSchools}
                   canManageAll={canManageAll}
                 />
               </CardContent>
@@ -266,8 +263,7 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <CultureAdminPanel 
-                  user={dashboardUser}
-                  accessibleCultureCategories={accessibleCultureCategories}
+                  cultureCategories={accessibleCultureCategories}
                   canManageAll={canManageAll}
                 />
               </CardContent>
