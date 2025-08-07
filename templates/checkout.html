@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - BookStore{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Checkout</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Customer Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_name" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_email" class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="customer_email" name="customer_email" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Shipping Address</label>
+                        <textarea class="form-control" id="address" rows="3" placeholder="Enter your full address"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="zip" class="form-label">ZIP Code</label>
+                            <input type="text" class="form-control" id="zip">
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <h6>Payment Information</h6>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> This is a demo store. No actual payment will be processed.
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment_method" id="credit_card" value="credit_card" checked>
+                        <label class="form-check-label" for="credit_card">
+                            <i class="fas fa-credit-card"></i> Credit Card
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="paypal">
+                        <label class="form-check-label" for="paypal">
+                            <i class="fab fa-paypal"></i> PayPal
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-lock"></i> Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                {% set cart_total = 0 %}
+                {% set cart_items = [] %}
+                {% if session.cart %}
+                    {% for book_id, quantity in session.cart.items() %}
+                        <!-- Note: In a real app, you'd fetch book details here -->
+                        <!-- For now, just show placeholder -->
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="mb-3">
+                    <small class="text-muted">Items in your cart will be summarized here</small>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping:</span>
+                    <span class="text-success">FREE</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Tax:</span>
+                    <span>$0.00</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total:</strong>
+                    <strong id="total">$0.00</strong>
+                </div>
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('view_cart') }}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6><i class="fas fa-shield-alt"></i> Secure Checkout</h6>
+                <p class="small text-muted">Your payment information is protected with industry-standard SSL encryption.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Calculate and display order totals
+document.addEventListener('DOMContentLoaded', function() {
+    // This would normally fetch cart data and calculate totals
+    // For demo purposes, showing static content
+    updateOrderSummary();
+});
+
+function updateOrderSummary() {
+    // In a real app, this would calculate totals from cart data
+    // For now, just placeholder functionality
+    console.log('Updating order summary...');
+}
+</script>
+{% endblock %}

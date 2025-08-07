@@ -1,0 +1,170 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Dashboard</h2>
+    <div class="text-muted">
+        <i class="fas fa-calendar"></i> {{ moment().format('MMMM Do, YYYY') }}
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Total Books</h6>
+                        <h3 class="card-title">{{ stats.total_books }}</h3>
+                    </div>
+                    <div class="text-primary">
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card" style="border-left-color: #28a745;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Total Stock</h6>
+                        <h3 class="card-title">{{ stats.total_stock }}</h3>
+                    </div>
+                    <div class="text-success">
+                        <i class="fas fa-warehouse fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card" style="border-left-color: #ffc107;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Low Stock</h6>
+                        <h3 class="card-title">{{ stats.low_stock_books }}</h3>
+                    </div>
+                    <div class="text-warning">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card" style="border-left-color: #17a2b8;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-subtitle mb-2 text-muted">Today's Orders</h6>
+                        <h3 class="card-title">{{ stats.recent_orders }}</h3>
+                    </div>
+                    <div class="text-info">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_add_book') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-plus"></i> Add New Book
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_inventory') }}" class="btn btn-warning w-100">
+                            <i class="fas fa-warehouse"></i> Manage Inventory
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_orders') }}" class="btn btn-info w-100">
+                            <i class="fas fa-list"></i> View Orders
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_export_inventory') }}" class="btn btn-success w-100">
+                            <i class="fas fa-download"></i> Export Inventory
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alerts and Notifications -->
+<div class="row">
+    {% if stats.low_stock_books > 0 %}
+    <div class="col-md-6 mb-3">
+        <div class="alert alert-warning">
+            <h6><i class="fas fa-exclamation-triangle"></i> Low Stock Alert</h6>
+            <p class="mb-1">{{ stats.low_stock_books }} book(s) are running low on stock.</p>
+            <a href="{{ url_for('admin_inventory') }}" class="alert-link">View Inventory →</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if stats.recent_orders > 0 %}
+    <div class="col-md-6 mb-3">
+        <div class="alert alert-info">
+            <h6><i class="fas fa-shopping-cart"></i> New Orders</h6>
+            <p class="mb-1">{{ stats.recent_orders }} order(s) received today.</p>
+            <a href="{{ url_for('admin_orders') }}" class="alert-link">View Orders →</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Recent Activity (placeholder) -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock"></i> Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <p>Activity tracking will be displayed here once implemented.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update the date display
+    const dateElement = document.querySelector('.text-muted .fas.fa-calendar').parentElement;
+    dateElement.innerHTML = '<i class="fas fa-calendar"></i> ' + moment().format('MMMM Do, YYYY');
+    
+    // Auto-refresh dashboard every 30 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+});
+</script>
+{% endblock %}

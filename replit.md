@@ -1,47 +1,45 @@
-# Prayas: Community Organization Platform
+# BookStore: E-commerce Book Platform
 
 ## Overview
-Prayas is a full-stack web application designed as a digital hub for a study circle organization. Its primary purpose is to manage educational institutions, cultural programs, a book catalog, and community content. The platform aims to provide comprehensive administrative features and a distinct socialist-themed design to support its mission in education, culture, and community development. The project envisions a comprehensive system that streamlines operations and enhances community engagement for study circles.
+BookStore is a comprehensive Flask-based e-commerce website focused on selling books, featuring a public bookstore with homepage, book details, cart/checkout system, search/filter capabilities, and a secure superadmin dashboard for inventory management. The platform uses Python Flask for backend, HTML/CSS/JavaScript for frontend, SQLite database, and includes features like book management, stock tracking, order processing, and CSV export functionality.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-Language preference: Remove "revolutionary" language - Prayas is a study circle focused on education and community development, not political revolution.
-Content preference: Replace community submission form with Prayas description and approved publications showcase on home page. Updated with authentic PACB content from official organization document.
-Database requirements: Deadlock-free database schema with proper foreign keys, indexes, and transaction safety.
-UI/UX preferences: Clean, organized tab layouts with proper spacing and responsive design for admin interfaces.
-Color theme preference: Match the red color theme throughout the platform with the official logo colors.
+Tech stack preference: Python Flask backend with HTML/CSS/JavaScript frontend.
+Database preference: SQLite for simplicity and ease of deployment.
+UI framework: Bootstrap for responsive design and professional appearance.
+Security requirements: Session-based admin authentication with secure password hashing.
+Features required: Complete e-commerce functionality including cart, checkout, and inventory management.
 
 ## System Architecture
 
-The application employs a modern full-stack architecture focused on educational content management and fee payment processing, with complete removal of e-commerce functionality as of August 7, 2025.
+The application employs a traditional Flask web application architecture optimized for e-commerce book sales with a clean separation between public store and admin management areas.
 
 ### Frontend Architecture
-- **Framework**: React 18 with TypeScript
-- **Routing**: Wouter
-- **State Management**: TanStack Query (React Query)
-- **UI Components**: Radix UI primitives with shadcn/ui design system
-- **Styling**: Tailwind CSS with a custom socialist-themed color palette (red and green)
-- **Build Tool**: Vite
-- **Form Handling**: React Hook Form with Zod validation
+- **Templates**: Jinja2 templating engine with HTML5
+- **Styling**: Bootstrap 5.1.3 for responsive design and components
+- **Icons**: Font Awesome 6.0.0 for consistent iconography
+- **JavaScript**: Vanilla JavaScript for interactive features
+- **Layout**: Base template system with public and admin layouts
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.js
-- **Language**: TypeScript with ESM modules
-- **Database**: PostgreSQL with Drizzle ORM, hosted on Neon Database (serverless)
-- **Schema Management**: Drizzle Kit for migrations
-- **API Design**: RESTful JSON APIs
-- **Storage Layer**: DatabaseStorage class implementing `IStorage` interface
+- **Framework**: Python Flask 3.1.1 with Werkzeug 3.1.3
+- **Database**: SQLite with raw SQL queries for simplicity
+- **Authentication**: Session-based with secure password hashing (Werkzeug)
+- **File Handling**: Werkzeug secure filename handling for book cover uploads
+- **API Design**: Traditional web application with form-based interactions
 
 ### Development Environment
-- **Development Server**: Vite dev server (frontend), `tsx` (backend hot reloading)
-- **Type Checking**: Shared TypeScript configuration
-- **Code Organization**: Monorepo structure with shared schema definitions
-- **Path Aliases**: Configured for clean imports (`@/`, `@shared/`, `@assets/`)
+- **Development Server**: Flask development server with debug mode
+- **File Organization**: Blueprint-style organization with templates and static folders
+- **Database Management**: SQLite with automatic initialization and sample data
+- **File Uploads**: Local storage in static/uploads directory
 
 ### Key Components
-- **Data Models**: Users (roles, permissions), User Sessions, Community Posts (approval workflow), Schools, Culture Categories, Books (educational catalog), Published Works (admin approval), School Fee Payments, Fee Structures.
-- **Frontend Pages**: Home, Schools (directory & detail), Culture (showcase for various arts), Books (educational catalog), Community, Login/Register, Admin dashboard.
-- **UI Components**: Full shadcn/ui library, validated form components, responsive layout components with red/green color theme.
+- **Data Models**: Books (title, author, description, price, stock, genre), Admin Users (secure authentication), Orders (customer info, items, status), Order Items (book-order relationships).
+- **Public Pages**: Homepage (featured books), Book Details, Search/Filter, Shopping Cart, Checkout System.
+- **Admin Pages**: Secure Login, Dashboard (statistics), Book Management (add/edit/delete), Inventory Management, Orders Management, CSV Export.
+- **UI Components**: Bootstrap components, responsive cards, data tables, modals, forms with validation.
 
 ### Data Flow
 - **Client-Server Communication**: RESTful API endpoints; TanStack Query for caching and synchronization; Zod schemas for validation; comprehensive error handling.
@@ -57,8 +55,9 @@ The application employs a modern full-stack architecture focused on educational 
     - **Cultural Program Management**: Admin interface for program creation (instructor info, fees, scheduling), activity publishing, social media integration, and media uploads. Supports various program types and age groups.
     - **School Management**: Admin interface for creating school profiles (contact info, statistics, programs), notification system for announcements, and media gallery management. Supports multi-file uploads.
     - **Fee Payment Access Control**: Super admin controlled system where payment functionality can be enabled/disabled per school. School admins are blocked from fee payment features when access is disabled by super admin.
-    - **Educational Content**: Books catalog for reference and reading without purchase functionality (e-commerce removed August 2025).
-    - **Authentication**: Two-tier system for regular users and administrators, with role-based redirection and secure token management.
+    - **E-commerce Features**: Complete online bookstore with cart, checkout, order management, and payment processing.
+    - **Admin System**: Secure admin authentication with comprehensive book and inventory management.
+    - **Data Export**: CSV export functionality for inventory reports and business analytics.
 
 ## Security Architecture
 

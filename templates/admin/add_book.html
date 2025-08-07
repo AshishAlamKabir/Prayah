@@ -1,0 +1,131 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add New Book - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Add New Book</h2>
+    <a href="{{ url_for('admin_books') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Books
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="title" class="form-label">Book Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="author" class="form-label">Author *</label>
+                            <input type="text" class="form-control" id="author" name="author" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" 
+                                  placeholder="Enter book description..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="price" class="form-label">Price ($) *</label>
+                            <input type="number" class="form-control" id="price" name="price" 
+                                   step="0.01" min="0" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="stock" class="form-label">Stock Quantity *</label>
+                            <input type="number" class="form-control" id="stock" name="stock" 
+                                   min="0" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="genre" class="form-label">Genre</label>
+                            <select class="form-select" id="genre" name="genre">
+                                <option value="">Select Genre</option>
+                                <option value="Fiction">Fiction</option>
+                                <option value="Non-Fiction">Non-Fiction</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Science Fiction">Science Fiction</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Biography">Biography</option>
+                                <option value="History">History</option>
+                                <option value="Self-Help">Self-Help</option>
+                                <option value="Business">Business</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Education">Education</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Book Cover Image</label>
+                        <input type="file" class="form-control" id="image" name="image" 
+                               accept="image/png,image/jpg,image/jpeg,image/gif,image/webp">
+                        <div class="form-text">Supported formats: PNG, JPG, JPEG, GIF, WebP. Max size: 16MB</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_books') }}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Add Book
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-info-circle"></i> Tips</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Use descriptive titles and author names
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Add detailed descriptions to attract readers
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Set competitive prices
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i> 
+                        Upload high-quality cover images
+                    </li>
+                    <li>
+                        <i class="fas fa-check text-success"></i> 
+                        Choose appropriate genres for better discoverability
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const fileSize = file.size / 1024 / 1024; // Convert to MB
+        if (fileSize > 16) {
+            alert('File size exceeds 16MB limit. Please choose a smaller image.');
+            e.target.value = '';
+        }
+    }
+});
+</script>
+{% endblock %}

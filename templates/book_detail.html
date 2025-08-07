@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ book.title }} - BookStore{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('search') }}">Books</a></li>
+        <li class="breadcrumb-item active">{{ book.title }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-4">
+        {% if book.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + book.image_filename) }}" 
+                 class="img-fluid rounded shadow" alt="{{ book.title }}">
+        {% else %}
+            <div class="bg-light rounded shadow p-5 text-center">
+                <i class="fas fa-book fa-5x text-muted"></i>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1 class="mb-3">{{ book.title }}</h1>
+        <h4 class="text-muted mb-3">by {{ book.author }}</h4>
+        
+        {% if book.genre %}
+        <p><span class="badge bg-primary">{{ book.genre }}</span></p>
+        {% endif %}
+        
+        {% if book.description %}
+        <div class="mb-4">
+            <h5>Description</h5>
+            <p class="text-muted">{{ book.description }}</p>
+        </div>
+        {% endif %}
+        
+        <div class="row mb-4">
+            <div class="col-sm-6">
+                <h3 class="text-primary">${{ "%.2f"|format(book.price) }}</h3>
+            </div>
+            <div class="col-sm-6">
+                {% if book.stock > 0 %}
+                    <p class="text-success"><i class="fas fa-check-circle"></i> {{ book.stock }} in stock</p>
+                {% else %}
+                    <p class="text-danger"><i class="fas fa-times-circle"></i> Out of stock</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if book.stock > 0 %}
+        <form action="{{ url_for('add_to_cart') }}" method="POST" class="mb-3">
+            <input type="hidden" name="book_id" value="{{ book.id }}">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" 
+                           value="1" min="1" max="{{ book.stock }}">
+                </div>
+                <div class="col-md-9 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                    <a href="{{ url_for('view_cart') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-shopping-cart"></i> View Cart
+                    </a>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> This book is currently out of stock.
+        </div>
+        {% endif %}
+        
+        <div class="mt-4">
+            <a href="{{ url_for('search') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Books
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Related Books Section -->
+<hr class="my-5">
+<h3>You might also like</h3>
+<div class="row" id="related-books">
+    <!-- Related books would be loaded here via JavaScript or server-side -->
+    <div class="col-12">
+        <p class="text-muted">Check out our <a href="{{ url_for('search') }}">full collection</a> for more great books!</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('quantity').addEventListener('change', function() {
+    const max = parseInt(this.getAttribute('max'));
+    const value = parseInt(this.value);
+    if (value > max) {
+        this.value = max;
+    }
+});
+</script>
+{% endblock %}
