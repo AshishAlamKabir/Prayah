@@ -15,9 +15,11 @@ import {
   Music,
   Palette,
   Theater,
-  BarChart3
+  BarChart3,
+  LogIn
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import SchoolAdminPanel from "@/components/admin/SchoolAdminPanel";
 import CultureAdminPanel from "@/components/admin/CultureAdminPanel";
@@ -25,6 +27,7 @@ import SuperAdminPanel from "@/components/admin/SuperAdminPanel";
 import BookManagement from "@/components/admin/BookManagement";
 import SchoolFeeManagement from "@/components/admin/SchoolFeeManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
+import { Link } from "wouter";
 
 interface User {
   id: number;
@@ -47,18 +50,74 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Fetch dashboard data
+  // Check authentication first
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <LogIn className="h-6 w-6" />
+              <span>Authentication Required</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">Please log in to access the admin dashboard.</p>
+            <Link href="/login">
+              <Button className="w-full">Go to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Check if user has admin permissions
+  const hasAdminAccess = user?.role === 'admin' || user?.role === 'school_admin' || user?.role === 'culture_admin';
+  
+  if (!hasAdminAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center text-red-600">Access Denied</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-600">You don't have permission to access the admin dashboard.</p>
+            <Link href="/">
+              <Button variant="outline" className="mt-4">Go to Home</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Fetch dashboard data only after authentication is confirmed
   const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
     queryKey: ["/api/role-admin/dashboard"],
-    retry: 1
+    retry: 1,
+    enabled: !!user && hasAdminAccess
   });
 
   useEffect(() => {
     if (error) {
       toast({
-        title: "Access Denied",
-        description: "You don't have permission to access the admin dashboard.",
+        title: "Error Loading Dashboard",
+        description: "Failed to load dashboard data. Please try again.",
         variant: "destructive"
       });
     }
@@ -91,10 +150,10 @@ export default function AdminDashboard() {
     );
   }
 
-  const { user, accessibleSchools, accessibleCultureCategories, canManageAll } = dashboardData;
+  const { user: dashboardUser, accessibleSchools, accessibleCultureCategories, canManageAll } = dashboardData;
 
   // Check if user has admin privileges (super admin, school admin, or culture admin)
-  const isAdmin = user.role === "admin" || user.role === "school_admin" || user.role === "culture_admin";
+  const isAdmin = dashboardUser.role === "admin" || dashboardUser.role === "school_admin" || dashboardUser.role === "culture_admin";
   
   // If not an admin, redirect to main site
   if (!isAdmin) {
@@ -137,17 +196,17 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-white rounded-lg shadow-sm">
-                {getRoleIcon(user.role)}
+                {getRoleIcon(dashboardUser.role)}
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Admin Dashboard
                 </h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className={getRoleBadgeColor(user.role)}>
-                    {getRoleDisplayName(user.role)}
+                  <Badge className={getRoleBadgeColor(dashboardUser.role)}>
+                    {getRoleDisplayName(dashboardUser.role)}
                   </Badge>
-                  <span className="text-gray-600">Welcome, {user.username}</span>
+                  <span className="text-gray-600">Welcome, {dashboardUser.username}</span>
                 </div>
               </div>
             </div>
@@ -156,7 +215,7 @@ export default function AdminDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {user.role === "admin" && (
+          {dashboardUser.role === "admin" && (
             <>
               <Card>
                 <CardContent className="p-6">
@@ -276,37 +335,37 @@ export default function AdminDashboard() {
           <div className="w-full overflow-x-auto">
             <TabsList className="flex w-full min-w-fit justify-start gap-1 bg-gray-100 p-1 rounded-lg">
               <TabsTrigger value="overview" className="whitespace-nowrap px-3 py-2 text-sm">Overview</TabsTrigger>
-              {(user.role === "admin" || user.role === "school_admin") && <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>}
-              {(user.role === "admin" || user.role === "culture_admin") && <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>}
-              {user.role === "admin" && <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>}
-              {user.role === "admin" && <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>}
-              {user.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
-              {user.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
-              {user.role === "admin" && <TabsTrigger value="notifications" className="whitespace-nowrap px-3 py-2 text-sm">Notifications</TabsTrigger>}
+              {(dashboardUser.role === "admin" || dashboardUser.role === "school_admin") && <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>}
+              {(dashboardUser.role === "admin" || dashboardUser.role === "culture_admin") && <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="notifications" className="whitespace-nowrap px-3 py-2 text-sm">Notifications</TabsTrigger>}
             </TabsList>
           </div>
 
           <TabsContent value="overview" className="mt-6">
             <Card>
               <CardContent className="p-0">
-                {user.role === "admin" && (
+                {dashboardUser.role === "admin" && (
                   <SuperAdminPanel 
                     schools={accessibleSchools}
                     cultureCategories={accessibleCultureCategories}
                   />
                 )}
                 
-                {user.role === "school_admin" && (
+                {dashboardUser.role === "school_admin" && (
                   <SchoolAdminPanel 
                     schools={accessibleSchools}
-                    userPermissions={user.schoolPermissions || []}
+                    userPermissions={dashboardUser.schoolPermissions || []}
                   />
                 )}
                 
-                {user.role === "culture_admin" && (
+                {dashboardUser.role === "culture_admin" && (
                   <CultureAdminPanel 
                     categories={accessibleCultureCategories}
-                    userPermissions={user.culturePermissions || []}
+                    userPermissions={dashboardUser.culturePermissions || []}
                   />
                 )}
               </CardContent>
@@ -316,10 +375,10 @@ export default function AdminDashboard() {
           <TabsContent value="schools" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                {user.role === "admin" || user.role === "school_admin" ? (
+                {dashboardUser.role === "admin" || dashboardUser.role === "school_admin" ? (
                   <SchoolAdminPanel 
                     schools={accessibleSchools}
-                    userPermissions={user.schoolPermissions || []}
+                    userPermissions={dashboardUser.schoolPermissions || []}
                   />
                 ) : (
                   <div className="text-center py-8">
@@ -334,10 +393,10 @@ export default function AdminDashboard() {
           <TabsContent value="culture" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                {user.role === "admin" || user.role === "culture_admin" ? (
+                {dashboardUser.role === "admin" || dashboardUser.role === "culture_admin" ? (
                   <CultureAdminPanel 
                     categories={accessibleCultureCategories}
-                    userPermissions={user.culturePermissions || []}
+                    userPermissions={dashboardUser.culturePermissions || []}
                   />
                 ) : (
                   <div className="text-center py-8">
