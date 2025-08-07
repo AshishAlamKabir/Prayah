@@ -53,7 +53,9 @@ export default function FeePaymentAccessControl() {
       return await apiRequest("PUT", `/api/admin/schools/${schoolId}/payment-settings`, settings);
     },
     onSuccess: () => {
+      // Force refresh of schools data
       queryClient.invalidateQueries({ queryKey: ["/api/schools"] });
+      queryClient.refetchQueries({ queryKey: ["/api/schools"] });
       toast({
         title: "Settings Updated",
         description: "Fee payment settings have been updated successfully.",
@@ -213,12 +215,24 @@ export default function FeePaymentAccessControl() {
                   <TableCell>{school.location}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Switch
-                        checked={school.feePaymentEnabled}
-                        onCheckedChange={(enabled) => toggleFeePaymentAccess(school.id, enabled)}
-                        disabled={updatePaymentSettingsMutation.isPending}
-                      />
-                      <Badge variant={school.feePaymentEnabled ? "default" : "secondary"}>
+                      <div className="relative">
+                        <Switch
+                          checked={school.feePaymentEnabled || false}
+                          onCheckedChange={(enabled) => toggleFeePaymentAccess(school.id, enabled)}
+                          disabled={updatePaymentSettingsMutation.isPending}
+                          aria-label={`Toggle payment for ${school.name}`}
+                          className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-400"
+                        />
+                        {updatePaymentSettingsMutation.isPending && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-3 w-3 border border-gray-400 border-t-transparent"></div>
+                          </div>
+                        )}
+                      </div>
+                      <Badge 
+                        variant={school.feePaymentEnabled ? "default" : "secondary"}
+                        className={school.feePaymentEnabled ? "bg-green-600" : "bg-gray-500"}
+                      >
                         {school.feePaymentEnabled ? "Enabled" : "Disabled"}
                       </Badge>
                     </div>
