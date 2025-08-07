@@ -493,7 +493,7 @@ export default function BookManagement() {
             </div>
           )}
 
-          {analytics?.lowStockBooks && analytics.lowStockBooks.length > 0 && (
+          {(analytics?.lowStockBooks || []).length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -504,7 +504,7 @@ export default function BookManagement() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {analytics.lowStockBooks.map((book) => (
+                  {(analytics?.lowStockBooks || []).map((book) => (
                     <div key={book.bookId} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                       <span className="font-medium">{book.title}</span>
                       <Badge variant="outline" className="bg-orange-100 text-orange-800">
@@ -662,7 +662,7 @@ export default function BookManagement() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {analytics.topSellingBooks.map((book, index) => (
+                    {(analytics?.topSellingBooks || []).map((book, index) => (
                       <div key={book.bookId} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-4">
                           <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold">
