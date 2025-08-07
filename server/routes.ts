@@ -222,6 +222,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Schools endpoints
+  app.get("/api/schools", async (req, res) => {
+    try {
+      const cacheKey = "schools";
+      let schools = cache.get(cacheKey);
+      
+      if (!schools) {
+        schools = await storage.getSchools();
+        cache.set(cacheKey, schools, 5 * 60 * 1000);
+      }
+      
+      res.set('Cache-Control', 'public, max-age=300');
+      res.json(schools);
+    } catch (error) {
+      console.error("Error fetching schools:", error);
+      res.status(500).json({ message: "Failed to fetch schools" });
+    }
+  });
+
+  app.get("/api/schools/:id", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.id);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const cacheKey = `school_${schoolId}`;
+      let school = cache.get(cacheKey);
+      
+      if (!school) {
+        school = await storage.getSchool(schoolId);
+        if (school) {
+          cache.set(cacheKey, school, 5 * 60 * 1000);
+        }
+      }
+      
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+      
+      res.set('Cache-Control', 'public, max-age=300');
+      res.json(school);
+    } catch (error) {
+      console.error("Error fetching school:", error);
+      res.status(500).json({ message: "Failed to fetch school" });
+    }
+  });
+
+  app.get("/api/schools/:id/payment-status", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.id);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const school = await storage.getSchool(schoolId);
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+      
+      res.json({
+        feePaymentEnabled: school.feePaymentEnabled || false,
+        paymentMethods: school.paymentMethods || [],
+        adminApprovalRequired: school.adminApprovalRequired || false
+      });
+    } catch (error) {
+      console.error("Error fetching school payment status:", error);
+      res.status(500).json({ message: "Failed to fetch payment status" });
+    }
+  });
+
   // Register other route modules
   app.use('/api/role-admin', roleAdminRoutes);
   registerAdminNotificationRoutes(app);

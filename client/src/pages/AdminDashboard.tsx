@@ -88,10 +88,6 @@ export default function AdminDashboard() {
   // Check if user has admin permissions
   const hasAdminAccess = user?.role === 'admin' || user?.role === 'school_admin' || user?.role === 'culture_admin';
   
-  // Debug: Log user info
-  console.log('User from useAuth:', user);
-  console.log('hasAdminAccess:', hasAdminAccess);
-  
   if (!hasAdminAccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center">
@@ -101,7 +97,6 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-gray-600">You don't have permission to access the admin dashboard.</p>
-            <p className="text-sm text-gray-500 mt-2">User role: {user?.role || 'none'}</p>
             <Link href="/">
               <Button variant="outline" className="mt-4">Go to Home</Button>
             </Link>
@@ -111,9 +106,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // Debug: Check if we should fetch dashboard data
-  console.log('Should fetch dashboard data:', !!user && hasAdminAccess);
-  
   // Fetch dashboard data only after authentication is confirmed
   const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
     queryKey: ["/api/role-admin/dashboard"],
@@ -121,14 +113,8 @@ export default function AdminDashboard() {
     enabled: !!user && hasAdminAccess
   });
 
-  // Debug: Log API response
-  console.log('Dashboard data:', dashboardData);
-  console.log('Dashboard error:', error);
-  console.log('Dashboard loading:', isLoading);
-
   useEffect(() => {
     if (error) {
-      console.error('Dashboard API error:', error);
       toast({
         title: "Error Loading Dashboard",
         description: "Failed to load dashboard data. Please try again.",

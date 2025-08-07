@@ -28,7 +28,6 @@ export function useAuth() {
       }
 
       const result = await response.json();
-      console.log('Auth response:', result);
       return result.user || result;
     },
     retry: false,
