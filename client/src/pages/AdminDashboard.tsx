@@ -1,26 +1,34 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { 
-  School, 
-  Users, 
-  BookOpen, 
-  Bell, 
-  Activity,
-  Calendar,
-  FileText,
-  Music,
-  Palette,
-  Theater,
-  BarChart3,
-  LogIn
-} from "lucide-react";
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
+import { 
+  Users, 
+  School, 
+  Palette, 
+  Activity, 
+  LogIn,
+  FileText,
+  BarChart3,
+  BookOpen,
+  DollarSign,
+  Bell
+} from "lucide-react";
 import SchoolAdminPanel from "@/components/admin/SchoolAdminPanel";
 import CultureAdminPanel from "@/components/admin/CultureAdminPanel";
 import SuperAdminPanel from "@/components/admin/SuperAdminPanel";
@@ -48,22 +56,23 @@ interface DashboardData {
 }
 
 export default function AdminDashboard() {
-  // All hooks must be called at the top before any conditional returns
+  // All hooks must be called at the top - no conditional hook calls allowed
   const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   
-  // Check if user has admin permissions
+  // Calculate derived values but don't use them in conditional returns yet
   const hasAdminAccess = user?.role === 'admin' || user?.role === 'school_admin' || user?.role === 'culture_admin';
   
-  // Fetch dashboard data only after authentication is confirmed
+  // Always call useQuery - use enabled to control when it runs
   const { data: dashboardData, isLoading, error } = useQuery<DashboardData>({
     queryKey: ["/api/role-admin/dashboard"],
     retry: 1,
-    enabled: !!user && hasAdminAccess && isAuthenticated
+    enabled: !!user && hasAdminAccess && isAuthenticated && !authLoading
   });
 
+  // Always call useEffect
   useEffect(() => {
     if (error) {
       toast({
@@ -74,7 +83,7 @@ export default function AdminDashboard() {
     }
   }, [error, toast]);
 
-  // Check authentication first
+  // Now we can do conditional rendering after all hooks are called
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center">
@@ -141,11 +150,11 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-red-50 to-green-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-center text-red-600">Access Denied</CardTitle>
+            <CardTitle className="text-center text-red-600">Error Loading Dashboard</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-gray-600 mb-4">You don't have permission to access the admin dashboard.</p>
-            <Button onClick={() => window.location.href = "/"}>Return Home</Button>
+            <p className="text-gray-600 mb-4">Unable to load dashboard data. Please try again.</p>
+            <Button onClick={() => window.location.reload()}>Reload Page</Button>
           </CardContent>
         </Card>
       </div>
@@ -201,141 +210,25 @@ export default function AdminDashboard() {
                 {getRoleIcon(dashboardUser.role)}
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Admin Dashboard
-                </h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge className={getRoleBadgeColor(dashboardUser.role)}>
-                    {getRoleDisplayName(dashboardUser.role)}
-                  </Badge>
-                  <span className="text-gray-600">Welcome, {dashboardUser.username}</span>
-                </div>
+                <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p className="text-gray-600">Welcome back, {dashboardUser.username}</p>
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Badge className={`px-3 py-1 text-sm font-medium border ${getRoleBadgeColor(dashboardUser.role)}`}>
+                {getRoleDisplayName(dashboardUser.role)}
+              </Badge>
+              <Link href="/">
+                <Button variant="outline">Back to Home</Button>
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {dashboardUser.role === "admin" && (
-            <>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Schools</p>
-                      <p className="text-2xl font-bold">{accessibleSchools.length}</p>
-                    </div>
-                    <School className="w-8 h-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Culture Categories</p>
-                      <p className="text-2xl font-bold">{accessibleCultureCategories.length}</p>
-                    </div>
-                    <Palette className="w-8 h-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">System Status</p>
-                      <p className="text-lg font-semibold text-green-600">Operational</p>
-                    </div>
-                    <Activity className="w-8 h-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-          
-          {user.role === "school_admin" && (
-            <>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Assigned Schools</p>
-                      <p className="text-2xl font-bold">{accessibleSchools.length}</p>
-                    </div>
-                    <School className="w-8 h-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Recent Activities</p>
-                      <p className="text-2xl font-bold">0</p>
-                    </div>
-                    <Calendar className="w-8 h-8 text-orange-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Notifications</p>
-                      <p className="text-2xl font-bold">0</p>
-                    </div>
-                    <Bell className="w-8 h-8 text-red-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-
-          {user.role === "culture_admin" && (
-            <>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Assigned Categories</p>
-                      <p className="text-2xl font-bold">{accessibleCultureCategories.length}</p>
-                    </div>
-                    <Palette className="w-8 h-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Programs</p>
-                      <p className="text-2xl font-bold">0</p>
-                    </div>
-                    <Music className="w-8 h-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Activities</p>
-                      <p className="text-2xl font-bold">0</p>
-                    </div>
-                    <Theater className="w-8 h-8 text-indigo-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
-
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="w-full overflow-x-auto">
-            <TabsList className="flex w-full min-w-fit justify-start gap-1 bg-gray-100 p-1 rounded-lg">
+        {/* Dashboard Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <div className="overflow-x-auto">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1">
               <TabsTrigger value="overview" className="whitespace-nowrap px-3 py-2 text-sm">Overview</TabsTrigger>
               {(dashboardUser.role === "admin" || dashboardUser.role === "school_admin") && <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>}
               {(dashboardUser.role === "admin" || dashboardUser.role === "culture_admin") && <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>}
@@ -349,46 +242,22 @@ export default function AdminDashboard() {
           </div>
 
           <TabsContent value="overview" className="mt-6">
-            <Card>
-              <CardContent className="p-0">
-                {dashboardUser.role === "admin" && (
-                  <SuperAdminPanel 
-                    schools={accessibleSchools}
-                    cultureCategories={accessibleCultureCategories}
-                  />
-                )}
-                
-                {dashboardUser.role === "school_admin" && (
-                  <SchoolAdminPanel 
-                    schools={accessibleSchools}
-                    userPermissions={dashboardUser.schoolPermissions || []}
-                  />
-                )}
-                
-                {dashboardUser.role === "culture_admin" && (
-                  <CultureAdminPanel 
-                    categories={accessibleCultureCategories}
-                    userPermissions={dashboardUser.culturePermissions || []}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            <SuperAdminPanel 
+              user={dashboardUser} 
+              accessibleSchools={accessibleSchools}
+              accessibleCultureCategories={accessibleCultureCategories}
+              canManageAll={canManageAll}
+            />
           </TabsContent>
 
           <TabsContent value="schools" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                {dashboardUser.role === "admin" || dashboardUser.role === "school_admin" ? (
-                  <SchoolAdminPanel 
-                    schools={accessibleSchools}
-                    userPermissions={dashboardUser.schoolPermissions || []}
-                  />
-                ) : (
-                  <div className="text-center py-8">
-                    <School className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">You don't have permission to manage schools.</p>
-                  </div>
-                )}
+                <SchoolAdminPanel 
+                  user={dashboardUser}
+                  accessibleSchools={accessibleSchools}
+                  canManageAll={canManageAll}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -396,17 +265,11 @@ export default function AdminDashboard() {
           <TabsContent value="culture" className="mt-6">
             <Card>
               <CardContent className="p-6">
-                {dashboardUser.role === "admin" || dashboardUser.role === "culture_admin" ? (
-                  <CultureAdminPanel 
-                    categories={accessibleCultureCategories}
-                    userPermissions={dashboardUser.culturePermissions || []}
-                  />
-                ) : (
-                  <div className="text-center py-8">
-                    <Palette className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600">You don't have permission to manage culture categories.</p>
-                  </div>
-                )}
+                <CultureAdminPanel 
+                  user={dashboardUser}
+                  accessibleCultureCategories={accessibleCultureCategories}
+                  canManageAll={canManageAll}
+                />
               </CardContent>
             </Card>
           </TabsContent>
