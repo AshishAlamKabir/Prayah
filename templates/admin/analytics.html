@@ -1,0 +1,352 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Stats Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-left-primary">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-primary">Total Books</h6>
+                            <h4>{{ stats.total_books }}</h4>
+                            <small class="text-muted">{{ stats.out_of_stock }} out of stock</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-success">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-success">Total Revenue</h6>
+                            <h4>${{ stats.total_revenue }}</h4>
+                            <small class="text-muted">${{ stats.today_revenue }} today</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-info">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-info">Total Orders</h6>
+                            <h4>{{ stats.total_orders }}</h4>
+                            <small class="text-muted">{{ stats.today_orders }} today</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-warning">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h6 class="text-warning">Low Stock Items</h6>
+                            <h4>{{ stats.low_stock_books }}</h4>
+                            <small class="text-muted">Need restocking</small>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Sales Overview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 320px;">
+                        <canvas id="monthlySalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sales by Genre</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie" style="height: 320px;">
+                        <canvas id="genreSalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Selling Books -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top 10 Selling Books</h6>
+                </div>
+                <div class="card-body">
+                    {% if top_books %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Book</th>
+                                        <th>Author</th>
+                                        <th>Genre</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Units Sold</th>
+                                        <th>Revenue</th>
+                                        <th>Performance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for book in top_books %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td><strong>{{ book.title }}</strong></td>
+                                        <td>{{ book.author }}</td>
+                                        <td><span class="badge bg-secondary">{{ book.genre or 'N/A' }}</span></td>
+                                        <td>${{ "%.2f"|format(book.price) }}</td>
+                                        <td>
+                                            {% if book.stock <= 5 %}
+                                                <span class="badge bg-danger">{{ book.stock }}</span>
+                                            {% elif book.stock <= 10 %}
+                                                <span class="badge bg-warning text-dark">{{ book.stock }}</span>
+                                            {% else %}
+                                                <span class="badge bg-success">{{ book.stock }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><strong>{{ book.total_sold }}</strong></td>
+                                        <td><strong>${{ "%.2f"|format(book.total_revenue) }}</strong></td>
+                                        <td>
+                                            <div class="progress" style="height: 8px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ (book.total_sold / top_books[0].total_sold * 100) if top_books[0].total_sold > 0 else 0 }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No sales data available yet.</p>
+                            <p class="text-muted">Sales data will appear here once customers start placing orders.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Genre Performance -->
+    {% if genre_sales %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Genre Performance</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Genre</th>
+                                    <th>Books Available</th>
+                                    <th>Total Units Sold</th>
+                                    <th>Total Revenue</th>
+                                    <th>Avg. Revenue per Book</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for genre in genre_sales %}
+                                <tr>
+                                    <td><strong>{{ genre.genre }}</strong></td>
+                                    <td>{{ genre.book_count }}</td>
+                                    <td>{{ genre.total_sold }}</td>
+                                    <td>${{ "%.2f"|format(genre.total_revenue) }}</td>
+                                    <td>${{ "%.2f"|format(genre.total_revenue / genre.book_count) }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-info" role="progressbar" 
+                                                 style="width: {{ (genre.total_revenue / genre_sales[0].total_revenue * 100) if genre_sales[0].total_revenue > 0 else 0 }}%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Monthly Sales Chart
+const monthlyData = {{ monthly_data | tojsonfilter | safe }};
+const monthlyLabels = monthlyData.map(item => {
+    const [year, month] = item.month.split('-');
+    return new Date(year, month - 1).toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
+});
+const monthlyRevenue = monthlyData.map(item => item.revenue || 0);
+const monthlyOrders = monthlyData.map(item => item.order_count || 0);
+
+const ctx1 = document.getElementById('monthlySalesChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Revenue ($)',
+            data: monthlyRevenue,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y'
+        }, {
+            label: 'Orders',
+            data: monthlyOrders,
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            }
+        },
+        scales: {
+            x: {
+                display: true,
+                title: {
+                    display: true,
+                    text: 'Month'
+                }
+            },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Revenue ($)'
+                },
+                beginAtZero: true
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Orders'
+                },
+                beginAtZero: true,
+                grid: {
+                    drawOnChartArea: false,
+                },
+            }
+        }
+    }
+});
+
+// Genre Sales Pie Chart
+const genreData = {{ genre_sales | tojsonfilter | safe }};
+const genreLabels = genreData.map(item => item.genre);
+const genreRevenue = genreData.map(item => item.total_revenue || 0);
+
+const ctx2 = document.getElementById('genreSalesChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: genreLabels,
+        datasets: [{
+            data: genreRevenue,
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40',
+                '#FF6384',
+                '#36A2EB'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

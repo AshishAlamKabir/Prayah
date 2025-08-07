@@ -1,0 +1,217 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Notifications Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Notifications</h3>
+        <button class="btn btn-outline-primary" onclick="markAllAsRead()">
+            <i class="fas fa-check-double"></i> Mark All as Read
+        </button>
+    </div>
+
+    {% if notifications %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-0">
+                        {% for notification in notifications %}
+                        <div class="notification-item border-bottom p-3 {{ 'bg-light' if not notification.is_read else '' }}" 
+                             data-id="{{ notification.id }}">
+                            <div class="d-flex align-items-start">
+                                <div class="notification-icon me-3">
+                                    {% if notification.type == 'new_order' %}
+                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </div>
+                                    {% elif notification.type == 'low_stock' %}
+                                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                    {% elif notification.type == 'book_added' %}
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    {% elif notification.type == 'book_deleted' %}
+                                        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-trash"></i>
+                                        </div>
+                                    {% elif notification.type == 'order_updated' %}
+                                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-bell"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="notification-content flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1 {{ 'fw-bold' if not notification.is_read else '' }}">
+                                                {{ notification.title }}
+                                            </h6>
+                                            <p class="mb-1 text-muted">{{ notification.message }}</p>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock"></i> 
+                                                {{ notification.created_at }}
+                                            </small>
+                                        </div>
+                                        
+                                        <div class="notification-actions">
+                                            {% if not notification.is_read %}
+                                                <span class="badge bg-primary">New</span>
+                                                <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                                        onclick="markAsRead({{ notification.id }})">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            {% else %}
+                                                <span class="badge bg-success">Read</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-bell-slash fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted">No Notifications</h4>
+                        <p class="text-muted">You're all caught up! Notifications will appear here when new events occur.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Notification Types Legend -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle"></i> Notification Types
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="text-center p-2">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-shopping-cart fa-sm"></i>
+                                </div>
+                                <small>New Orders</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-2">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-exclamation-triangle fa-sm"></i>
+                                </div>
+                                <small>Low Stock</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-2">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-book fa-sm"></i>
+                                </div>
+                                <small>Book Added</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-2">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-trash fa-sm"></i>
+                                </div>
+                                <small>Book Deleted</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-2">
+                                <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-edit fa-sm"></i>
+                                </div>
+                                <small>Order Updates</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-center p-2">
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" 
+                                     style="width: 30px; height: 30px;">
+                                    <i class="fas fa-bell fa-sm"></i>
+                                </div>
+                                <small>General</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.notification-item:hover {
+    background-color: #f8f9fc !important;
+}
+.notification-item:last-child {
+    border-bottom: none !important;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function markAsRead(notificationId) {
+    fetch(`/admin/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const item = document.querySelector(`[data-id="${notificationId}"]`);
+            item.classList.remove('bg-light');
+            item.querySelector('.badge').textContent = 'Read';
+            item.querySelector('.badge').className = 'badge bg-success';
+            item.querySelector('.notification-actions button').remove();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function markAllAsRead() {
+    const unreadItems = document.querySelectorAll('.bg-light[data-id]');
+    unreadItems.forEach(item => {
+        const id = item.getAttribute('data-id');
+        markAsRead(id);
+    });
+}
+</script>
+{% endblock %}
