@@ -27,6 +27,7 @@ import SuperAdminPanel from "@/components/admin/SuperAdminPanel";
 import BookManagement from "@/components/admin/BookManagement";
 import SchoolFeeManagement from "@/components/admin/SchoolFeeManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
+import FeePaymentAccessControl from "@/components/admin/FeePaymentAccessControl";
 import { Link } from "wouter";
 
 interface User {
@@ -341,6 +342,7 @@ export default function AdminDashboard() {
               {dashboardUser.role === "admin" && <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="payment-access" className="whitespace-nowrap px-3 py-2 text-sm">Payment Access</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="notifications" className="whitespace-nowrap px-3 py-2 text-sm">Notifications</TabsTrigger>}
             </TabsList>
           </div>
@@ -442,6 +444,14 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <SchoolFeeManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="payment-access" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <FeePaymentAccessControl />
               </CardContent>
             </Card>
           </TabsContent>

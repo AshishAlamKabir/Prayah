@@ -293,6 +293,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // School payment settings endpoint (super admin only)
+  app.put("/api/admin/schools/:id/payment-settings", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.id);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const { feePaymentEnabled, paymentMethods, paymentConfig, adminApprovalRequired } = req.body;
+
+      const updatedSchool = await storage.updateSchoolPaymentSettings(schoolId, {
+        feePaymentEnabled: feePaymentEnabled ?? false,
+        paymentMethods: paymentMethods || [],
+        paymentConfig: paymentConfig || {},
+        adminApprovalRequired: adminApprovalRequired ?? false
+      });
+
+      if (!updatedSchool) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      // Clear school cache
+      cache.delete(`school_${schoolId}`);
+      cache.delete("schools");
+
+      res.json({
+        message: "Payment settings updated successfully",
+        school: updatedSchool
+      });
+    } catch (error) {
+      console.error("Error updating school payment settings:", error);
+      res.status(500).json({ message: "Failed to update payment settings" });
+    }
+  });
+
   // Register other route modules
   app.use('/api/role-admin', roleAdminRoutes);
   registerAdminNotificationRoutes(app);

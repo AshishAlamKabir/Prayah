@@ -92,7 +92,7 @@ export default function BookManagement() {
   const queryClient = useQueryClient();
 
   // Fetch books
-  const { data: books = [], isLoading: booksLoading } = useQuery({
+  const { data: books = [], isLoading: booksLoading } = useQuery<Book[]>({
     queryKey: ["/api/books"],
   });
 
