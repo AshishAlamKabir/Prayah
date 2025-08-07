@@ -44,6 +44,11 @@ import schoolFeePaymentRoutes from "./routes/school-fee-payments";
 import adminPermissionsRoutes from "./routes/admin-permissions";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Test endpoint to verify routes are working
+  app.get("/api/test", (req, res) => {
+    res.json({ message: "Routes are working" });
+  });
+
   // Enhanced authentication endpoints
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -100,13 +105,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login endpoint
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { username, password } = req.body;
+      const { username, identifier, password } = req.body;
+      const loginIdentifier = username || identifier;
       
-      if (!username || !password) {
+      if (!loginIdentifier || !password) {
         return res.status(400).json({ message: "Username and password are required" });
       }
       
-      const user = await storage.getUserByUsername(username);
+      // Try to find user by username first, then by email
+      let user = await storage.getUserByUsername(loginIdentifier);
+      if (!user) {
+        user = await storage.getUserByEmail(loginIdentifier);
+      }
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
