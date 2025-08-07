@@ -15,6 +15,7 @@ import Drama from "@/pages/culture/Drama";
 import Poems from "@/pages/culture/Poems";
 import DanceDramaPoems from "@/pages/culture/DanceDramaPoems";
 import Books from "@/pages/books";
+import BooksStore from "@/pages/BooksStore";
 import Community from "@/pages/Community";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -43,6 +44,7 @@ function Router() {
           <Route path="/culture/dance-drama-poems" component={DanceDramaPoems} />
           <Route path="/books" component={Books} />
           <Route path="/books/:id" component={Books} />
+          <Route path="/books-store" component={BooksStore} />
           <Route path="/community" component={Community} />
           <Route path="/user-dashboard" component={UserDashboard} />
           <Route path="/admin-dashboard" component={AdminDashboard} />
