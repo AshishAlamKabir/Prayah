@@ -41,6 +41,11 @@ The application employs a traditional Flask web application architecture optimiz
 - **Admin Pages**: Secure Login, Dashboard (statistics), Book Management (add/edit/delete), Inventory Management, Orders Management, CSV Export.
 - **UI Components**: Bootstrap components, responsive cards, data tables, modals, forms with validation.
 
+### Integration with Prayas Platform
+- **Navigation Integration**: The "Books" tab in the Prayas navigation now links directly to the Flask BookStore (running on port 3000).
+- **External Link**: Opens bookstore in new tab with external link indicator for seamless user experience.
+- **Dual Platform**: Maintains both the educational Prayas platform (React/Node.js) and commercial BookStore (Flask/Python) as integrated services.
+
 ### Data Flow
 - **Client-Server Communication**: RESTful API endpoints; TanStack Query for caching and synchronization; Zod schemas for validation; comprehensive error handling.
 - **State Management**: Server state via TanStack Query; form state via React Hook Form.

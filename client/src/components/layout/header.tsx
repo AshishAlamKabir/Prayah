@@ -21,7 +21,7 @@ export default function Header() {
     { name: "Home", href: "/" },
     { name: "Schools", href: "/schools" },
     { name: "Art & Culture", href: "/culture" },
-    { name: "Books", href: "/books" },
+    { name: "Books", href: "http://localhost:3000", external: true },
     { name: "Community", href: "/community" },
     { name: "Publish Book", href: "/publish" },
   ];
@@ -51,15 +51,27 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              <Link key={item.name} href={item.href}>
-                <span 
-                  className={`text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 ${
-                    isActive(item.href) ? "text-yellow-300 border-b-2 border-yellow-300 pb-1" : ""
-                  }`}
-                >
-                  {item.name}
-                </span>
-              </Link>
+              item.external ? (
+                <a key={item.name} href={item.href} target="_blank" rel="noopener noreferrer">
+                  <span className="text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 flex items-center space-x-1">
+                    <span>{item.name}</span>
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                      <path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-2a1 1 0 10-2 0v2H5V7h2a1 1 0 000-2H5z" />
+                    </svg>
+                  </span>
+                </a>
+              ) : (
+                <Link key={item.name} href={item.href}>
+                  <span 
+                    className={`text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 ${
+                      isActive(item.href) ? "text-yellow-300 border-b-2 border-yellow-300 pb-1" : ""
+                    }`}
+                  >
+                    {item.name}
+                  </span>
+                </Link>
+              )
             ))}
           </div>
           
@@ -151,16 +163,31 @@ export default function Header() {
               <SheetContent side="right" className="bg-red-800 text-white border-red-700 w-[280px] sm:w-[350px]">
                 <div className="flex flex-col space-y-4 mt-8">
                   {navigation.map((item) => (
-                    <Link key={item.name} href={item.href}>
-                      <span 
-                        className={`block py-2 px-4 rounded-lg hover:bg-red-700 transition-colors cursor-pointer ${
-                          isActive(item.href) ? "bg-red-700 text-yellow-300 font-semibold" : ""
-                        }`}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {item.name}
-                      </span>
-                    </Link>
+                    item.external ? (
+                      <a key={item.name} href={item.href} target="_blank" rel="noopener noreferrer">
+                        <span 
+                          className="block py-2 px-4 rounded-lg hover:bg-red-700 transition-colors cursor-pointer flex items-center justify-between"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <span>{item.name}</span>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                            <path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-2a1 1 0 10-2 0v2H5V7h2a1 1 0 000-2H5z" />
+                          </svg>
+                        </span>
+                      </a>
+                    ) : (
+                      <Link key={item.name} href={item.href}>
+                        <span 
+                          className={`block py-2 px-4 rounded-lg hover:bg-red-700 transition-colors cursor-pointer ${
+                            isActive(item.href) ? "bg-red-700 text-yellow-300 font-semibold" : ""
+                          }`}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {item.name}
+                        </span>
+                      </Link>
+                    )
                   ))}
                   
                   
