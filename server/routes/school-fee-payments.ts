@@ -178,6 +178,9 @@ router.post('/verify-payment', authMiddleware, async (req, res) => {
     
     // Find school admins to notify
     const schoolAdmins = await storage.getUsersWithSchoolPermission(updatedPayment.schoolId);
+    
+    // Find all super admins to notify
+    const superAdmins = await storage.getUsersByRole('admin');
 
     // Create notifications for all school admins
     for (const admin of schoolAdmins) {
@@ -188,6 +191,52 @@ router.post('/verify-payment', authMiddleware, async (req, res) => {
         title: `New Fee Payment Received - ${school?.name}`,
         message: `Fee payment of ₹${updatedPayment.amount} received for student ${updatedPayment.studentName} (Roll: ${updatedPayment.studentRollNo}, Class: ${updatedPayment.studentClass}) for ${updatedPayment.feeMonth}. Payment ID: ${paymentId}`,
       });
+      
+      // Also create admin notification for comprehensive tracking
+      await storage.createAdminNotification({
+        adminUserId: admin.id,
+        title: `Fee Payment Received - ${school?.name}`,
+        message: `New fee payment of ₹${updatedPayment.amount} for student ${updatedPayment.studentName} (${updatedPayment.studentClass})`,
+        type: 'fee_payment',
+        priority: 'high',
+        metadata: JSON.stringify({
+          schoolId: updatedPayment.schoolId,
+          paymentId: updatedPayment.id,
+          amount: updatedPayment.amount,
+          studentName: updatedPayment.studentName
+        })
+      });
+    }
+    
+    // Create notifications for all super admins
+    for (const superAdmin of superAdmins) {
+      // Only notify if not already notified as school admin
+      const isAlreadyNotified = schoolAdmins.some(schoolAdmin => schoolAdmin.id === superAdmin.id);
+      
+      if (!isAlreadyNotified) {
+        await storage.createFeePaymentNotification({
+          schoolId: updatedPayment.schoolId,
+          feePaymentId: updatedPayment.id,
+          adminUserId: superAdmin.id,
+          title: `New Fee Payment Received - ${school?.name}`,
+          message: `Fee payment of ₹${updatedPayment.amount} received for student ${updatedPayment.studentName} (Roll: ${updatedPayment.studentRollNo}, Class: ${updatedPayment.studentClass}) for ${updatedPayment.feeMonth}. Payment ID: ${paymentId}`,
+        });
+        
+        // Also create admin notification for comprehensive tracking
+        await storage.createAdminNotification({
+          adminUserId: superAdmin.id,
+          title: `Fee Payment Received - ${school?.name}`,
+          message: `New fee payment of ₹${updatedPayment.amount} for student ${updatedPayment.studentName} (${updatedPayment.studentClass})`,
+          type: 'fee_payment',
+          priority: 'high',
+          metadata: JSON.stringify({
+            schoolId: updatedPayment.schoolId,
+            paymentId: updatedPayment.id,
+            amount: updatedPayment.amount,
+            studentName: updatedPayment.studentName
+          })
+        });
+      }
     }
 
     // Mark admins as notified

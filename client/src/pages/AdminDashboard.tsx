@@ -252,8 +252,8 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <SchoolAdminPanel 
-                  schools={accessibleSchools}
-                  canManageAll={canManageAll}
+                  schools={accessibleSchools || []}
+                  userPermissions={(accessibleSchools || []).map(s => s.id)}
                 />
               </CardContent>
             </Card>
@@ -263,8 +263,8 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <CultureAdminPanel 
-                  cultureCategories={accessibleCultureCategories}
-                  canManageAll={canManageAll}
+                  categories={accessibleCultureCategories || []}
+                  userPermissions={(accessibleCultureCategories || []).map(c => c.id)}
                 />
               </CardContent>
             </Card>

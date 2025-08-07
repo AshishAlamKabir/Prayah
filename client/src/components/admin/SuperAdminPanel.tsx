@@ -104,7 +104,7 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {schools.map((school) => (
+                  {(schools || []).map((school) => (
                     <div key={school.id} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                       <div>
                         <h4 className="font-medium">{school.name}</h4>
@@ -117,6 +117,9 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
                       </div>
                     </div>
                   ))}
+                  {(!schools || schools.length === 0) && (
+                    <p className="text-gray-500 text-center py-4">No schools available</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -130,7 +133,7 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {cultureCategories.map((category) => (
+                  {(cultureCategories || []).map((category) => (
                     <div key={category.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                       <div>
                         <h4 className="font-medium">{category.name}</h4>
@@ -141,6 +144,9 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
                       )}
                     </div>
                   ))}
+                  {(!cultureCategories || cultureCategories.length === 0) && (
+                    <p className="text-gray-500 text-center py-4">No categories available</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -149,15 +155,15 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
 
         <TabsContent value="schools" className="space-y-6">
           <SchoolAdminPanel 
-            schools={schools}
-            userPermissions={schools.map(s => s.id)} // Super admin has access to all schools
+            schools={schools || []}
+            userPermissions={(schools || []).map(s => s.id)} // Super admin has access to all schools
           />
         </TabsContent>
 
         <TabsContent value="culture" className="space-y-6">
           <CultureAdminPanel 
-            categories={cultureCategories}
-            userPermissions={cultureCategories.map(c => c.id)} // Super admin has access to all categories
+            categories={cultureCategories || []}
+            userPermissions={(cultureCategories || []).map(c => c.id)} // Super admin has access to all categories
           />
         </TabsContent>
 

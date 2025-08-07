@@ -169,6 +169,7 @@ export interface IStorage {
   markNotificationRead(notificationId: number): Promise<AdminNotification | undefined>;
   markNotificationEmailSent(notificationId: number): Promise<AdminNotification | undefined>;
   getUnreadNotificationCount(adminUserId: number): Promise<number>;
+  getUsersByRole(role: string): Promise<User[]>;
 
   // School fee payment operations
   createSchoolFeePayment(payment: InsertSchoolFeePayment): Promise<SchoolFeePayment>;
@@ -215,6 +216,13 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(users).where(
       sql`${users.role} = 'admin' OR ${users.schoolPermissions} @> ${JSON.stringify([schoolId])}`
     );
+  }
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .where(eq(users.role, role));
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
