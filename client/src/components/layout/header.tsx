@@ -50,11 +50,11 @@ export default function Header() {
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navigation.map((item) => (
               item.external ? (
                 <a key={item.name} href={item.href} target="_blank" rel="noopener noreferrer">
-                  <span className="text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 flex items-center space-x-1">
+                  <span className="text-xs xl:text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 flex items-center space-x-1 whitespace-nowrap">
                     <span>{item.name}</span>
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
@@ -65,7 +65,7 @@ export default function Header() {
               ) : (
                 <Link key={item.name} href={item.href}>
                   <span 
-                    className={`text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 ${
+                    className={`text-xs xl:text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-yellow-200 whitespace-nowrap ${
                       isActive(item.href) ? "text-yellow-300 border-b-2 border-yellow-300 pb-1" : ""
                     }`}
                   >
@@ -76,7 +76,7 @@ export default function Header() {
             ))}
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 lg:space-x-4">
             {/* Cart Sidebar - Show only for authenticated users */}
             {isAuthenticated && <CartSidebar />}
             
@@ -158,7 +158,7 @@ export default function Header() {
                 <Button 
                   variant="outline" 
                   size="icon" 
-                  className="md:hidden text-white bg-red-700 border-white/30 hover:bg-red-600 hover:border-white/50"
+                  className="lg:hidden text-white bg-red-700 border-white/30 hover:bg-red-600 hover:border-white/50"
                 >
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open menu</span>

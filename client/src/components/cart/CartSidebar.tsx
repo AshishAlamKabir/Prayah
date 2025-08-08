@@ -43,7 +43,7 @@ export function CartSidebar() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="relative">
+        <Button variant="outline" size="sm" className="relative text-white border-white/30 hover:bg-red-600 hover:border-white/50">
           <ShoppingCart className="h-4 w-4" />
           {cartItemCount > 0 && (
             <Badge 
