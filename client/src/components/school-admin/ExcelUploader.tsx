@@ -416,7 +416,7 @@ export default function ExcelUploader({ schoolId, classHierarchy }: ExcelUploade
                             {row.isValid ? (
                               <CheckCircle className="h-4 w-4 text-green-500" />
                             ) : (
-                              <AlertCircle className="h-4 w-4 text-red-500" title={row.error} />
+                              <AlertCircle className="h-4 w-4 text-red-500" />
                             )}
                           </TableCell>
                         </TableRow>
