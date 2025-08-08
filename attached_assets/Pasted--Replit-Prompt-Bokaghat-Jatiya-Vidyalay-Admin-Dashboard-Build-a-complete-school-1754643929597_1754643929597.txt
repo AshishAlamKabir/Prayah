@@ -1,0 +1,173 @@
+---
+
+### 🚀 Replit Prompt: Bokaghat Jatiya Vidyalay – Admin Dashboard
+
+> Build a complete school management system for **Bokaghat Jatiya Vidyalay** using **Flask** in **Python**, with a role-based admin dashboard and student record management. The system must support class-wise and stream-wise student data and fee tracking with promotion/demotion functionality.
+
+---
+
+### 📦 Technologies to Use
+
+* **Backend**: Python (Flask)
+* **Database**: SQLite (or PostgreSQL if hosted externally)
+* **ORM**: SQLAlchemy
+* **Frontend**: HTML + Jinja + Bootstrap
+* **Auth**: Flask-Login (for session management)
+* **Excel Parsing**: pandas + openpyxl
+
+---
+
+### 🔐 User Roles
+
+* **Super Admin**:
+
+  * Access to all features and data
+  * Can manage other admins
+* **Role-Based Admin**:
+
+  * Can add/view students only for assigned class/branch
+  * Can update fees and student status for assigned students
+
+---
+
+### 📚 Student Management Features
+
+* Add students manually or upload `.xlsx` files (e.g., `XII_arts.xlsx`, `Kuhi.xlsx`)
+* Fields:
+
+  * Name, Roll No, Class, Stream (if any), Admission Date, Status
+* Track `student status`: Promoted, Demoted, Dropped Out
+* Automatically extract class and stream from uploaded filenames
+
+---
+
+### 💰 Fee Bookkeeping
+
+Track fees by payment mode:
+
+* Cash
+* Website
+* UPI
+
+Each fee record should include:
+
+* Student ID
+* Payment amount
+* Payment mode
+* Payment date
+* Optional remarks
+
+Provide summary charts or tables:
+
+* Total collected by mode
+* Dues per class or student
+
+---
+
+### 🔁 Status Tracker
+
+* Update status of student to:
+
+  * Promoted (next class)
+  * Demoted
+  * Dropped Out (with reason)
+* Log all status changes for historical tracking
+
+---
+
+### 📁 Excel Upload Support
+
+* Accept `.xlsx` files like:
+
+  * `ankur.xlsx`, `Kuhi.xlsx`, `SOPAN.xlsx`
+  * `I.xlsx`, `II.xlsx`, ..., `X.xlsx`
+  * `XI_arts.xlsx`, `XI_commerce.xlsx`, `XI_science.xlsx`
+  * `XII_arts.xlsx`, `XII_commerce.xlsx`, `XII_science.xlsx`
+
+Use `pandas` to parse and load data into the student table, tagging students with the correct class/stream based on the file name.
+
+---
+
+### 📊 Class Hierarchy (Chronological Order)
+
+Define the class progression using the following structure:
+
+```python
+CLASS_ORDER = {
+    "Ankur": 1,
+    "Kuhi": 2,
+    "Sopan": 3,
+    "I": 4,
+    "II": 5,
+    "III": 6,
+    "IV": 7,
+    "V": 8,
+    "VI": 9,
+    "VII": 10,
+    "VIII": 11,
+    "IX": 12,
+    "X": 13,
+    "XI Arts": 14,
+    "XI Commerce": 15,
+    "XI Science": 16,
+    "XII Arts": 17,
+    "XII Commerce": 18,
+    "XII Science": 19
+}
+```
+
+Use this for:
+
+* Sorting students
+* Promotion logic
+* Reports by education level (Primary, Secondary, etc.)
+
+---
+
+### 🧩 Folder Structure
+
+```
+/app.py
+/models/
+    user.py
+    student.py
+    fee.py
+/templates/
+    dashboard.html
+    students.html
+    fees.html
+    login.html
+/uploads/  ← Temp Excel files
+/static/
+    /css/
+    /js/
+student_records.db  ← SQLite DB
+requirements.txt
+```
+
+---
+
+### 📦 requirements.txt
+
+```
+Flask
+Flask-Login
+Flask-SQLAlchemy
+pandas
+openpyxl
+Werkzeug
+```
+
+---
+
+This prompt is ready to be copied into **Replit AI**, GitHub Copilot, or pasted directly in Replit to scaffold the project.
+
+Let me know if you want the code for:
+
+* `models/student.py`
+* Upload route
+* Excel parser
+* Fee management form
+* Role access decorator
+
+I'll generate the complete code for you.
