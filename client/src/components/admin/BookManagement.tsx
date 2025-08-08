@@ -210,6 +210,7 @@ export default function BookManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-stock"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-analytics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/books"] }); // Refresh main books data
       toast({
         title: "Success",
         description: "Stock updated successfully"
