@@ -85,9 +85,19 @@ export interface IStorage {
   getUserBySessionToken(token: string): Promise<User | undefined>;
   deleteUserSession(token: string): Promise<boolean>;
   
-  // Removed cart operations - e-commerce removed
+  // Cart operations
+  getCartItems(userId: number): Promise<any[]>;
+  addToCart(cartItem: any): Promise<any>;
+  updateCartItem(id: number, updates: any): Promise<any>;
+  removeFromCart(id: number): Promise<boolean>;
+  clearCart(userId: number): Promise<boolean>;
 
-  // Removed order and stock operations - e-commerce removed
+  // Order operations
+  createOrder(order: any): Promise<any>;
+  getOrdersByUser(userId: number): Promise<any[]>;
+  getAllOrders(): Promise<any[]>;
+  updateOrderStatus(id: number, updates: any): Promise<any>;
+  updateOrderTracking(id: number, trackingNumber: string): Promise<any>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -329,6 +339,35 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  // Authentication session operations
+  async createUserSession(session: InsertUserSession): Promise<UserSession> {
+    const [userSession] = await db
+      .insert(userSessions)
+      .values(session)
+      .returning();
+    return userSession;
+  }
+
+  async getUserBySessionToken(token: string): Promise<User | undefined> {
+    const result = await db
+      .select({
+        user: users
+      })
+      .from(userSessions)
+      .leftJoin(users, eq(userSessions.userId, users.id))
+      .where(and(
+        eq(userSessions.token, token),
+        gt(userSessions.expiresAt, new Date())
+      ));
+    
+    return result[0]?.user || undefined;
+  }
+
+  async deleteUserSession(token: string): Promise<boolean> {
+    const result = await db.delete(userSessions).where(eq(userSessions.token, token));
+    return (result.rowCount ?? 0) > 0;
+  }
+
   // Community post operations
   async getCommunityPosts(status?: string): Promise<CommunityPost[]> {
     if (status) {
@@ -524,233 +563,154 @@ export class DatabaseStorage implements IStorage {
     return [];
   }
 
-  async updateBookStock(bookId: number, quantity: number, updatedBy: number): Promise<any> {
-    // First, check if stock record exists
-    const existingStock = await db.select().from(bookStock).where(eq(bookStock.bookId, bookId));
-// 
-//     if (existingStock.length > 0) {
-//       // Update existing stock
-//       const [updated] = await db
-//         .update(bookStock)
-//         .set({
-//           quantity,
-//           lastUpdated: new Date(),
-//           updatedBy
-//         })
-//         .where(eq(bookStock.bookId, bookId))
-//         .returning();
-// 
-//       // Update book stock status
-//       await db
-//         .update(books)
-//         .set({ inStock: quantity > 0 })
-//         .where(eq(books.id, bookId));
-// 
-//       return updated;
-//     } else {
-//       // Create new stock record
-//       const [newStock] = await db
-//         .insert(bookStock)
-//         .values({
-//           bookId,
-//           quantity,
-//           lastUpdated: new Date(),
-//           updatedBy
-//         })
-//         .returning();
-// 
-//       // Update book stock status
-//       await db
-//         .update(books)
-//         .set({ inStock: quantity > 0 })
-//         .where(eq(books.id, bookId));
-// 
-//       return newStock;
-//     }
-//   }
-// 
-//   async getBookAnalytics(): Promise<{
-//     totalBooks: number;
-//     totalStock: number;
-//     lowStockCount: number;
-//     outOfStockCount: number;
-//     totalValue: number;
-//     averagePrice: number;
-//   }> {
-//     // Get total books count
-//     const totalBooksResult = await db.select({ count: count() }).from(books);
-//     const totalBooks = totalBooksResult[0]?.count || 0;
-// 
-//     // Get stock analytics
-//     const stockResult = await db
-//       .select({
-//         totalStock: sql<number>`COALESCE(SUM(${bookStock.quantity}), 0)`,
-//         lowStockCount: sql<number>`COUNT(CASE WHEN ${bookStock.quantity} > 0 AND ${bookStock.quantity} <= 10 THEN 1 END)`,
-//         outOfStockCount: sql<number>`COUNT(CASE WHEN ${bookStock.quantity} = 0 THEN 1 END)`
-//       })
-//       .from(bookStock);
-// 
-//     // Get price analytics
-//     const priceResult = await db
-//       .select({
-//         totalValue: sql<number>`COALESCE(SUM(CAST(${books.price} AS DECIMAL)), 0)`,
-//         averagePrice: sql<number>`COALESCE(AVG(CAST(${books.price} AS DECIMAL)), 0)`
-//       })
-//       .from(books);
-// 
-//     return {
-//       totalBooks: Number(totalBooks),
-//       totalStock: Number(stockResult[0]?.totalStock || 0),
-//       lowStockCount: Number(stockResult[0]?.lowStockCount || 0),
-//       outOfStockCount: Number(stockResult[0]?.outOfStockCount || 0),
-//       totalValue: Number(priceResult[0]?.totalValue || 0),
-//       averagePrice: Number(priceResult[0]?.averagePrice || 0)
-//     };
-//   }
-// 
-//   // Published work operations
-//   async getPublishedWorks(status?: string): Promise<PublishedWork[]> {
-//     if (status) {
-//       return await db.select().from(publishedWorks).where(eq(publishedWorks.status, status)).orderBy(desc(publishedWorks.createdAt));
-//     }
-//     return await db.select().from(publishedWorks).orderBy(desc(publishedWorks.createdAt));
-//   }
-// 
-//   async getPublishedWork(id: number): Promise<PublishedWork | undefined> {
-//     const [work] = await db.select().from(publishedWorks).where(eq(publishedWorks.id, id));
-//     return work || undefined;
-//   }
-// 
-//   async getFeaturedPublishedWorks(): Promise<PublishedWork[]> {
-//     return await db.select().from(publishedWorks).where(eq(publishedWorks.featured, true)).orderBy(desc(publishedWorks.createdAt));
-//   }
-// 
-//   async createPublishedWork(insertWork: InsertPublishedWork): Promise<PublishedWork> {
-//     const [work] = await db
-//       .insert(publishedWorks)
-//       .values(insertWork)
-//       .returning();
-//     return work;
-//   }
-// 
-//   async updatePublishedWork(id: number, updateData: Partial<InsertPublishedWork>): Promise<PublishedWork | undefined> {
-//     const [work] = await db
-//       .update(publishedWorks)
-//       .set({ ...updateData, updatedAt: new Date() })
-//       .where(eq(publishedWorks.id, id))
-//       .returning();
-//     return work || undefined;
-//   }
-// 
-//   async incrementDownloadCount(id: number): Promise<void> {
-//     const [work] = await db.select().from(publishedWorks).where(eq(publishedWorks.id, id));
-//     if (work) {
-//       await db
-//         .update(publishedWorks)
-//         .set({ downloadCount: (work.downloadCount || 0) + 1 })
-//         .where(eq(publishedWorks.id, id));
-//     }
-//   }
-// 
-//   async deletePublishedWork(id: number): Promise<boolean> {
-//     const result = await db.delete(publishedWorks).where(eq(publishedWorks.id, id));
-//     return (result.rowCount ?? 0) > 0;
-//   }
-// 
-//   // User subscription operations
-//   async updateUserSubscription(id: number, isSubscribed: boolean, expiry?: Date): Promise<User | undefined> {
-//     const [user] = await db
-//       .update(users)
-//       .set({ 
-//         isSubscribed, 
-//         subscriptionExpiry: expiry,
-//         updatedAt: new Date() 
-//       })
-//       .where(eq(users.id, id))
-//       .returning();
-//     return user || undefined;
-//   }
-// 
-//   // Authentication operations
-//   async createUserSession(insertSession: InsertUserSession): Promise<UserSession> {
-//     const [session] = await db
-//       .insert(userSessions)
-//       .values(insertSession)
-//       .returning();
-//     return session;
-//   }
-// 
-//   async getUserBySessionToken(token: string): Promise<User | undefined> {
-//     const [session] = await db
-//       .select()
-//       .from(userSessions)
-//       .where(and(eq(userSessions.token, token), gt(userSessions.expiresAt, new Date())));
-//     
-//     if (!session) return undefined;
-//     
-//     return await this.getUser(session.userId);
-//   }
-// 
-//   async deleteUserSession(token: string): Promise<boolean> {
-//     const result = await db.delete(userSessions).where(eq(userSessions.token, token));
-//     return (result.rowCount ?? 0) > 0;
-//   }
-// 
-//   // Order operations
-//   async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const [order] = await db
-      .insert(orders)
-      .values(insertOrder)
-      .returning();
-    return order;
-  }
+  async getBookAnalytics(): Promise<{
+    totalBooks: number;
+    totalValue: number;
+    averagePrice: number;
+  }> {
+    // Get total books count
+    const totalBooksResult = await db.select({ count: count() }).from(books);
+    const totalBooks = totalBooksResult[0]?.count || 0;
 
-  async getOrdersByUser(userId: number): Promise<Order[]> {
-    return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
-  }
+    // Get price analytics
+    const priceResult = await db
+      .select({
+        totalValue: sql<number>`COALESCE(SUM(CAST(${books.price} AS DECIMAL)), 0)`,
+        averagePrice: sql<number>`COALESCE(AVG(CAST(${books.price} AS DECIMAL)), 0)`
+      })
+      .from(books);
 
-  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
-    const [order] = await db
-      .update(orders)
-      .set({ status, updatedAt: new Date() })
-      .where(eq(orders.id, id))
-      .returning();
-    return order || undefined;
-  }
-
-  async getAllOrders(): Promise<Order[]> {
-    return await db.select().from(orders).orderBy(desc(orders.createdAt));
-  }
-
-  async markOrderNotified(id: number): Promise<Order | undefined> {
-    const [order] = await db
-      .update(orders)
-      .set({ adminNotified: true })
-      .where(eq(orders.id, id))
-      .returning();
-    return order || undefined;
-  }
-
-  // Removed cart and stock operations - e-commerce functionality removed
-
-  // Enhanced published work operations
-  async updatePublishedWorkStatus(id: number, status: string, approvedBy?: number): Promise<PublishedWork | undefined> {
-    const updateData: any = { 
-      status, 
-      updatedAt: new Date() 
+    return {
+      totalBooks: Number(totalBooks),
+      totalValue: Number(priceResult[0]?.totalValue || 0),
+      averagePrice: Number(priceResult[0]?.averagePrice || 0)
     };
-    
-    if (status === 'approved' && approvedBy) {
+  }
+
+  // Published work operations
+  async getPublishedWorks(status?: string): Promise<PublishedWork[]> {
+    if (status) {
+      return await db.select().from(publishedWorks).where(eq(publishedWorks.status, status)).orderBy(desc(publishedWorks.createdAt));
+    }
+    return await db.select().from(publishedWorks).orderBy(desc(publishedWorks.createdAt));
+  }
+
+  async getPublishedWork(id: number): Promise<PublishedWork | undefined> {
+    const [work] = await db.select().from(publishedWorks).where(eq(publishedWorks.id, id));
+    return work || undefined;
+  }
+
+  async getFeaturedPublishedWorks(): Promise<PublishedWork[]> {
+    return await db.select().from(publishedWorks).where(eq(publishedWorks.featured, true)).orderBy(desc(publishedWorks.createdAt));
+  }
+
+  async createPublishedWork(insertWork: InsertPublishedWork): Promise<PublishedWork> {
+    const [work] = await db
+      .insert(publishedWorks)
+      .values(insertWork)
+      .returning();
+    return work;
+  }
+
+  async updatePublishedWork(id: number, updateData: Partial<InsertPublishedWork>): Promise<PublishedWork | undefined> {
+    const [work] = await db
+      .update(publishedWorks)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(publishedWorks.id, id))
+      .returning();
+    return work || undefined;
+  }
+
+  async updatePublishedWorkStatus(id: number, status: string, approvedBy?: number): Promise<PublishedWork | undefined> {
+    const updateData: any = { status, updatedAt: new Date() };
+    if (status === "approved" && approvedBy) {
       updateData.approvedBy = approvedBy;
       updateData.approvedAt = new Date();
     }
-
+    
     const [work] = await db
       .update(publishedWorks)
       .set(updateData)
       .where(eq(publishedWorks.id, id))
       .returning();
     return work || undefined;
+  }
+
+  async incrementDownloadCount(id: number): Promise<void> {
+    await db
+      .update(publishedWorks)
+      .set({ 
+        downloadCount: sql`${publishedWorks.downloadCount} + 1`,
+        updatedAt: new Date()
+      })
+      .where(eq(publishedWorks.id, id));
+  }
+
+  async deletePublishedWork(id: number): Promise<boolean> {
+    const result = await db.delete(publishedWorks).where(eq(publishedWorks.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async updateBookStock(bookId: number, quantity: number, updatedBy: number): Promise<any> {
+    // Stock functionality temporarily disabled
+    return null;
+  }
+
+  // Cart operations
+  async getCartItems(userId: number): Promise<any[]> {
+    // TODO: Implement when cart schema is ready
+    return [];
+  }
+
+  async addToCart(cartItem: any): Promise<any> {
+    // TODO: Implement when cart schema is ready
+    return { id: 1, ...cartItem };
+  }
+
+  async updateCartItem(id: number, updates: any): Promise<any> {
+    // TODO: Implement when cart schema is ready
+    return { id, ...updates };
+  }
+
+  async removeFromCart(id: number): Promise<boolean> {
+    // TODO: Implement when cart schema is ready
+    return true;
+  }
+
+  async clearCart(userId: number): Promise<boolean> {
+    // TODO: Implement when cart schema is ready
+    return true;
+  }
+
+  // Order operations
+  async createOrder(insertOrder: any): Promise<any> {
+    // TODO: Implement when order schema is ready
+    return { id: 1, orderNumber: `ORD-${Date.now()}`, ...insertOrder };
+  }
+
+  async getOrdersByUser(userId: number): Promise<any[]> {
+    // TODO: Implement when order schema is ready
+    return [];
+  }
+
+  async updateOrderStatus(id: number, updates: any): Promise<any> {
+    // TODO: Implement when order schema is ready
+    return { id, ...updates };
+  }
+
+  async updateOrderTracking(id: number, trackingNumber: string): Promise<any> {
+    // TODO: Implement when order schema is ready
+    return { id, trackingNumber };
+  }
+
+  async getAllOrders(): Promise<any[]> {
+    // TODO: Implement when order schema is ready
+    return [];
+  }
+
+  async markOrderNotified(id: number): Promise<any> {
+    // TODO: Implement when order schema is ready
+    return null;
   }
 
   // Publication submission operations

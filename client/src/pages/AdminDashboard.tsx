@@ -27,7 +27,8 @@ import {
   BarChart3,
   BookOpen,
   DollarSign,
-  Bell
+  Bell,
+  ShoppingCart
 } from "lucide-react";
 import SchoolAdminPanel from "@/components/admin/SchoolAdminPanel";
 import CultureAdminPanel from "@/components/admin/CultureAdminPanel";
@@ -36,6 +37,7 @@ import BookManagement from "@/components/admin/BookManagement";
 import SchoolFeeManagement from "@/components/admin/SchoolFeeManagement";
 import AdminNotifications from "@/components/admin/AdminNotifications";
 import FeePaymentAccessControl from "@/components/admin/FeePaymentAccessControl";
+import { OrderManagement } from "@/components/admin/OrderManagement";
 import { Link } from "wouter";
 
 interface User {
@@ -228,12 +230,13 @@ export default function AdminDashboard() {
         {/* Dashboard Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-1 h-auto p-1">
               <TabsTrigger value="overview" className="whitespace-nowrap px-3 py-2 text-sm">Overview</TabsTrigger>
               {(dashboardUser.role === "admin" || dashboardUser.role === "school_admin") && <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>}
               {(dashboardUser.role === "admin" || dashboardUser.role === "culture_admin") && <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="orders" className="whitespace-nowrap px-3 py-2 text-sm">Orders</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="payment-access" className="whitespace-nowrap px-3 py-2 text-sm">Payment Access</TabsTrigger>}
@@ -285,6 +288,14 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <BookManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="orders" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <OrderManagement />
               </CardContent>
             </Card>
           </TabsContent>

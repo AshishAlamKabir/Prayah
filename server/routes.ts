@@ -18,7 +18,9 @@ import {
   insertCultureActivitySchema,
   insertPublicationSubmissionSchema,
   insertSchoolFeePaymentSchema,
-  insertFeeStructureSchema
+  insertFeeStructureSchema,
+  insertCartItemSchema,
+  insertOrderSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -334,6 +336,209 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerRazorpayRoutes(app);
   app.use('/api/school-fee-payments', schoolFeePaymentRoutes);
   app.use('/api/admin/permissions', adminPermissionsRoutes);
+
+  // Cart endpoints
+  app.get("/api/cart/:userId", authMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Check if user is accessing their own cart or is admin
+      if (req.user?.id !== userId && req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const cartItems = await storage.getCartItems(userId);
+      res.json(cartItems);
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      res.status(500).json({ message: "Failed to fetch cart" });
+    }
+  });
+
+  app.post("/api/cart", authMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertCartItemSchema.parse(req.body);
+      
+      // Check if user is adding to their own cart
+      if (req.user?.id !== validatedData.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const cartItem = await storage.addToCart(validatedData);
+      res.status(201).json(cartItem);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to add item to cart" });
+    }
+  });
+
+  app.put("/api/cart/:id", authMiddleware, async (req, res) => {
+    try {
+      const cartItemId = parseInt(req.params.id);
+      const { quantity } = req.body;
+      
+      if (isNaN(cartItemId) || !quantity || quantity < 1) {
+        return res.status(400).json({ message: "Invalid cart item ID or quantity" });
+      }
+
+      const updatedItem = await storage.updateCartItem(cartItemId, { quantity });
+      if (!updatedItem) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+
+      res.json(updatedItem);
+    } catch (error) {
+      console.error("Error updating cart item:", error);
+      res.status(500).json({ message: "Failed to update cart item" });
+    }
+  });
+
+  app.delete("/api/cart/:id", authMiddleware, async (req, res) => {
+    try {
+      const cartItemId = parseInt(req.params.id);
+      if (isNaN(cartItemId)) {
+        return res.status(400).json({ message: "Invalid cart item ID" });
+      }
+
+      const deleted = await storage.removeFromCart(cartItemId);
+      if (!deleted) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+
+      res.json({ message: "Item removed from cart" });
+    } catch (error) {
+      console.error("Error removing cart item:", error);
+      res.status(500).json({ message: "Failed to remove item from cart" });
+    }
+  });
+
+  app.delete("/api/cart/user/:userId", authMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Check if user is clearing their own cart or is admin
+      if (req.user?.id !== userId && req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.clearCart(userId);
+      res.json({ message: "Cart cleared" });
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      res.status(500).json({ message: "Failed to clear cart" });
+    }
+  });
+
+  // Order endpoints
+  app.post("/api/orders", authMiddleware, async (req, res) => {
+    try {
+      const orderData = {
+        ...req.body,
+        userId: req.user?.id,
+        status: 'pending',
+        paymentStatus: 'pending'
+      };
+      
+      const validatedData = insertOrderSchema.parse(orderData);
+      const order = await storage.createOrder(validatedData);
+      
+      res.status(201).json(order);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
+  app.get("/api/orders/user/:userId", authMiddleware, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Check if user is accessing their own orders or is admin
+      if (req.user?.id !== userId && req.user?.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const orders = await storage.getOrdersByUser(userId);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  // Admin order management endpoints
+  app.get("/api/admin/orders", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching all orders:", error);
+      res.status(500).json({ message: "Failed to fetch orders" });
+    }
+  });
+
+  app.put("/api/admin/orders/:id/status", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status, adminNotes, trackingNumber } = req.body;
+      
+      if (isNaN(orderId) || !status) {
+        return res.status(400).json({ message: "Invalid order ID or status" });
+      }
+
+      const updateData: any = { status };
+      if (adminNotes) updateData.adminNotes = adminNotes;
+      if (trackingNumber) updateData.trackingNumber = trackingNumber;
+
+      const updatedOrder = await storage.updateOrderStatus(orderId, updateData);
+      if (!updatedOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      res.status(500).json({ message: "Failed to update order status" });
+    }
+  });
+
+  app.put("/api/admin/orders/:id/tracking", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { trackingNumber } = req.body;
+      
+      if (isNaN(orderId) || !trackingNumber) {
+        return res.status(400).json({ message: "Invalid order ID or tracking number" });
+      }
+
+      const updatedOrder = await storage.updateOrderTracking(orderId, trackingNumber);
+      if (!updatedOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error("Error updating order tracking:", error);
+      res.status(500).json({ message: "Failed to update tracking number" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

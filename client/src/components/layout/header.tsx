@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Menu, User, LogOut, Crown, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { CartSidebar } from "@/components/cart/CartSidebar";
 import prayasLogo from "@assets/WhatsApp Image 2025-07-24 at 14.36.01_4d13e1cd_1753348314691.jpg";
 
 export default function Header() {
@@ -18,12 +19,12 @@ export default function Header() {
   const isSubscribed = user?.isSubscribed || false;
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Schools", href: "/schools" },
-    { name: "Art & Culture", href: "/culture" },
-    { name: "Books Store", href: "/books-store" },
-    { name: "Community", href: "/community" },
-    { name: "Publish Book", href: "/publish" },
+    { name: "Home", href: "/", external: false },
+    { name: "Schools", href: "/schools", external: false },
+    { name: "Art & Culture", href: "/culture", external: false },
+    { name: "Books Store", href: "/books-store", external: false },
+    { name: "Community", href: "/community", external: false },
+    { name: "Publish Book", href: "/publish", external: false },
   ];
 
   const isActive = (href: string) => {
@@ -76,6 +77,9 @@ export default function Header() {
           </div>
           
           <div className="flex items-center space-x-4">
+            {/* Cart Sidebar - Show only for authenticated users */}
+            {isAuthenticated && <CartSidebar />}
+            
             {!isAuthenticated ? (
               <>
                 <Link href="/login">
