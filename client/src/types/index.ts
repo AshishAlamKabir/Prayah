@@ -36,6 +36,76 @@ export interface Book {
   updatedAt: string;
 }
 
+export interface CartItem {
+  id: number;
+  userId: number;
+  bookId: number;
+  quantity: number;
+  book?: Book;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InsertCartItem {
+  userId: number;
+  bookId: number;
+  quantity: number;
+}
+
+export interface Order {
+  id: number;
+  userId: number;
+  orderNumber: string;
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  totalAmount: number;
+  currency: string;
+  shippingAddress?: any;
+  billingAddress?: any;
+  paymentMethod?: string;
+  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+  paymentId?: string;
+  notes?: string;
+  adminNotes?: string;
+  trackingNumber?: string;
+  shippedAt?: string;
+  deliveredAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  orderItems?: OrderItem[];
+  user?: User;
+}
+
+export interface OrderItem {
+  id: number;
+  orderId: number;
+  bookId: number;
+  quantity: number;
+  price: number;
+  title: string;
+  author: string;
+  book?: Book;
+  createdAt: string;
+}
+
+export interface InsertOrder {
+  userId: number;
+  totalAmount: number;
+  currency?: string;
+  shippingAddress?: any;
+  billingAddress?: any;
+  paymentMethod?: string;
+  notes?: string;
+}
+
+export interface InsertOrderItem {
+  orderId: number;
+  bookId: number;
+  quantity: number;
+  price: number;
+  title: string;
+  author: string;
+}
+
 export interface PaymentNotification {
   id: number;
   schoolId: number;

@@ -124,7 +124,7 @@ export const books = pgTable("books", {
   imageUrl: text("image_url"),
   pdfUrl: text("pdf_url"),
   bookType: text("book_type").notNull().default("paperback"), // paperback, pdf, both
-  // Removed stock tracking - books are now for reference/reading only
+  stock: integer("stock").notNull().default(0), // Available quantity for purchase
   isbn: text("isbn"),
   publishedYear: integer("published_year"),
   // Removed subscription restrictions - all books are now accessible
@@ -153,7 +153,20 @@ export const publishedWorks = pgTable("published_works", {
 });
 
 // Cart items table
-// Removed cart functionality - no longer needed
+export const cartItems = pgTable("cart_items", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  bookId: integer("book_id").notNull().references(() => books.id, { onDelete: 'cascade' }),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userIdx: index('cart_items_user_idx').on(table.userId),
+    bookIdx: index('cart_items_book_idx').on(table.bookId),
+    userBookIdx: uniqueIndex('cart_items_user_book_idx').on(table.userId, table.bookId),
+  };
+});
 
 // Payments table - Comprehensive payment tracking with admin notifications
 export const payments = pgTable("payments", {
@@ -220,10 +233,68 @@ export const adminNotifications = pgTable("admin_notifications", {
 });
 
 // Orders table for e-commerce - Enhanced with multiple books support and shipping
-// Removed orders functionality - no longer needed
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'restrict' }),
+  orderNumber: text("order_number").notNull().unique(),
+  status: text("status").notNull().default("pending"), // pending, confirmed, processing, shipped, delivered, cancelled
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("inr"),
+  shippingAddress: jsonb("shipping_address"), // {name, address, city, state, country, postalCode, phone}
+  billingAddress: jsonb("billing_address"), // {name, address, city, state, country, postalCode, phone}
+  paymentMethod: text("payment_method"), // razorpay, stripe, cod
+  paymentStatus: text("payment_status").default("pending"), // pending, completed, failed, refunded
+  paymentId: text("payment_id"), // Payment gateway transaction ID
+  notes: text("notes"), // Customer notes
+  adminNotes: text("admin_notes"), // Admin notes
+  trackingNumber: text("tracking_number"), // Shipping tracking number
+  shippedAt: timestamp("shipped_at"),
+  deliveredAt: timestamp("delivered_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    orderNumberIdx: uniqueIndex('orders_order_number_idx').on(table.orderNumber),
+    userIdx: index('orders_user_idx').on(table.userId),
+    statusIdx: index('orders_status_idx').on(table.status),
+    paymentStatusIdx: index('orders_payment_status_idx').on(table.paymentStatus),
+    createdAtIdx: index('orders_created_at_idx').on(table.createdAt),
+  };
+});
+
+// Order items table for storing ordered books
+export const orderItems = pgTable("order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull().references(() => orders.id, { onDelete: 'cascade' }),
+  bookId: integer("book_id").notNull().references(() => books.id, { onDelete: 'restrict' }),
+  quantity: integer("quantity").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(), // Price at time of order
+  title: text("title").notNull(), // Book title at time of order
+  author: text("author").notNull(), // Book author at time of order
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    orderIdx: index('order_items_order_idx').on(table.orderId),
+    bookIdx: index('order_items_book_idx').on(table.bookId),
+  };
+});
 
 // Book stock table for inventory management
-// Removed stock management - no longer needed
+export const bookStock = pgTable("book_stock", {
+  id: serial("id").primaryKey(),
+  bookId: integer("book_id").notNull().references(() => books.id, { onDelete: 'cascade' }),
+  quantity: integer("quantity").notNull().default(0),
+  reservedQuantity: integer("reserved_quantity").notNull().default(0), // For pending orders
+  lowStockThreshold: integer("low_stock_threshold").default(10),
+  lastRestockedAt: timestamp("last_restocked_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    bookIdx: uniqueIndex('book_stock_book_idx').on(table.bookId),
+    quantityIdx: index('book_stock_quantity_idx').on(table.quantity),
+  };
+});
 
 // School fee payments table for managing student fee payments
 export const schoolFeePayments = pgTable("school_fee_payments", {
@@ -299,7 +370,32 @@ export const insertUserSessionSchema = createInsertSchema(userSessions).omit({
   createdAt: true,
 });
 
-// Removed cart, order, and stock schemas - e-commerce removed
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  orderNumber: true,
+  shippedAt: true,
+  deliveredAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBookStockSchema = createInsertSchema(bookStock).omit({
+  id: true,
+  lastRestockedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export const insertSchoolFeePaymentSchema = createInsertSchema(schoolFeePayments).omit({
   id: true,
@@ -460,11 +556,21 @@ export type InsertPublishedWork = z.infer<typeof insertPublishedWorkSchema>;
 export type UserSession = typeof userSessions.$inferSelect;
 export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
 
-// Removed CartItem types - no longer needed
+// Cart item types
+export type CartItem = typeof cartItems.$inferSelect;
+export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 
-// Removed Order types - no longer needed
+// Order types
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
 
-// Removed BookStock types - no longer needed
+// Order item types
+export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+
+// Book stock types
+export type BookStock = typeof bookStock.$inferSelect;
+export type InsertBookStock = z.infer<typeof insertBookStockSchema>;
 
 // School fee payment types
 export type SchoolFeePayment = typeof schoolFeePayments.$inferSelect;
@@ -569,10 +675,6 @@ export const insertFeeStructureSchema = createInsertSchema(feeStructures).omit({
   updatedAt: true,
 });
 
-// School fee payment types
-export type SchoolFeePayment = typeof schoolFeePayments.$inferSelect;
-export type InsertSchoolFeePayment = z.infer<typeof insertSchoolFeePaymentSchema>;
-
 // Fee payment notification types
 export type FeePaymentNotification = typeof feePaymentNotifications.$inferSelect;
 export type InsertFeePaymentNotification = z.infer<typeof insertFeePaymentNotificationSchema>;
@@ -584,7 +686,8 @@ export type InsertFeeStructure = z.infer<typeof insertFeeStructureSchema>;
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(userSessions),
-  // Removed cartItems and orders - e-commerce removed
+  cartItems: many(cartItems),
+  orders: many(orders),
   payments: many(payments),
   adminNotifications: many(adminNotifications),
   approvedPosts: many(communityPosts, { relationName: "approvedBy" }),
@@ -594,14 +697,33 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const booksRelations = relations(books, ({ many, one }) => ({
-  // Removed cartItems and stock - e-commerce removed
+  cartItems: many(cartItems),
+  orderItems: many(orderItems),
+  stock: one(bookStock, { fields: [books.id], references: [bookStock.bookId] }),
 }));
 
-// Removed cartItems and orders relations - e-commerce removed
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  user: one(users, { fields: [cartItems.userId], references: [users.id] }),
+  book: one(books, { fields: [cartItems.bookId], references: [books.id] }),
+}));
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, { fields: [orders.userId], references: [users.id] }),
+  orderItems: many(orderItems),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+  order: one(orders, { fields: [orderItems.orderId], references: [orders.id] }),
+  book: one(books, { fields: [orderItems.bookId], references: [books.id] }),
+}));
+
+export const bookStockRelations = relations(bookStock, ({ one }) => ({
+  book: one(books, { fields: [bookStock.bookId], references: [books.id] }),
+}));
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
   user: one(users, { fields: [payments.userId], references: [users.id] }),
-  // Removed order relation - e-commerce removed
+  order: one(orders, { fields: [payments.orderId], references: [orders.id] }),
   school: one(schools, { fields: [payments.schoolId], references: [schools.id] }),
   cultureCategory: one(cultureCategories, { fields: [payments.cultureId], references: [cultureCategories.id] }),
 }));
