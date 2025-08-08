@@ -113,7 +113,7 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="list">Student List</TabsTrigger>
           <TabsTrigger value="add">Add Student</TabsTrigger>
@@ -122,7 +122,7 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
           <TabsTrigger value="status">Status Manager</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 mt-6">
           {/* Dashboard Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
@@ -209,7 +209,7 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
           </Card>
         </TabsContent>
 
-        <TabsContent value="list" className="space-y-6">
+        <TabsContent value="list" className="space-y-6 mt-6">
           <StudentList 
             schoolId={selectedSchool} 
             students={students || []}
@@ -217,28 +217,28 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
           />
         </TabsContent>
 
-        <TabsContent value="add" className="space-y-6">
+        <TabsContent value="add" className="space-y-6 mt-6">
           <AddStudentForm 
             schoolId={selectedSchool}
             classHierarchy={classHierarchy}
           />
         </TabsContent>
 
-        <TabsContent value="upload" className="space-y-6">
+        <TabsContent value="upload" className="space-y-6 mt-6">
           <ExcelUploader 
             schoolId={selectedSchool}
             classHierarchy={classHierarchy}
           />
         </TabsContent>
 
-        <TabsContent value="fees" className="space-y-6">
+        <TabsContent value="fees" className="space-y-6 mt-6">
           <FeePaymentTracker 
             schoolId={selectedSchool}
             students={students || []}
           />
         </TabsContent>
 
-        <TabsContent value="status" className="space-y-6">
+        <TabsContent value="status" className="space-y-6 mt-6">
           <StudentStatusManager 
             schoolId={selectedSchool}
             students={students || []}
