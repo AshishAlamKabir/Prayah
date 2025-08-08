@@ -130,7 +130,7 @@ export interface IStorage {
   deleteCommunityPost(id: number): Promise<boolean>;
 
   // School operations
-  getSchools(): Promise<School[]>;
+  getSchools(): Promise<(School & { studentCount: number })[]>;
   getSchool(id: number): Promise<School | undefined>;
   createSchool(school: InsertSchool): Promise<School>;
   updateSchool(id: number, school: Partial<InsertSchool>): Promise<School | undefined>;
@@ -464,8 +464,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   // School operations
-  async getSchools(): Promise<School[]> {
-    return await db.select().from(schools).orderBy(desc(schools.createdAt));
+  async getSchools(): Promise<(School & { studentCount: number })[]> {
+    const schoolsWithCounts = await db
+      .select({
+        ...schools,
+        studentCount: sql<number>`COALESCE(COUNT(${students.id}), 0)`
+      })
+      .from(schools)
+      .leftJoin(students, eq(students.schoolId, schools.id))
+      .groupBy(schools.id)
+      .orderBy(desc(schools.createdAt));
+
+    return schoolsWithCounts.map(school => ({
+      ...school,
+      studentCount: Number(school.studentCount)
+    }));
   }
 
   async getSchool(id: number): Promise<School | undefined> {
