@@ -6,7 +6,10 @@ import {
   books,
   publishedWorks,
   userSessions,
-  // Removed orders, cartItems, bookStock - e-commerce removed
+  cartItems,
+  orders,
+  orderItems,
+  bookStock,
   schoolActivities,
   publicationSubmissions,
   payments,
@@ -26,7 +29,14 @@ import {
   type InsertPublishedWork,
   type UserSession,
   type InsertUserSession,
-  // Removed Order, CartItem, BookStock types - e-commerce removed
+  type CartItem,
+  type InsertCartItem,
+  type Order,
+  type InsertOrder,
+  type OrderItem,
+  type InsertOrderItem,
+  type BookStock,
+  type InsertBookStock,
   type SchoolActivity,
   type InsertSchoolActivity,
   type PublicationSubmission,
@@ -86,18 +96,18 @@ export interface IStorage {
   deleteUserSession(token: string): Promise<boolean>;
   
   // Cart operations
-  getCartItems(userId: number): Promise<any[]>;
-  addToCart(cartItem: any): Promise<any>;
-  updateCartItem(id: number, updates: any): Promise<any>;
+  getCartItems(userId: number): Promise<CartItem[]>;
+  addToCart(cartItem: InsertCartItem): Promise<CartItem>;
+  updateCartItem(id: number, updates: Partial<InsertCartItem>): Promise<CartItem | undefined>;
   removeFromCart(id: number): Promise<boolean>;
   clearCart(userId: number): Promise<boolean>;
 
   // Order operations
-  createOrder(order: any): Promise<any>;
-  getOrdersByUser(userId: number): Promise<any[]>;
-  getAllOrders(): Promise<any[]>;
-  updateOrderStatus(id: number, updates: any): Promise<any>;
-  updateOrderTracking(id: number, trackingNumber: string): Promise<any>;
+  createOrder(order: InsertOrder): Promise<Order>;
+  getOrdersByUser(userId: number): Promise<Order[]>;
+  getAllOrders(): Promise<Order[]>;
+  updateOrderStatus(id: number, updates: Partial<Order>): Promise<Order | undefined>;
+  updateOrderTracking(id: number, trackingNumber: string): Promise<Order | undefined>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -670,55 +680,188 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Cart operations
-  async getCartItems(userId: number): Promise<any[]> {
-    // TODO: Implement when cart schema is ready
-    return [];
+  async getCartItems(userId: number): Promise<CartItem[]> {
+    const result = await db
+      .select({
+        id: cartItems.id,
+        userId: cartItems.userId,
+        bookId: cartItems.bookId,
+        quantity: cartItems.quantity,
+        createdAt: cartItems.createdAt,
+        updatedAt: cartItems.updatedAt,
+        book: {
+          id: books.id,
+          title: books.title,
+          author: books.author,
+          price: books.price,
+          imageUrl: books.imageUrl,
+          stock: books.stock
+        }
+      })
+      .from(cartItems)
+      .leftJoin(books, eq(cartItems.bookId, books.id))
+      .where(eq(cartItems.userId, userId))
+      .orderBy(desc(cartItems.createdAt));
+    
+    return result as CartItem[];
   }
 
-  async addToCart(cartItem: any): Promise<any> {
-    // TODO: Implement when cart schema is ready
-    return { id: 1, ...cartItem };
+  async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
+    // Check if item already exists in cart
+    const existingItem = await db
+      .select()
+      .from(cartItems)
+      .where(and(
+        eq(cartItems.userId, cartItem.userId),
+        eq(cartItems.bookId, cartItem.bookId)
+      ));
+
+    if (existingItem.length > 0) {
+      // Update quantity if item exists
+      const [updatedItem] = await db
+        .update(cartItems)
+        .set({
+          quantity: existingItem[0].quantity + (cartItem.quantity || 1),
+          updatedAt: new Date()
+        })
+        .where(eq(cartItems.id, existingItem[0].id))
+        .returning();
+      return updatedItem;
+    } else {
+      // Insert new item
+      const [newItem] = await db
+        .insert(cartItems)
+        .values(cartItem)
+        .returning();
+      return newItem;
+    }
   }
 
-  async updateCartItem(id: number, updates: any): Promise<any> {
-    // TODO: Implement when cart schema is ready
-    return { id, ...updates };
+  async updateCartItem(id: number, updates: Partial<InsertCartItem>): Promise<CartItem | undefined> {
+    const [updatedItem] = await db
+      .update(cartItems)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(cartItems.id, id))
+      .returning();
+    return updatedItem || undefined;
   }
 
   async removeFromCart(id: number): Promise<boolean> {
-    // TODO: Implement when cart schema is ready
-    return true;
+    const result = await db
+      .delete(cartItems)
+      .where(eq(cartItems.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
   async clearCart(userId: number): Promise<boolean> {
-    // TODO: Implement when cart schema is ready
-    return true;
+    const result = await db
+      .delete(cartItems)
+      .where(eq(cartItems.userId, userId));
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Order operations
-  async createOrder(insertOrder: any): Promise<any> {
-    // TODO: Implement when order schema is ready
-    return { id: 1, orderNumber: `ORD-${Date.now()}`, ...insertOrder };
+  async createOrder(order: InsertOrder): Promise<Order> {
+    // Generate order number
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    
+    const [newOrder] = await db
+      .insert(orders)
+      .values({ ...order, orderNumber })
+      .returning();
+    return newOrder;
   }
 
-  async getOrdersByUser(userId: number): Promise<any[]> {
-    // TODO: Implement when order schema is ready
-    return [];
+  async getOrdersByUser(userId: number): Promise<Order[]> {
+    const result = await db
+      .select({
+        id: orders.id,
+        userId: orders.userId,
+        orderNumber: orders.orderNumber,
+        status: orders.status,
+        totalAmount: orders.totalAmount,
+        currency: orders.currency,
+        shippingAddress: orders.shippingAddress,
+        billingAddress: orders.billingAddress,
+        paymentMethod: orders.paymentMethod,
+        paymentStatus: orders.paymentStatus,
+        paymentId: orders.paymentId,
+        notes: orders.notes,
+        adminNotes: orders.adminNotes,
+        trackingNumber: orders.trackingNumber,
+        shippedAt: orders.shippedAt,
+        deliveredAt: orders.deliveredAt,
+        createdAt: orders.createdAt,
+        updatedAt: orders.updatedAt,
+        user: {
+          id: users.id,
+          username: users.username,
+          email: users.email
+        }
+      })
+      .from(orders)
+      .leftJoin(users, eq(orders.userId, users.id))
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.createdAt));
+    
+    return result as Order[];
   }
 
-  async updateOrderStatus(id: number, updates: any): Promise<any> {
-    // TODO: Implement when order schema is ready
-    return { id, ...updates };
+  async updateOrderStatus(id: number, updates: Partial<Order>): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder || undefined;
   }
 
-  async updateOrderTracking(id: number, trackingNumber: string): Promise<any> {
-    // TODO: Implement when order schema is ready
-    return { id, trackingNumber };
+  async updateOrderTracking(id: number, trackingNumber: string): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ 
+        trackingNumber,
+        status: 'shipped',
+        shippedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder || undefined;
   }
 
-  async getAllOrders(): Promise<any[]> {
-    // TODO: Implement when order schema is ready
-    return [];
+  async getAllOrders(): Promise<Order[]> {
+    const result = await db
+      .select({
+        id: orders.id,
+        userId: orders.userId,
+        orderNumber: orders.orderNumber,
+        status: orders.status,
+        totalAmount: orders.totalAmount,
+        currency: orders.currency,
+        shippingAddress: orders.shippingAddress,
+        billingAddress: orders.billingAddress,
+        paymentMethod: orders.paymentMethod,
+        paymentStatus: orders.paymentStatus,
+        paymentId: orders.paymentId,
+        notes: orders.notes,
+        adminNotes: orders.adminNotes,
+        trackingNumber: orders.trackingNumber,
+        shippedAt: orders.shippedAt,
+        deliveredAt: orders.deliveredAt,
+        createdAt: orders.createdAt,
+        updatedAt: orders.updatedAt,
+        user: {
+          id: users.id,
+          username: users.username,
+          email: users.email
+        }
+      })
+      .from(orders)
+      .leftJoin(users, eq(orders.userId, users.id))
+      .orderBy(desc(orders.createdAt));
+    
+    return result as Order[];
   }
 
   async markOrderNotified(id: number): Promise<any> {
