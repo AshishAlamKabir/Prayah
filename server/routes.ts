@@ -722,7 +722,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Excel upload for students
+  // Student Excel upload preview endpoint
+  app.post("/api/schools/:schoolId/students/upload/preview", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      if (isNaN(schoolId) || !req.file) {
+        return res.status(400).json({ message: "Invalid school ID or no file provided" });
+      }
+
+      const fileName = req.file.originalname;
+      
+      try {
+        // Read Excel file
+        const workbook = XLSX.readFile(req.file.path);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+
+        // Extract class and stream from filename
+        const extractedClass = extractClassFromFilename(fileName);
+        const extractedStream = extractStreamFromFilename(fileName);
+
+        // Get existing students for duplicate checking
+        const existingStudents = await storage.getStudents(schoolId);
+        const existingRollNumbers = new Set(existingStudents.map(s => `${s.rollNumber}-${s.className}`));
+
+        // Preview first 10 rows with enhanced validation
+        const preview = [];
+        const validationErrors: string[] = [];
+        const duplicateCheck = new Set();
+
+        for (let i = 0; i < Math.min(10, data.length); i++) {
+          try {
+            const row = data[i] as any;
+            const studentData = mapExcelRowToStudentEnhanced(row, extractedClass, extractedStream, schoolId);
+            const cleanedData = cleanAndValidateStudentData(studentData, i + 2);
+            
+            // Check for duplicates within file and existing data
+            const rollKey = `${cleanedData.rollNumber}-${cleanedData.className}`;
+            if (duplicateCheck.has(rollKey)) {
+              validationErrors.push(`Row ${i + 2}: Duplicate roll number ${cleanedData.rollNumber} within file`);
+            } else if (existingRollNumbers.has(rollKey)) {
+              validationErrors.push(`Row ${i + 2}: Student ${cleanedData.rollNumber} already exists in ${cleanedData.className}`);
+            }
+            duplicateCheck.add(rollKey);
+
+            preview.push({
+              rowNumber: i + 2,
+              original: row,
+              mapped: cleanedData,
+              isValid: true
+            });
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            validationErrors.push(`Row ${i + 2}: ${errorMessage}`);
+            preview.push({
+              rowNumber: i + 2,
+              original: data[i],
+              mapped: null,
+              isValid: false,
+              error: errorMessage
+            });
+          }
+        }
+
+        // Clean up uploaded file
+        fs.unlinkSync(req.file.path);
+
+        res.json({
+          fileName: fileName,
+          detectedClass: extractedClass,
+          detectedStream: extractedStream,
+          totalRows: data.length,
+          preview,
+          validationErrors,
+          columnMapping: detectColumnMapping(data[0] || {}),
+          estimatedValidRows: Math.max(0, data.length - validationErrors.length)
+        });
+      } catch (error) {
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        throw error;
+      }
+    } catch (error) {
+      console.error("Error processing Excel preview:", error);
+      res.status(500).json({ message: "Failed to process Excel file for preview" });
+    }
+  });
+
+  // Enhanced Excel upload for students
   app.post("/api/schools/:schoolId/students/upload", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
@@ -730,75 +819,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid school ID or no file provided" });
       }
 
-      // Extract class and stream from filename
       const fileName = req.file.originalname;
-      const extractedClass = extractClassFromFilename(fileName);
-      const extractedStream = extractStreamFromFilename(fileName);
       
-      // Read Excel file
-      const workbook = XLSX.readFile(req.file.path);
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(worksheet);
-      
-      const errors: string[] = [];
-      let successfulImports = 0;
-      let failedImports = 0;
-      
-      // Process each row
-      for (let i = 0; i < data.length; i++) {
-        try {
-          const row = data[i] as any;
-          const studentData = {
-            schoolId,
-            name: row.Name || row.name || row['Student Name'] || '',
-            rollNumber: row.RollNumber || row.roll_number || row['Roll Number'] || row.Roll || '',
-            className: extractedClass || row.Class || row.class || '',
-            stream: extractedStream || row.Stream || row.stream || null,
-            admissionDate: new Date(),
-            parentName: row.ParentName || row.parent_name || row['Parent Name'] || null,
-            contactNumber: row.ContactNumber || row.contact_number || row['Contact Number'] || null,
-            address: row.Address || row.address || null,
-            createdBy: req.user.id
-          };
-          
-          if (!studentData.name || !studentData.rollNumber) {
-            errors.push(`Row ${i + 1}: Missing name or roll number`);
+      try {
+        // Read Excel file
+        const workbook = XLSX.readFile(req.file.path);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+
+        // Extract class and stream from filename
+        const extractedClass = extractClassFromFilename(fileName);
+        const extractedStream = extractStreamFromFilename(fileName);
+
+        // Get existing students for duplicate checking
+        const existingStudents = await storage.getStudents(schoolId);
+        const existingRollNumbers = new Set(existingStudents.map(s => `${s.rollNumber}-${s.className}`));
+        
+        const errors: string[] = [];
+        let successfulImports = 0;
+        let failedImports = 0;
+        const duplicateCheck = new Set();
+        
+        // Process each row with enhanced validation
+        for (let i = 0; i < data.length; i++) {
+          try {
+            const row = data[i] as any;
+            const studentData = mapExcelRowToStudentEnhanced(row, extractedClass, extractedStream, schoolId);
+            const cleanedData = cleanAndValidateStudentData(studentData, i + 2);
+            
+            // Check for duplicates within file
+            const rollKey = `${cleanedData.rollNumber}-${cleanedData.className}`;
+            if (duplicateCheck.has(rollKey)) {
+              throw new Error(`Duplicate roll number ${cleanedData.rollNumber} within file`);
+            }
+            duplicateCheck.add(rollKey);
+
+            // Check for existing students
+            if (existingRollNumbers.has(rollKey)) {
+              throw new Error(`Student ${cleanedData.rollNumber} already exists in ${cleanedData.className}`);
+            }
+            
+            // Validate and create student
+            const validatedData = insertStudentSchema.parse({
+              ...cleanedData,
+              createdBy: req.user.id
+            });
+
+            await storage.createStudent(validatedData);
+            successfulImports++;
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            errors.push(`Row ${i + 2}: ${errorMessage}`);
             failedImports++;
-            continue;
           }
-          
-          await storage.addStudent(studentData);
-          successfulImports++;
-        } catch (error) {
-          errors.push(`Row ${i + 1}: ${error.message}`);
-          failedImports++;
         }
+        
+        // Record the upload history
+        await storage.recordExcelUpload({
+          schoolId,
+          fileName: fileName,
+          extractedClass,
+          extractedStream,
+          totalRows: data.length,
+          successfulImports,
+          failedImports,
+          errors,
+          uploadedBy: req.user.id
+        });
+        
+        // Clean up uploaded file
+        fs.unlinkSync(req.file.path);
+        
+        res.json({
+          message: "File processed successfully",
+          fileName: fileName,
+          detectedClass: extractedClass,
+          detectedStream: extractedStream,
+          totalRows: data.length,
+          successfulImports,
+          failedImports,
+          errors: errors.length > 0 ? errors.slice(0, 30) : [] // Show more errors for debugging
+        });
+      } catch (error) {
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        throw error;
       }
-      
-      // Record the upload history
-      await storage.recordExcelUpload({
-        schoolId,
-        fileName: fileName,
-        extractedClass,
-        extractedStream,
-        totalRows: data.length,
-        successfulImports,
-        failedImports,
-        errors,
-        uploadedBy: req.user.id
-      });
-      
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-      
-      res.json({
-        message: "File processed successfully",
-        totalRows: data.length,
-        successfulImports,
-        failedImports,
-        errors: errors.length > 0 ? errors.slice(0, 10) : [] // Return first 10 errors
-      });
     } catch (error) {
       console.error("Error processing Excel file:", error);
       res.status(500).json({ message: "Failed to process Excel file" });
@@ -818,6 +926,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching upload history:", error);
       res.status(500).json({ message: "Failed to fetch upload history" });
+    }
+  });
+
+  // Get class hierarchy for proper ordering
+  app.get("/api/class-hierarchy", async (req, res) => {
+    try {
+      const classOrder = {
+        'Ankur': 1, 'Kuhi': 2, 'Sopan': 3,
+        'I': 4, 'II': 5, 'III': 6, 'IV': 7, 'V': 8,
+        'VI': 9, 'VII': 10, 'VIII': 11, 'IX': 12, 'X': 13,
+        'XI Arts': 14, 'XI Commerce': 15, 'XI Science': 16,
+        'XII Arts': 17, 'XII Commerce': 18, 'XII Science': 19
+      };
+      
+      const classList = Object.keys(classOrder);
+      
+      res.json({
+        classOrder,
+        classList
+      });
+    } catch (error) {
+      console.error("Error fetching class hierarchy:", error);
+      res.status(500).json({ message: "Failed to fetch class hierarchy" });
     }
   });
 
@@ -991,4 +1122,166 @@ function extractStreamFromFilename(filename: string): string | null {
   if (name.includes('comm')) return 'Commerce';
   if (name.includes('sci')) return 'Science';
   return null;
+}
+
+// Enhanced data mapping function based on actual CSV structure
+function mapExcelRowToStudentEnhanced(row: any, extractedClass: string | null, extractedStream: string | null, schoolId: number) {
+  // Handle full name construction from separate fields
+  let fullName = '';
+  if (row.first_name || row.First_Name || row['First Name']) {
+    const firstName = row.first_name || row.First_Name || row['First Name'] || '';
+    const middleName = row.middlename || row.Middle_Name || row['Middle Name'] || '';
+    const lastName = row.last_name || row.Last_Name || row['Last Name'] || '';
+    fullName = [firstName, middleName, lastName].filter(Boolean).join(' ');
+  }
+  
+  // Fallback to single name field
+  if (!fullName) {
+    fullName = row.Name || row.name || row['Student Name'] || row.student_name || '';
+  }
+  
+  return {
+    schoolId,
+    name: fullName.trim(),
+    rollNumber: (row.roll_no || row.RollNumber || row.roll_number || row['Roll Number'] || row.Roll || '').toString(),
+    className: extractedClass || row.Class || row.class || '',
+    stream: extractedStream || row.Stream || row.stream || null,
+    parentName: row.father_name || row.Father_Name || row['Father Name'] || 
+                row.mother_name || row.Mother_Name || row['Mother Name'] ||
+                row.ParentName || row.parent_name || row['Parent Name'] || null,
+    contactNumber: row.mobile_no || row.Mobile_No || row['Mobile No'] || 
+                  row.ContactNumber || row.contact_number || row['Contact Number'] || 
+                  row.father_phone || row.mother_phone || null,
+    address: row.current_address || row.permanent_address || row.Address || row.address || 
+            row['Current Address'] || row['Permanent Address'] || null,
+    dateOfBirth: row.date_of_birth || row['Date of Birth'] || row.dob || null,
+    gender: row.gender || row.Gender || null,
+    bloodGroup: row.blood_group || row['Blood Group'] || null,
+    category: row.category || row.Category || row.caste || row.Caste || null,
+    religion: row.religion || row.Religion || null,
+    previousSchool: row.previous_school || row['Previous School'] || null,
+    admissionDate: new Date(),
+    status: 'active'
+  };
+}
+
+// Data cleaning and validation function
+function cleanAndValidateStudentData(studentData: any, rowNumber: number) {
+  const cleaned = { ...studentData };
+  
+  // Clean name
+  if (!cleaned.name || cleaned.name.trim() === '') {
+    throw new Error('Student name is required');
+  }
+  cleaned.name = cleaned.name.trim().replace(/\s+/g, ' ');
+  
+  // Clean roll number
+  if (!cleaned.rollNumber || cleaned.rollNumber.trim() === '') {
+    throw new Error('Roll number is required');
+  }
+  cleaned.rollNumber = cleaned.rollNumber.toString().trim();
+  
+  // Clean class name
+  if (!cleaned.className || cleaned.className.trim() === '') {
+    throw new Error('Class is required');
+  }
+  
+  // Clean phone number (handle scientific notation)
+  if (cleaned.contactNumber) {
+    let phoneStr = cleaned.contactNumber.toString();
+    
+    // Handle scientific notation (e.g., 9.15255E+11)
+    if (phoneStr.includes('E+') || phoneStr.includes('e+')) {
+      const num = parseFloat(phoneStr);
+      phoneStr = num.toFixed(0);
+    }
+    
+    // Remove any non-digits except + at start
+    phoneStr = phoneStr.replace(/[^\d+]/g, '');
+    
+    // Validate Indian phone number format
+    if (phoneStr.length === 10 && /^[6-9]/.test(phoneStr)) {
+      cleaned.contactNumber = phoneStr;
+    } else if (phoneStr.length === 11 && phoneStr.startsWith('0')) {
+      cleaned.contactNumber = phoneStr.substring(1);
+    } else if (phoneStr.length > 10) {
+      // Take last 10 digits if longer
+      cleaned.contactNumber = phoneStr.slice(-10);
+    } else {
+      cleaned.contactNumber = phoneStr; // Keep as is for now
+    }
+  }
+  
+  // Clean date of birth
+  if (cleaned.dateOfBirth && cleaned.dateOfBirth !== 'xxx' && cleaned.dateOfBirth !== '') {
+    try {
+      // Handle various date formats
+      const dateStr = cleaned.dateOfBirth.toString();
+      if (dateStr.includes('/')) {
+        const [day, month, year] = dateStr.split('/');
+        cleaned.dateOfBirth = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)).toISOString();
+      } else if (dateStr.includes('-')) {
+        cleaned.dateOfBirth = new Date(dateStr).toISOString();
+      }
+    } catch (error) {
+      cleaned.dateOfBirth = null;
+    }
+  } else {
+    cleaned.dateOfBirth = null;
+  }
+  
+  // Clean gender
+  if (cleaned.gender) {
+    const genderLower = cleaned.gender.toString().toLowerCase();
+    if (genderLower.includes('male')) cleaned.gender = 'male';
+    else if (genderLower.includes('female')) cleaned.gender = 'female';
+    else cleaned.gender = 'other';
+  }
+  
+  // Clean parent name
+  if (cleaned.parentName && cleaned.parentName !== 'xxxxx' && cleaned.parentName !== 'XXXXXXXXXXX') {
+    cleaned.parentName = cleaned.parentName.trim().replace(/\s+/g, ' ');
+  } else {
+    cleaned.parentName = null;
+  }
+  
+  return cleaned;
+}
+
+// Detect column mapping from the data
+function detectColumnMapping(row: any): Record<string, string[]> {
+  const mapping: Record<string, string[]> = {
+    name: [],
+    rollNumber: [],
+    parentName: [],
+    contactNumber: [],
+    address: [],
+    dateOfBirth: [],
+    gender: [],
+    other: []
+  };
+  
+  Object.keys(row || {}).forEach(key => {
+    const lowerKey = key.toLowerCase();
+    
+    if (lowerKey.includes('name') && !lowerKey.includes('parent') && !lowerKey.includes('father') && !lowerKey.includes('mother')) {
+      mapping.name.push(key);
+    } else if (lowerKey.includes('roll')) {
+      mapping.rollNumber.push(key);
+    } else if (lowerKey.includes('parent') || lowerKey.includes('father') || lowerKey.includes('mother')) {
+      mapping.parentName.push(key);
+    } else if (lowerKey.includes('mobile') || lowerKey.includes('phone') || lowerKey.includes('contact')) {
+      mapping.contactNumber.push(key);
+    } else if (lowerKey.includes('address')) {
+      mapping.address.push(key);
+    } else if (lowerKey.includes('birth') || lowerKey.includes('dob')) {
+      mapping.dateOfBirth.push(key);
+    } else if (lowerKey.includes('gender')) {
+      mapping.gender.push(key);
+    } else {
+      mapping.other.push(key);
+    }
+  });
+  
+  return mapping;
 }
