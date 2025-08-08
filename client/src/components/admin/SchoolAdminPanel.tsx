@@ -23,8 +23,16 @@ import {
   Phone,
   Mail,
   Globe,
-  Activity
+  Activity,
+  GraduationCap
 } from "lucide-react";
+
+// Import student management components
+import StudentList from "@/components/school-admin/StudentList";
+import AddStudentForm from "@/components/school-admin/AddStudentForm";
+import ExcelUploader from "@/components/school-admin/ExcelUploader";
+import FeePaymentTracker from "@/components/school-admin/FeePaymentTracker";
+import StudentStatusManager from "@/components/school-admin/StudentStatusManager";
 
 interface SchoolAdminPanelProps {
   schools: any[];
@@ -38,6 +46,26 @@ export default function SchoolAdminPanel({ schools, userPermissions }: SchoolAdm
   const [selectedSchool, setSelectedSchool] = useState<number | null>(
     schools.length > 0 ? schools[0].id : null
   );
+
+  // Fetch students for selected school
+  const { data: students, isLoading: studentsLoading } = useQuery({
+    queryKey: ["/api/schools", selectedSchool, "students"],
+    queryFn: () => apiRequest("GET", `/api/schools/${selectedSchool}/students`).then(res => res.json()),
+    enabled: !!selectedSchool,
+  });
+
+  // Fetch payment summary
+  const { data: paymentSummary } = useQuery({
+    queryKey: ["/api/schools", selectedSchool, "payments", "summary"],
+    queryFn: () => apiRequest("GET", `/api/schools/${selectedSchool}/payments/summary`).then(res => res.json()),
+    enabled: !!selectedSchool,
+  });
+
+  // Get class hierarchy
+  const { data: classHierarchy } = useQuery({
+    queryKey: ["/api/class-hierarchy"],
+    queryFn: () => apiRequest("GET", "/api/class-hierarchy").then(res => res.json()),
+  });
 
   // Notification form state
   const [notificationForm, setNotificationForm] = useState({
@@ -246,8 +274,9 @@ export default function SchoolAdminPanel({ schools, userPermissions }: SchoolAdm
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="students">Students</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="activities">Activities</TabsTrigger>
           <TabsTrigger value="media">Media</TabsTrigger>
@@ -296,19 +325,173 @@ export default function SchoolAdminPanel({ schools, userPermissions }: SchoolAdm
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Students:</span>
-                    <span className="font-semibold">{currentSchool?.studentCount || 0}</span>
+                    <span className="font-semibold">{students?.length || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Teachers:</span>
                     <span className="font-semibold">{currentSchool?.teacherCount || 0}</span>
                   </div>
+                  <Button variant="outline" size="sm" className="mt-2 w-full" onClick={() => setActiveTab("students")}>
+                    Manage Students
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-6">
+        <TabsContent value="students" className="space-y-6 mt-6">
+          <div className="mb-4">
+            <div className="flex items-center gap-3 mb-4">
+              <GraduationCap className="w-6 h-6 text-blue-600" />
+              <h3 className="text-xl font-semibold">Student Management</h3>
+            </div>
+            
+            {/* Student Statistics Dashboard */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Students</p>
+                      <p className="text-2xl font-bold text-blue-600">{students?.length || 0}</p>
+                    </div>
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Active Students</p>
+                      <p className="text-2xl font-bold text-green-600">{students?.filter(s => s.status === 'active')?.length || 0}</p>
+                    </div>
+                    <Activity className="w-6 h-6 text-green-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Classes</p>
+                      <p className="text-2xl font-bold text-purple-600">
+                        {students ? Object.keys(students.reduce((acc, s) => ({ ...acc, [s.className]: true }), {})).length : 0}
+                      </p>
+                    </div>
+                    <FileText className="w-6 h-6 text-purple-600" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Recent Admissions</p>
+                      <p className="text-2xl font-bold text-orange-600">
+                        {students?.filter(s => {
+                          const admissionDate = new Date(s.admissionDate);
+                          const thirtyDaysAgo = new Date();
+                          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                          return admissionDate >= thirtyDaysAgo;
+                        })?.length || 0}
+                      </p>
+                    </div>
+                    <PlusCircle className="w-6 h-6 text-orange-600" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Student Management Tabs */}
+            <Tabs defaultValue="list" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                <TabsTrigger value="list">Student List</TabsTrigger>
+                <TabsTrigger value="add">Add Student</TabsTrigger>
+                <TabsTrigger value="upload">Excel Upload</TabsTrigger>
+                <TabsTrigger value="fees">Fee Management</TabsTrigger>
+                <TabsTrigger value="status">Status Manager</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="list" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Student List</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <StudentList 
+                      schoolId={selectedSchool} 
+                      students={students || []}
+                      isLoading={studentsLoading}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="add" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Add New Student</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <AddStudentForm 
+                      schoolId={selectedSchool}
+                      classHierarchy={classHierarchy}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="upload" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Bulk Student Upload</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ExcelUploader 
+                      schoolId={selectedSchool}
+                      classHierarchy={classHierarchy}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="fees" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Fee Payment Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <FeePaymentTracker 
+                      schoolId={selectedSchool}
+                      students={students || []}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="status" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Student Status Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <StudentStatusManager 
+                      schoolId={selectedSchool}
+                      students={students || []}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -423,7 +606,7 @@ export default function SchoolAdminPanel({ schools, userPermissions }: SchoolAdm
           </Card>
         </TabsContent>
 
-        <TabsContent value="activities" className="space-y-6">
+        <TabsContent value="activities" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -567,7 +750,7 @@ export default function SchoolAdminPanel({ schools, userPermissions }: SchoolAdm
           </Card>
         </TabsContent>
 
-        <TabsContent value="media" className="space-y-6">
+        <TabsContent value="media" className="space-y-6 mt-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
