@@ -16,6 +16,7 @@ import {
   FileText,
   BarChart3,
 } from "lucide-react";
+// Import available components
 import StudentList from "@/components/school-admin/StudentList";
 import AddStudentForm from "@/components/school-admin/AddStudentForm";
 import ExcelUploader from "@/components/school-admin/ExcelUploader";
@@ -53,13 +54,13 @@ export default function SchoolAdminDashboard() {
     queryFn: () => apiRequest("GET", "/api/class-hierarchy").then(res => res.json()),
   });
 
-  const currentSchool = schools?.find(s => s.id === selectedSchool);
+  const currentSchool = schools?.find((s: any) => s.id === selectedSchool);
   
   // Calculate dashboard statistics
   const totalStudents = students?.length || 0;
-  const activeStudents = students?.filter(s => s.status === 'active')?.length || 0;
-  const promotedStudents = students?.filter(s => s.status === 'promoted')?.length || 0;
-  const classDistribution = students?.reduce((acc, student) => {
+  const activeStudents = students?.filter((s: any) => s.status === 'active')?.length || 0;
+  const promotedStudents = students?.filter((s: any) => s.status === 'promoted')?.length || 0;
+  const classDistribution = students?.reduce((acc: any, student: any) => {
     acc[student.className] = (acc[student.className] || 0) + 1;
     return acc;
   }, {} as Record<string, number>) || {};
@@ -84,7 +85,7 @@ export default function SchoolAdminDashboard() {
                 onChange={(e) => setSelectedSchool(parseInt(e.target.value))}
                 className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {schools?.map((school) => (
+                {schools?.map((school: any) => (
                   <option key={school.id} value={school.id}>
                     {school.name}
                   </option>
@@ -185,7 +186,7 @@ export default function SchoolAdminDashboard() {
                         .map(([className, count]) => (
                           <div key={className} className="flex items-center justify-between">
                             <span className="font-medium">{className}</span>
-                            <Badge variant="outline">{count} students</Badge>
+                            <Badge variant="outline">{count as number} students</Badge>
                           </div>
                         ))}
                     </div>
