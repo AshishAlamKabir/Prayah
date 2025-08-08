@@ -20,7 +20,12 @@ import {
   insertSchoolFeePaymentSchema,
   insertFeeStructureSchema,
   insertCartItemSchema,
-  insertOrderSchema
+  insertOrderSchema,
+  insertStudentSchema,
+  insertStudentStatusChangeSchema,
+  insertStudentFeePaymentSchema,
+  insertStudentExcelUploadSchema,
+  CLASS_ORDER
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { 
@@ -44,6 +49,22 @@ import { registerAdminNotificationRoutes } from "./routes/admin-notifications";
 import { registerRazorpayRoutes } from "./routes/razorpay";
 import schoolFeePaymentRoutes from "./routes/school-fee-payments";
 import adminPermissionsRoutes from "./routes/admin-permissions";
+
+// For Excel file processing
+import * as XLSX from 'xlsx';
+
+// Student Excel upload storage
+const studentUpload = multer({
+  dest: 'uploads/students/',
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.originalname.match(/\.(xlsx|xls)$/)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files are allowed!'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Test endpoint to verify routes are working
@@ -598,6 +619,376 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ===== STUDENT MANAGEMENT SYSTEM ROUTES =====
+  // Based on Bokaghat Jatiya Vidyalay requirements
+
+  // Get all students for a school (with optional filters)
+  app.get("/api/schools/:schoolId/students", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const { className, stream } = req.query;
+      
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const students = await storage.getStudents(
+        schoolId,
+        className as string,
+        stream as string
+      );
+      res.json(students);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      res.status(500).json({ message: "Failed to fetch students" });
+    }
+  });
+
+  // Get a specific student
+  app.get("/api/students/:id", authMiddleware, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      if (isNaN(studentId)) {
+        return res.status(400).json({ message: "Invalid student ID" });
+      }
+
+      const student = await storage.getStudentById(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+
+      res.json(student);
+    } catch (error) {
+      console.error("Error fetching student:", error);
+      res.status(500).json({ message: "Failed to fetch student" });
+    }
+  });
+
+  // Add a new student
+  app.post("/api/schools/:schoolId/students", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const validatedData = insertStudentSchema.parse({
+        ...req.body,
+        schoolId,
+        createdBy: req.user.id
+      });
+
+      const student = await storage.addStudent(validatedData);
+      res.status(201).json(student);
+    } catch (error) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error adding student:", error);
+      res.status(500).json({ message: "Failed to add student" });
+    }
+  });
+
+  // Update a student
+  app.put("/api/students/:id", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      if (isNaN(studentId)) {
+        return res.status(400).json({ message: "Invalid student ID" });
+      }
+
+      const updatedStudent = await storage.updateStudent(studentId, req.body);
+      res.json(updatedStudent);
+    } catch (error) {
+      console.error("Error updating student:", error);
+      res.status(500).json({ message: "Failed to update student" });
+    }
+  });
+
+  // Delete a student
+  app.delete("/api/students/:id", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      if (isNaN(studentId)) {
+        return res.status(400).json({ message: "Invalid student ID" });
+      }
+
+      await storage.deleteStudent(studentId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting student:", error);
+      res.status(500).json({ message: "Failed to delete student" });
+    }
+  });
+
+  // Excel upload for students
+  app.post("/api/schools/:schoolId/students/upload", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      if (isNaN(schoolId) || !req.file) {
+        return res.status(400).json({ message: "Invalid school ID or no file provided" });
+      }
+
+      // Extract class and stream from filename
+      const fileName = req.file.originalname;
+      const extractedClass = extractClassFromFilename(fileName);
+      const extractedStream = extractStreamFromFilename(fileName);
+      
+      // Read Excel file
+      const workbook = XLSX.readFile(req.file.path);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+      
+      const errors: string[] = [];
+      let successfulImports = 0;
+      let failedImports = 0;
+      
+      // Process each row
+      for (let i = 0; i < data.length; i++) {
+        try {
+          const row = data[i] as any;
+          const studentData = {
+            schoolId,
+            name: row.Name || row.name || row['Student Name'] || '',
+            rollNumber: row.RollNumber || row.roll_number || row['Roll Number'] || row.Roll || '',
+            className: extractedClass || row.Class || row.class || '',
+            stream: extractedStream || row.Stream || row.stream || null,
+            admissionDate: new Date(),
+            parentName: row.ParentName || row.parent_name || row['Parent Name'] || null,
+            contactNumber: row.ContactNumber || row.contact_number || row['Contact Number'] || null,
+            address: row.Address || row.address || null,
+            createdBy: req.user.id
+          };
+          
+          if (!studentData.name || !studentData.rollNumber) {
+            errors.push(`Row ${i + 1}: Missing name or roll number`);
+            failedImports++;
+            continue;
+          }
+          
+          await storage.addStudent(studentData);
+          successfulImports++;
+        } catch (error) {
+          errors.push(`Row ${i + 1}: ${error.message}`);
+          failedImports++;
+        }
+      }
+      
+      // Record the upload history
+      await storage.recordExcelUpload({
+        schoolId,
+        fileName: fileName,
+        extractedClass,
+        extractedStream,
+        totalRows: data.length,
+        successfulImports,
+        failedImports,
+        errors,
+        uploadedBy: req.user.id
+      });
+      
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+      
+      res.json({
+        message: "File processed successfully",
+        totalRows: data.length,
+        successfulImports,
+        failedImports,
+        errors: errors.length > 0 ? errors.slice(0, 10) : [] // Return first 10 errors
+      });
+    } catch (error) {
+      console.error("Error processing Excel file:", error);
+      res.status(500).json({ message: "Failed to process Excel file" });
+    }
+  });
+
+  // Get Excel upload history
+  app.get("/api/schools/:schoolId/students/uploads", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const uploads = await storage.getExcelUploadHistory(schoolId);
+      res.json(uploads);
+    } catch (error) {
+      console.error("Error fetching upload history:", error);
+      res.status(500).json({ message: "Failed to fetch upload history" });
+    }
+  });
+
+  // Update student status (promotion, demotion, dropout)
+  app.put("/api/students/:id/status", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      const { newStatus, newClass, reason } = req.body;
+      
+      if (isNaN(studentId) || !newStatus) {
+        return res.status(400).json({ message: "Invalid student ID or status" });
+      }
+      
+      const statusChange = await storage.updateStudentStatus(
+        studentId,
+        newStatus,
+        newClass,
+        reason,
+        req.user.id
+      );
+      
+      res.json(statusChange);
+    } catch (error) {
+      console.error("Error updating student status:", error);
+      res.status(500).json({ message: "Failed to update student status" });
+    }
+  });
+
+  // Get student status history
+  app.get("/api/students/:id/status-history", authMiddleware, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      if (isNaN(studentId)) {
+        return res.status(400).json({ message: "Invalid student ID" });
+      }
+
+      const history = await storage.getStudentStatusHistory(studentId);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching student status history:", error);
+      res.status(500).json({ message: "Failed to fetch status history" });
+    }
+  });
+
+  // Add student fee payment
+  app.post("/api/students/:id/payments", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      if (isNaN(studentId)) {
+        return res.status(400).json({ message: "Invalid student ID" });
+      }
+
+      const validatedData = insertStudentFeePaymentSchema.parse({
+        ...req.body,
+        studentId,
+        collectedBy: req.user.id
+      });
+
+      const payment = await storage.addStudentFeePayment(validatedData);
+      res.status(201).json(payment);
+    } catch (error) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error adding student fee payment:", error);
+      res.status(500).json({ message: "Failed to add fee payment" });
+    }
+  });
+
+  // Get student fee payments
+  app.get("/api/students/:id/payments", authMiddleware, async (req, res) => {
+    try {
+      const studentId = parseInt(req.params.id);
+      const { academicYear } = req.query;
+      
+      if (isNaN(studentId)) {
+        return res.status(400).json({ message: "Invalid student ID" });
+      }
+
+      const payments = await storage.getStudentFeePayments(studentId, academicYear as string);
+      res.json(payments);
+    } catch (error) {
+      console.error("Error fetching student payments:", error);
+      res.status(500).json({ message: "Failed to fetch payments" });
+    }
+  });
+
+  // Get fee payments summary for a school
+  app.get("/api/schools/:schoolId/payments/summary", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const { paymentMode, academicYear } = req.query;
+      
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const summary = await storage.getSchoolFeePaymentsSummary(
+        schoolId,
+        paymentMode as string,
+        academicYear as string
+      );
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching payments summary:", error);
+      res.status(500).json({ message: "Failed to fetch payments summary" });
+    }
+  });
+
+  // Utility endpoints
+  app.get("/api/class-hierarchy", (req, res) => {
+    res.json({
+      classOrder: CLASS_ORDER,
+      classList: storage.getClassList()
+    });
+  });
+
+  app.get("/api/class/:className/next", (req, res) => {
+    const nextClass = storage.getNextClass(req.params.className);
+    res.json({ nextClass });
+  });
+
+  app.get("/api/class/:className/previous", (req, res) => {
+    const previousClass = storage.getPreviousClass(req.params.className);
+    res.json({ previousClass });
+  });
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// Helper functions for Excel filename parsing
+function extractClassFromFilename(filename: string): string | null {
+  // Extract class from filenames like "XII_arts.xlsx", "Kuhi.xlsx", "I.xlsx"
+  const name = filename.toLowerCase().replace(/\.(xlsx|xls)$/, '');
+  
+  // Check for class patterns
+  const patterns = [
+    /^(ankur)$/i,
+    /^(kuhi)$/i, 
+    /^(sopan)$/i,
+    /^([ivx]+)$/i, // Roman numerals I-X
+    /^([ivx]+)_(arts?|commerce?|science?)$/i, // XI_arts, XII_science
+  ];
+  
+  for (const pattern of patterns) {
+    const match = name.match(pattern);
+    if (match) {
+      if (match[2]) {
+        // Handle stream classes like XI_arts
+        const classNum = match[1].toUpperCase();
+        const stream = match[2].toLowerCase();
+        if (stream.startsWith('art')) return `${classNum} Arts`;
+        if (stream.startsWith('comm')) return `${classNum} Commerce`;
+        if (stream.startsWith('sci')) return `${classNum} Science`;
+      } else {
+        // Handle simple classes
+        const className = match[1];
+        if (className.match(/^[ivx]+$/i)) return className.toUpperCase();
+        return className.charAt(0).toUpperCase() + className.slice(1).toLowerCase();
+      }
+    }
+  }
+  
+  return null;
+}
+
+function extractStreamFromFilename(filename: string): string | null {
+  const name = filename.toLowerCase();
+  if (name.includes('art')) return 'Arts';
+  if (name.includes('comm')) return 'Commerce';
+  if (name.includes('sci')) return 'Science';
+  return null;
 }

@@ -53,6 +53,19 @@ import {
   type InsertFeePaymentNotification,
   type FeeStructure,
   type InsertFeeStructure,
+  students,
+  studentStatusChanges,
+  studentFeePayments,
+  studentExcelUploads,
+  type Student,
+  type InsertStudent,
+  type StudentStatusChange,
+  type InsertStudentStatusChange,
+  type StudentFeePayment,
+  type InsertStudentFeePayment,
+  type StudentExcelUpload,
+  type InsertStudentExcelUpload,
+  CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gt, sql, count } from "drizzle-orm";
@@ -211,6 +224,34 @@ export interface IStorage {
     totalBooks: number;
     totalMembers: number;
   }>;
+
+  // Student Management
+  getStudents(schoolId: number, className?: string, stream?: string): Promise<Student[]>;
+  getStudentById(id: number): Promise<Student | null>;
+  addStudent(student: InsertStudent): Promise<Student>;
+  updateStudent(id: number, student: Partial<InsertStudent>): Promise<Student>;
+  deleteStudent(id: number): Promise<void>;
+  
+  // Student Status Management
+  updateStudentStatus(studentId: number, newStatus: string, newClass?: string, reason?: string, changedBy: number): Promise<StudentStatusChange>;
+  getStudentStatusHistory(studentId: number): Promise<StudentStatusChange[]>;
+  
+  // Student Fee Payments
+  addStudentFeePayment(payment: InsertStudentFeePayment): Promise<StudentFeePayment>;
+  getStudentFeePayments(studentId: number, academicYear?: string): Promise<StudentFeePayment[]>;
+  getSchoolFeePaymentsSummary(schoolId: number, paymentMode?: string, academicYear?: string): Promise<any>;
+  
+  // Excel Upload Management
+  recordExcelUpload(upload: InsertStudentExcelUpload): Promise<StudentExcelUpload>;
+  getExcelUploadHistory(schoolId: number): Promise<StudentExcelUpload[]>;
+  
+  // Fee Structure Management (missing from interface)
+  getFeeStructures(schoolId: number, academicYear?: string): Promise<FeeStructure[]>;
+  
+  // Utility methods
+  getClassList(): string[];
+  getNextClass(currentClass: string): string | null;
+  getPreviousClass(currentClass: string): string | null;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1294,6 +1335,191 @@ export class DatabaseStorage implements IStorage {
       .where(eq(feePaymentNotifications.id, notificationId));
     return (result.rowCount ?? 0) > 0;
   }
-}
+  // Student Management Implementation
+  async getStudents(schoolId: number, className?: string, stream?: string): Promise<Student[]> {
+    let query = db.select().from(students).where(eq(students.schoolId, schoolId));
+    
+    if (className) {
+      query = query.where(and(eq(students.schoolId, schoolId), eq(students.className, className)));
+    }
+    if (stream) {
+      query = query.where(and(eq(students.schoolId, schoolId), eq(students.stream, stream)));
+    }
+    
+    return query.orderBy(students.className, students.rollNumber);
+  }
+
+  async getStudentById(id: number): Promise<Student | null> {
+    const [student] = await db.select().from(students).where(eq(students.id, id));
+    return student || null;
+  }
+
+  async addStudent(student: InsertStudent): Promise<Student> {
+    const [newStudent] = await db.insert(students).values(student).returning();
+    return newStudent;
+  }
+
+  async updateStudent(id: number, student: Partial<InsertStudent>): Promise<Student> {
+    const [updatedStudent] = await db
+      .update(students)
+      .set({ ...student, updatedAt: new Date() })
+      .where(eq(students.id, id))
+      .returning();
+    return updatedStudent;
+  }
+
+  async deleteStudent(id: number): Promise<void> {
+    await db.delete(students).where(eq(students.id, id));
+  }
+
+  // Student Status Management
+  async updateStudentStatus(
+    studentId: number,
+    newStatus: string,
+    newClass?: string,
+    reason?: string,
+    changedBy: number
+  ): Promise<StudentStatusChange> {
+    const student = await this.getStudentById(studentId);
+    if (!student) throw new Error("Student not found");
+
+    // Record the status change
+    const [statusChange] = await db
+      .insert(studentStatusChanges)
+      .values({
+        studentId,
+        previousStatus: student.status,
+        newStatus,
+        previousClass: student.className,
+        newClass: newClass || student.className,
+        reason,
+        changedBy,
+      })
+      .returning();
+
+    // Update the student record
+    await db
+      .update(students)
+      .set({
+        status: newStatus,
+        className: newClass || student.className,
+        updatedAt: new Date(),
+      })
+      .where(eq(students.id, studentId));
+
+    return statusChange;
+  }
+
+  async getStudentStatusHistory(studentId: number): Promise<StudentStatusChange[]> {
+    return db
+      .select()
+      .from(studentStatusChanges)
+      .where(eq(studentStatusChanges.studentId, studentId))
+      .orderBy(desc(studentStatusChanges.changedAt));
+  }
+
+  // Student Fee Payments
+  async addStudentFeePayment(payment: InsertStudentFeePayment): Promise<StudentFeePayment> {
+    const [newPayment] = await db.insert(studentFeePayments).values(payment).returning();
+    return newPayment;
+  }
+
+  async getStudentFeePayments(
+    studentId: number,
+    academicYear?: string
+  ): Promise<StudentFeePayment[]> {
+    let query = db
+      .select()
+      .from(studentFeePayments)
+      .where(eq(studentFeePayments.studentId, studentId));
+
+    if (academicYear) {
+      query = query.where(
+        and(
+          eq(studentFeePayments.studentId, studentId),
+          eq(studentFeePayments.academicYear, academicYear)
+        )
+      );
+    }
+
+    return query.orderBy(desc(studentFeePayments.paymentDate));
+  }
+
+  async getSchoolFeePaymentsSummary(
+    schoolId: number,
+    paymentMode?: string,
+    academicYear?: string
+  ): Promise<any> {
+    let query = db
+      .select({
+        paymentMode: studentFeePayments.paymentMode,
+        totalAmount: sql`SUM(${studentFeePayments.paymentAmount})`,
+        paymentCount: sql`COUNT(*)`,
+      })
+      .from(studentFeePayments)
+      .where(eq(studentFeePayments.schoolId, schoolId))
+      .groupBy(studentFeePayments.paymentMode);
+
+    if (paymentMode) {
+      query = query.where(
+        and(
+          eq(studentFeePayments.schoolId, schoolId),
+          eq(studentFeePayments.paymentMode, paymentMode)
+        )
+      );
+    }
+
+    if (academicYear) {
+      query = query.where(
+        and(
+          eq(studentFeePayments.schoolId, schoolId),
+          eq(studentFeePayments.academicYear, academicYear)
+        )
+      );
+    }
+
+    return query;
+  }
+
+  // Excel Upload Management
+  async recordExcelUpload(upload: InsertStudentExcelUpload): Promise<StudentExcelUpload> {
+    const [newUpload] = await db.insert(studentExcelUploads).values(upload).returning();
+    return newUpload;
+  }
+
+  async getExcelUploadHistory(schoolId: number): Promise<StudentExcelUpload[]> {
+    return db
+      .select()
+      .from(studentExcelUploads)
+      .where(eq(studentExcelUploads.schoolId, schoolId))
+      .orderBy(desc(studentExcelUploads.uploadedAt));
+  }
+
+  // Utility methods for class management
+  getClassList(): string[] {
+    return Object.keys(CLASS_ORDER).sort((a, b) => CLASS_ORDER[a as keyof typeof CLASS_ORDER] - CLASS_ORDER[b as keyof typeof CLASS_ORDER]);
+  }
+
+  getNextClass(currentClass: string): string | null {
+    const currentOrder = CLASS_ORDER[currentClass as keyof typeof CLASS_ORDER];
+    if (!currentOrder) return null;
+
+    const classList = this.getClassList();
+    const currentIndex = classList.indexOf(currentClass);
+    if (currentIndex === -1 || currentIndex === classList.length - 1) return null;
+
+    return classList[currentIndex + 1];
+  }
+
+  getPreviousClass(currentClass: string): string | null {
+    const currentOrder = CLASS_ORDER[currentClass as keyof typeof CLASS_ORDER];
+    if (!currentOrder) return null;
+
+    const classList = this.getClassList();
+    const currentIndex = classList.indexOf(currentClass);
+    if (currentIndex <= 0) return null;
+
+    return classList[currentIndex - 1];
+  }}
 
 export const storage = new DatabaseStorage();

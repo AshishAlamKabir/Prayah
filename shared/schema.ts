@@ -768,6 +768,161 @@ export const schoolsRelations = relations(schools, ({ many }) => ({
 
 
 
+// Students table for school management
+export const students = pgTable("students", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schools.id, { onDelete: 'cascade' }),
+  name: text("name").notNull(),
+  rollNumber: text("roll_number").notNull(),
+  className: text("class_name").notNull(), // Using the class hierarchy from prompt
+  stream: text("stream"), // For XI/XII classes: Arts, Commerce, Science
+  admissionDate: timestamp("admission_date").notNull(),
+  status: text("status").notNull().default("active"), // active, promoted, demoted, dropped_out
+  parentName: text("parent_name"),
+  contactNumber: text("contact_number"),
+  address: text("address"),
+  dateOfBirth: timestamp("date_of_birth"),
+  gender: text("gender"), // male, female, other
+  previousSchool: text("previous_school"),
+  remarks: text("remarks"),
+  createdBy: integer("created_by").notNull().references(() => users.id), // Admin who added the student
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    schoolIdx: index('students_school_idx').on(table.schoolId),
+    classIdx: index('students_class_idx').on(table.className),
+    statusIdx: index('students_status_idx').on(table.status),
+    rollIdx: index('students_roll_idx').on(table.rollNumber),
+    schoolRollIdx: uniqueIndex('students_school_roll_idx').on(table.schoolId, table.rollNumber),
+  };
+});
+
+// Student status changes table for tracking promotions/demotions
+export const studentStatusChanges = pgTable("student_status_changes", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").notNull().references(() => students.id, { onDelete: 'cascade' }),
+  previousStatus: text("previous_status").notNull(),
+  newStatus: text("new_status").notNull(),
+  previousClass: text("previous_class"),
+  newClass: text("new_class"),
+  reason: text("reason"),
+  remarks: text("remarks"),
+  changedBy: integer("changed_by").notNull().references(() => users.id), // Admin who made the change
+  changedAt: timestamp("changed_at").defaultNow(),
+}, (table) => {
+  return {
+    studentIdx: index('status_changes_student_idx').on(table.studentId),
+    changedAtIdx: index('status_changes_date_idx').on(table.changedAt),
+  };
+});
+
+// Student fee payments table (separate from school fee payments)
+export const studentFeePayments = pgTable("student_fee_payments", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id").notNull().references(() => students.id, { onDelete: 'cascade' }),
+  schoolId: integer("school_id").notNull().references(() => schools.id, { onDelete: 'cascade' }),
+  paymentAmount: decimal("payment_amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMode: text("payment_mode").notNull(), // cash, website, upi
+  paymentDate: timestamp("payment_date").notNull(),
+  feeType: text("fee_type").notNull(), // monthly, annual, admission, examination, etc.
+  academicYear: text("academic_year").default("2025-26"),
+  month: text("month"), // For monthly fees
+  receiptNumber: text("receipt_number"),
+  remarks: text("remarks"),
+  paymentReference: text("payment_reference"), // For UPI/online payments
+  collectedBy: integer("collected_by").notNull().references(() => users.id), // Admin who recorded the payment
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    studentIdx: index('student_payments_student_idx').on(table.studentId),
+    schoolIdx: index('student_payments_school_idx').on(table.schoolId),
+    paymentDateIdx: index('student_payments_date_idx').on(table.paymentDate),
+    paymentModeIdx: index('student_payments_mode_idx').on(table.paymentMode),
+    academicYearIdx: index('student_payments_year_idx').on(table.academicYear),
+  };
+});
+
+// Excel upload history table for tracking imports
+export const studentExcelUploads = pgTable("student_excel_uploads", {
+  id: serial("id").primaryKey(),
+  schoolId: integer("school_id").notNull().references(() => schools.id, { onDelete: 'cascade' }),
+  fileName: text("file_name").notNull(),
+  extractedClass: text("extracted_class"), // Extracted from filename
+  extractedStream: text("extracted_stream"), // Extracted from filename
+  totalRows: integer("total_rows").default(0),
+  successfulImports: integer("successful_imports").default(0),
+  failedImports: integer("failed_imports").default(0),
+  errors: jsonb("errors").default([]), // Array of error messages
+  uploadedBy: integer("uploaded_by").notNull().references(() => users.id),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+}, (table) => {
+  return {
+    schoolIdx: index('excel_uploads_school_idx').on(table.schoolId),
+    uploadDateIdx: index('excel_uploads_date_idx').on(table.uploadedAt),
+  };
+});
+
+// Insert schemas for new tables
+export const insertStudentSchema = createInsertSchema(students).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStudentStatusChangeSchema = createInsertSchema(studentStatusChanges).omit({
+  id: true,
+  changedAt: true,
+});
+
+export const insertStudentFeePaymentSchema = createInsertSchema(studentFeePayments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStudentExcelUploadSchema = createInsertSchema(studentExcelUploads).omit({
+  id: true,
+  uploadedAt: true,
+});
+
+// Types for new tables
+export type Student = typeof students.$inferSelect;
+export type InsertStudent = z.infer<typeof insertStudentSchema>;
+
+export type StudentStatusChange = typeof studentStatusChanges.$inferSelect;
+export type InsertStudentStatusChange = z.infer<typeof insertStudentStatusChangeSchema>;
+
+export type StudentFeePayment = typeof studentFeePayments.$inferSelect;
+export type InsertStudentFeePayment = z.infer<typeof insertStudentFeePaymentSchema>;
+
+export type StudentExcelUpload = typeof studentExcelUploads.$inferSelect;
+export type InsertStudentExcelUpload = z.infer<typeof insertStudentExcelUploadSchema>;
+
+// Class hierarchy order for promotions (as specified in prompt)
+export const CLASS_ORDER = {
+  "Ankur": 1,
+  "Kuhi": 2,
+  "Sopan": 3,
+  "I": 4,
+  "II": 5,
+  "III": 6,
+  "IV": 7,
+  "V": 8,
+  "VI": 9,
+  "VII": 10,
+  "VIII": 11,
+  "IX": 12,
+  "X": 13,
+  "XI Arts": 14,
+  "XI Commerce": 15,
+  "XI Science": 16,
+  "XII Arts": 17,
+  "XII Commerce": 18,
+  "XII Science": 19
+} as const;
+
 // Stats type
 export interface Stats {
   totalSchools: number;
@@ -775,3 +930,26 @@ export interface Stats {
   totalBooks: number;
   totalMembers: number;
 }
+// Add student-related relations
+export const studentsRelations = relations(students, ({ one, many }) => ({
+  school: one(schools, { fields: [students.schoolId], references: [schools.id] }),
+  creator: one(users, { fields: [students.createdBy], references: [users.id] }),
+  statusChanges: many(studentStatusChanges),
+  feePayments: many(studentFeePayments),
+}));
+
+export const studentStatusChangesRelations = relations(studentStatusChanges, ({ one }) => ({
+  student: one(students, { fields: [studentStatusChanges.studentId], references: [students.id] }),
+  changedByUser: one(users, { fields: [studentStatusChanges.changedBy], references: [users.id] }),
+}));
+
+export const studentFeePaymentsRelations = relations(studentFeePayments, ({ one }) => ({
+  student: one(students, { fields: [studentFeePayments.studentId], references: [students.id] }),
+  school: one(schools, { fields: [studentFeePayments.schoolId], references: [schools.id] }),
+  collector: one(users, { fields: [studentFeePayments.collectedBy], references: [users.id] }),
+}));
+
+export const studentExcelUploadsRelations = relations(studentExcelUploads, ({ one }) => ({
+  school: one(schools, { fields: [studentExcelUploads.schoolId], references: [schools.id] }),
+  uploader: one(users, { fields: [studentExcelUploads.uploadedBy], references: [users.id] }),
+}));

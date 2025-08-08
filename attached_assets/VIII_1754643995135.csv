@@ -1,0 +1,42 @@
+admission_no,roll_no,first_name,middlename,last_name,gender,date_of_birth,category,religion,caste,mobile_no,email,admission_date,blood_group,student_house,height,weight,measurement_date,father_name,father_phone,father_occupation,mother_name,mother_phone,mother_occupation,guardian_is,guardian_name,guardian_relation,guardian_email,guardian_phone,guardian_occupation,guardian_address,current_address,permanent_address,bank_account_no,bank_name,ifsc_code,national_identification_no,local_identification_no,rte,previous_school,note,Addhar No
+,1,Nayan ,,Bora,Male, ,,Hindu,Genaral,7035525307,,,O+,,,,,Basanta Bora,,,Rijumoni Bora,,,,,,,,,,"jugania Ati, Bokakhat","Juganiya Ati, Bokakhat, ",,,,,,,,,9.15255E+11
+,2,Bhaskar ,Jyoti ,bori,Male,14/7/2011,,Hindu,ST p,6000768025,,,O +,,,,,Dipen Bori ,,,Junali Bori,,,,,,,,,,,"1 no Bohikhuwa, Bokakhat",,,,,,,,,8.4576E+11
+,3,Bishal,,Munda,Male,14/04/2011,,Hindu,OBC,6001237113,,,,,,,,Binud Munda ,,,Mampi Munda,,,,,,,,,,,"Sapjuri , Borjuri, bokakhat",,,,,,,,,2.54668E+11
+,4,Dipankar ,,Gogoi ,Male,27/8/2010,,Hindu,OBC,8822410180,,,A+,,,,,Robin Gogoi ,,,Moni Gogoi ,,,,,,,,,,,"Sapjuri Bongali Gaon , Borjuri, bokakhat",,,,,,,,,5.13059E+11
+,5,Bikash ,,Kutum ,Male,25/05/2012,,Hindu,ST p,9395733674,,,AB+,,,,,Bitupan Kutum ,,,Jaymala Kutum,,,,,,,,,,,"2 No Balijan, Bokakhat",,,,,,,,,2.1892E+11
+,6,Nirmal,,Dutta,Male,26/02/2012,,Hindu,Genaral,9101329117,,,O+,,,,,Monuj Dutta,,,Ranjana Dutta,,,,,,,,,,,"Koroiati, Bokakhat",,,,,,,,,2.13488E+11
+,7,Parash ,Jyoti ,Bora,Male,17/10/2012,,Hindu,Genaral,6002165670,,,O+,,,,,Dipak Bora,,,Chandraprabha Bora,,,,,,,,,,,"Chapahi Gaon, Amtenga, Bokakhat",,,,,,,,,8.60485E+11
+,8,Swastik,Swagot ,Saikia,Male,20/11/2011,,Hindu,Genaral,6001743477,,,,,,,,Diganta Saikia,,,Jita Saikia,,,,,,,,,,,"Koroiati, Bokakhat",,,,,,,,,4.13301E+11
+,9,Kousik ,,Loying ,Male,3/11/2011,,Hindu,ST p,7896163342,,,,,,,,Ratneswar Loying  ,,,Rebika Loying,,,,,,,,,,Bokakhat ward 1,"Bonkuwal, Mohura",,,,,,,,,4.45354E+11
+,10,Priyakhi ,,Bora,Female,21/01/2012,,Hindu,Genaral,8812096968,,,B +,,,,,Mohendra Bora,,,Nitumoni Dutta,,,,,,,,,,,"Koilakhat, Amtenga, Bokakhat",,,,,,,,,3.89858E+11
+,11,Munmi ,,Doley,Female,20/09/2011,,Hindu,ST p,9864657922,,,,,,,,Dharmeswar Doley,,,Pinky Doley,,,,,,,,,,,Bohikhuwa Bokakaht,,,,,,,,,2.37552E+11
+,12,Asin ,,Mimang,Female,27/07/2012,,Hindu,ST p,9101674913,,,,,,,,XXXXXXXXXXX,,,Monjumala Charo,,,,,,,,,,,"Udoi Nagar, Bokakaht",,,,,,,,,4.891E+11
+,13,Achur,Jyoti ,Doley,Male,22/24/2012,,Hindu,ST p,8136052278,,,,,,,,Padmeswar Doley,,,Lakhyana Doley,,,,,,,,,,,"Rangagora, Dukhutimukh",,,,,,,,,2.32475E+11
+,14,Dipanki ,,Bora,Female,7/8/2012,,Hindu,Genaral,9954953017,,,AB+,,,,,Dhaniram Bora,,,Runu Bora,,,,,,,,,,,"Milonpur, Bokakaht",,,,,,,,,8.0995E+11
+,15,Nayan ,Jyoti ,Talukdar,Male,29/10/2011,,Hindu,Genaral,9864669661,,,A+,,,,,Bedabrad Talukdar,,,Dipka Talukdar,,,,,,,,,,,"Koilakhat, Bokakhat",,,,,,,,,5.88248E+11
+,16,Abbas ,,Mili,Male,4/11/2011,,Hindu,ST p,9365940727,,,AB+,,,,,Diganta Mili,,,Anjana Mili,,,,,,,,,,Bokakhat ward 1,"Kuhin Pothar, Bilgaon, Golaghat",,,,,,,,,2.22673E+11
+,17,Dikhita ,,Bora,Female,18/04/2012,,Hindu,Genaral,8472989141,,,O+,,,,,Pranjal Bora,,,Moromi Bora,,,,,,,,,,,"Koroiati, Bokakhat",,,,,,,,,3.66357E+11
+,18,Akash,Pritom ,Doley,Male,26/01/2012,,Hindu,ST p,8453419471,,,,,,,,Bhumiram Doley,,,Rijumoni Doley,,,,,,,,,,Bokakhat ward 1,"Tikirai Chapori, Dukhutimukh",,,,,,,,,4.97516E+11
+,19,Polakhi ,,Bora,Female,17/02/2012,,Hindu,Genaral,9864739282,,,A+,,,,,Diganta Bora,,,Rijumoni Bora,,,,,,,,,,,"Koroiati, Bokakhat",,,,,,,,,7.25538E+11
+,20,Abhinab,Richang ,Kutum ,Male,16/09/2012,,Hindu,ST p,7002215189,,,A+,,,,,KankanDip Kutum ,,,Minumai Kutum,,,,,,,,,,,"2 no Bohikhuwa, Bokakhat",,,,,,,,,9.16064E+11
+,21,Pori ,,Nath,Female,7/6/2010,,Hindu,OBC,6000766077,,,,,,,,Lt. Gobin Nath,,,Rijumoni Nath,,,,,,,,,,,"Nath Gaon, Naharjan, Bokakhat",,,,,,,,,9.40461E+11
+,22,Hani ,,Loying ,Male,16/11/2011,,Hindu,ST p,9101172336,,,,,,,,Binud Loying ,,,Runali Loying,,,,,,,,,,,"Panbari Missing Gaon, Bokakhat",,,,,,,,,8.77209E+11
+,23,Ananya ,,Bora,Female,13/6/2011,,Hindu,Genaral,7638034601,,,B+,,,,,Gobin Bora,,,Bornali Bora,,,,,,,,,,,"Koilakhat, Bokakhat",,,,,,,,,7.57988E+11
+,24,Abhilash ,,Bora,Male,22/04/2012,,Hindu,Genaral,8822057706,,,,,,,,Latu Bora ,,,Sima Bora,,,,,,,,,,,"Koroiati, Bokakhat",,,,,,,,,3.62137E+11
+,25,Basab ,,Hazarika,Male,17/10/2010,,Hindu,Genaral,9957706551,,,O+,,,,,Lt. Monuj Hazarika,,,Buli Hazarika,,,,,,,,,,,"1 No Ward, Bokakhat",,,,,,,,,4.49291E+11
+,26,Ridip ,,Urang,Male,2/5/2010,,Hindu,OBC,8822465205,,,,,,,,Madan Urang ,,,Kusum Urang,,,,,,,,,,,"Kandhulimari, Bokakaht",,,,,,,,,7.72722E+11
+,27,Pinki ,,Urang,Female,9/10/2011,,Hindu,OBC,9957046532,,,O+,,,,,Kartik Urang ,,,Dipali Urang,,,,,,,,,,,"Kandhulimari, Bokakaht",,,,,,,,,5.00658E+11
+,28,Sourav ,,Kalita,Male,5/11/2011,,Hindu,Genaral,9132289523,,,,,,,,Simanta Kalita,,,Porishmita Kalita,,,,,,,,,,,"Mohmaiki, Mandal Gaon Bokakhat",,,,,,,,,7.26005E+11
+,29,Nibir ,Ranjan ,Boruah,Male,7/8/2011,,Hindu,Genaral,6001277206,,,B+,,,,,Ratul Boruah ,,,Junali Boruah,,,,,,,,,,,"Garmurh, Bokakhat",,,,,,,,,9.32579E+11
+,30,Nabanita ,,Kardong ,Female,5/10/2011,,Hindu,ST p,9101566438,,,,,,,,Prafulla Kardong ,,,Dorshona Kardong,,,,,,,,,,,"Udoi Nagar, Bokakaht",,,,,,,,,9.53349E+11
+,31,Dusmanta,,Bora,Male,21/07/2010,,Hindu,Genaral,8822970288,,,,,,,,Prasanta Bora,,,Gitanjali Bora,,,,,,,,,,,"Koilakhat, Bokakhat",,,,,,,,,
+,32,Swagat ,Sundar ,Mahanta,Male,11/1/2011,,Hindu,Genaral,9954454083,,,O+,,,,,Utpal Mahanta,,,Momota Mahanata,,,,,,,,,,,"Milonpur, Bokakaht",,,,,,,,,8.25221E+11
+,33,Bidisha ,,Kalita,Female,23/09/2012,,Hindu,Genaral,8132067787,,,B+,,,,,Raju Kalita,,,Smritirekha Kalita,,,,,,,,,,,"Seujipar, Bokakhat",,,,,,,,,8.95439E+11
+,34,Bishal,,Thakur,Male,24/04/2012,,Hindu,Genaral,9707274608,,,A+,,,,,Sudhar Thakur ,,,Sangita Thakur,,,,,,,,,,,"2 no Waed, Bokakhat",,,,,,,,,2.34234E+11
+,35,Madhurjya,,Charo,Male,4/3/2012,,Hindu,ST p,9707167308,,,,,,,,Anil Charo ,,,Nayanmoni Charo,,,,,,,,,,,"2 no Bohikhuwa, Bokakhat",,,,,,,,,
+,36,Rumi ,,Mura,Female,23/12/2011,,Hindu,OBC,7086773538,,,,,,,,Dijen Mura,,,Mainu Mura,,,,,,,,,,,"Silbheta, Kakajan , Bokakhat",,,,,,,,,
+,37,Lucky,,Das,Female,28/08/2012,,Hindu,SC,7086594321,,,,,,,,Arup Das ,,,Junti Das,,,,,,,,,,,"Borjuri, Bokakhat",,,,,,,,,6.18499E+11
+,38,Anjelina ,Oiseng ,Kutum ,Female,9/12/2012,,Hindu,ST p,9101679878,,,,,,,,Prabhu Kutuim,,,Pinki Kutum,,,,,,,,,,,"2 no Bohikhuwa, Bokakhat",,,,,,,,,9.25557E+11
+,39,Chayanika ,,Charo,Female,22/07/2011,,Hindu,ST p,9101309688,,,B+ ,,,,,Pranabjyoti Charo,,,Bidyamoti Charo,,,,,,,,,,,"2 no Bohikhuwa, Bokakhat",,,,,,,,,6.11235E+11
+,40,Lucky,,Bora,Female,8/10/2011,,Hindu,Genaral,8011573365,,,A+,,,,,Thaneswar Bora,,,Torulata Bora,,,,,,,,,,,"Chapori Gaon, Bokakhat",,,,,,,,,4.00273E+11
+,41,Gangika,,Bora,Female,18/03/2012,,Hindu,Genaral,8822823710,,,A+,,,,,Gokul Bora,,,Anjumoni Bora,,,,,,,,,,,"Koroiati, Bokakhat",,,,,,,,,3.01651E+11
