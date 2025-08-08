@@ -295,6 +295,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get fee structures for a school
+  app.get("/api/schools/:schoolId/fee-structures", async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const academicYear = req.query.academicYear as string;
+      const feeStructures = await storage.getFeeStructures(schoolId, academicYear);
+      
+      res.json(feeStructures);
+    } catch (error) {
+      console.error("Error fetching fee structures:", error);
+      res.status(500).json({ message: "Failed to fetch fee structures" });
+    }
+  });
+
   // School payment settings endpoint (super admin only)
   app.put("/api/admin/schools/:id/payment-settings", authMiddleware, adminMiddleware, async (req, res) => {
     try {
