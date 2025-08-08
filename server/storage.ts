@@ -557,10 +557,16 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
-  // Book stock operations (temporarily disabled until schema is updated)
+  // Book stock operations
   async getBookStock(): Promise<any[]> {
-    // TODO: Enable after database migration
-    return [];
+    const booksWithStock = await db.select().from(books);
+    return booksWithStock.map(book => ({
+      bookId: book.id,
+      quantity: book.stock || 0,
+      reserved: 0,
+      available: book.stock || 0,
+      book: book
+    }));
   }
 
   async getBookAnalytics(): Promise<{
@@ -651,9 +657,16 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount ?? 0) > 0;
   }
 
-  async updateBookStock(bookId: number, quantity: number, updatedBy: number): Promise<any> {
-    // Stock functionality temporarily disabled
-    return null;
+  async updateBookStock(bookId: number, quantity: number): Promise<Book | undefined> {
+    const [book] = await db
+      .update(books)
+      .set({ 
+        stock: quantity,
+        updatedAt: new Date()
+      })
+      .where(eq(books.id, bookId))
+      .returning();
+    return book || undefined;
   }
 
   // Cart operations

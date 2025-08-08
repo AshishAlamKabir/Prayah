@@ -330,6 +330,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stock management endpoints
+  app.get("/api/admin/book-stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const books = await storage.getBooks();
+      const bookStock = books.map(book => ({
+        bookId: book.id,
+        quantity: book.stock || 0,
+        reserved: 0, // Can be extended later for reserved stock
+        available: book.stock || 0,
+        book: book
+      }));
+      
+      res.json(bookStock);
+    } catch (error) {
+      console.error("Error fetching book stock:", error);
+      res.status(500).json({ message: "Failed to fetch book stock" });
+    }
+  });
+
+  app.patch("/api/admin/books/:id/stock", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookId = parseInt(req.params.id);
+      const { quantity } = req.body;
+      
+      if (isNaN(bookId) || quantity < 0) {
+        return res.status(400).json({ message: "Invalid book ID or quantity" });
+      }
+
+      const updatedBook = await storage.updateBookStock(bookId, quantity);
+      if (!updatedBook) {
+        return res.status(404).json({ message: "Book not found" });
+      }
+
+      res.json({ message: "Stock updated successfully", book: updatedBook });
+    } catch (error) {
+      console.error("Error updating book stock:", error);
+      res.status(500).json({ message: "Failed to update stock" });
+    }
+  });
+
   // Register other route modules
   app.use('/api/role-admin', roleAdminRoutes);
   registerAdminNotificationRoutes(app);
