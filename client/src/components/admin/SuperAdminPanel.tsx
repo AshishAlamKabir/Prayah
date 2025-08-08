@@ -10,10 +10,12 @@ import {
   Activity, 
   BarChart3,
   Shield,
-  Database
+  Database,
+  GraduationCap
 } from "lucide-react";
 import SchoolAdminPanel from "./SchoolAdminPanel";
 import CultureAdminPanel from "./CultureAdminPanel";
+import StudentManagementPanel from "./StudentManagementPanel";
 
 interface SuperAdminPanelProps {
   schools: any[];
@@ -35,8 +37,9 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="students">Students</TabsTrigger>
           <TabsTrigger value="schools">Schools</TabsTrigger>
           <TabsTrigger value="culture">Culture</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
@@ -151,6 +154,10 @@ export default function SuperAdminPanel({ schools, cultureCategories }: SuperAdm
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="students" className="space-y-6">
+          <StudentManagementPanel schools={schools || []} />
         </TabsContent>
 
         <TabsContent value="schools" className="space-y-6">
