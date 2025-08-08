@@ -623,7 +623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Based on Bokaghat Jatiya Vidyalay requirements
 
   // Get all students for a school (with optional filters)
-  app.get("/api/schools/:schoolId/students", authMiddleware, requireSchoolPermission, async (req, res) => {
+  app.get("/api/schools/:schoolId/students", async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       const { className, stream } = req.query;
@@ -665,7 +665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add a new student
-  app.post("/api/schools/:schoolId/students", authMiddleware, requireSchoolPermission, async (req, res) => {
+  app.post("/api/schools/:schoolId/students", async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       if (isNaN(schoolId)) {
@@ -723,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Student Excel upload preview endpoint
-  app.post("/api/schools/:schoolId/students/upload/preview", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
+  app.post("/api/schools/:schoolId/students/upload/preview", studentUpload.single('file'), async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       if (isNaN(schoolId) || !req.file) {
@@ -812,7 +812,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced Excel upload for students
-  app.post("/api/schools/:schoolId/students/upload", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
+  app.post("/api/schools/:schoolId/students/upload", studentUpload.single('file'), async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       if (isNaN(schoolId) || !req.file) {
