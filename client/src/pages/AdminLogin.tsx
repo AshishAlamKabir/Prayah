@@ -4,48 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { Shield, Eye, EyeOff } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { useLogin } from "@/hooks/useAuth";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "Prayasadmin",
     password: "Prayas2025!"
   });
-  const { toast } = useToast();
+  const loginMutation = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const response = await apiRequest("POST", "/api/auth/login", formData);
-      const data = await response.json();
-
-      if (data.token) {
-        localStorage.setItem("auth_token", data.token);
-        localStorage.setItem("user", data.user);
-        
-        toast({
-          title: "Login Successful",
-          description: "Welcome to the admin dashboard!",
-        });
-        
+    
+    loginMutation.mutate(formData, {
+      onSuccess: () => {
         setLocation("/admin-dashboard");
       }
-    } catch (error: any) {
-      toast({
-        title: "Login Failed",
-        description: error.message || "Invalid credentials",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,9 +89,9 @@ export default function AdminLogin() {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={isLoading}
+              disabled={loginMutation.isPending}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {loginMutation.isPending ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 

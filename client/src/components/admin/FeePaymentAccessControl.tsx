@@ -1,77 +1,28 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Settings, Shield, CreditCard, Bell, Users, AlertTriangle } from "lucide-react";
+import { useSchools, useUpdatePaymentSettings } from "@/hooks/useSchools";
+import { usePaymentNotifications, usePaymentStats } from "@/hooks/usePayments";
+import { School } from "@/services/schoolService";
 
-interface School {
-  id: number;
-  name: string;
-  location: string;
-  feePaymentEnabled: boolean;
-  paymentMethods: string[];
-  adminApprovalRequired: boolean;
-  paymentConfig: any;
-}
-
-interface PaymentNotification {
-  id: number;
-  schoolId: number;
-  schoolName: string;
-  amount: number;
-  studentName: string;
-  paymentMethod: string;
-  status: string;
-  createdAt: string;
-}
 
 export default function FeePaymentAccessControl() {
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
-  const { toast } = useToast();
 
-  // Fetch all schools
-  const { data: schools = [], isLoading: schoolsLoading } = useQuery<School[]>({
-    queryKey: ["/api/schools"],
-  });
+  // Use custom hooks for data and business logic
+  const { data: schools = [], isLoading: schoolsLoading } = useSchools();
+  const { data: paymentNotifications = [] } = usePaymentNotifications();
+  const { data: stats } = usePaymentStats(schools);
+  const updatePaymentSettingsMutation = useUpdatePaymentSettings();
 
-  // Fetch payment notifications
-  const { data: paymentNotifications = [] } = useQuery<PaymentNotification[]>({
-    queryKey: ["/api/admin/payment-notifications"],
-  });
-
-  // Update school payment settings mutation
-  const updatePaymentSettingsMutation = useMutation({
-    mutationFn: async ({ schoolId, settings }: { schoolId: number; settings: any }) => {
-      return await apiRequest("PUT", `/api/admin/schools/${schoolId}/payment-settings`, settings);
-    },
-    onSuccess: () => {
-      // Force refresh of schools data
-      queryClient.invalidateQueries({ queryKey: ["/api/schools"] });
-      queryClient.refetchQueries({ queryKey: ["/api/schools"] });
-      toast({
-        title: "Settings Updated",
-        description: "Fee payment settings have been updated successfully.",
-      });
-      setIsConfigDialogOpen(false);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update payment settings. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const toggleFeePaymentAccess = async (schoolId: number, enabled: boolean) => {
+  const toggleFeePaymentAccess = (schoolId: number, enabled: boolean) => {
     updatePaymentSettingsMutation.mutate({
       schoolId,
       settings: { feePaymentEnabled: enabled }
@@ -94,21 +45,27 @@ export default function FeePaymentAccessControl() {
         adminApprovalRequired: selectedSchool.adminApprovalRequired,
         paymentConfig: selectedSchool.paymentConfig
       }
+    }, {
+      onSuccess: () => {
+        setIsConfigDialogOpen(false);
+      }
     });
   };
 
-  // Calculate stats
-  const stats = {
-    totalSchools: schools.length,
-    enabledSchools: schools.filter(s => s.feePaymentEnabled).length,
-    pendingNotifications: paymentNotifications.filter(n => n.status === 'pending').length,
+  // Default stats for loading/error states
+  const defaultStats = {
+    totalSchools: schools.length || 0,
+    enabledSchools: schools.filter(s => s.feePaymentEnabled).length || 0,
+    pendingNotifications: paymentNotifications.filter(n => n.status === 'pending').length || 0,
     recentPayments: paymentNotifications.filter(n => {
       const notifDate = new Date(n.createdAt);
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       return notifDate > weekAgo;
-    }).length
+    }).length || 0
   };
+
+  const displayStats = stats || defaultStats;
 
   if (schoolsLoading) {
     return (
@@ -146,7 +103,7 @@ export default function FeePaymentAccessControl() {
               <Users className="w-4 h-4 text-blue-600" />
               <div>
                 <p className="text-sm font-medium text-gray-500">Total Schools</p>
-                <p className="text-2xl font-bold">{stats.totalSchools}</p>
+                <p className="text-2xl font-bold">{displayStats.totalSchools}</p>
               </div>
             </div>
           </CardContent>
@@ -158,7 +115,7 @@ export default function FeePaymentAccessControl() {
               <CreditCard className="w-4 h-4 text-green-600" />
               <div>
                 <p className="text-sm font-medium text-gray-500">Payment Enabled</p>
-                <p className="text-2xl font-bold">{stats.enabledSchools}</p>
+                <p className="text-2xl font-bold">{displayStats.enabledSchools}</p>
               </div>
             </div>
           </CardContent>
@@ -170,7 +127,7 @@ export default function FeePaymentAccessControl() {
               <Bell className="w-4 h-4 text-orange-600" />
               <div>
                 <p className="text-sm font-medium text-gray-500">Pending Notifications</p>
-                <p className="text-2xl font-bold">{stats.pendingNotifications}</p>
+                <p className="text-2xl font-bold">{displayStats.pendingNotifications}</p>
               </div>
             </div>
           </CardContent>
@@ -182,7 +139,7 @@ export default function FeePaymentAccessControl() {
               <AlertTriangle className="w-4 h-4 text-purple-600" />
               <div>
                 <p className="text-sm font-medium text-gray-500">Recent Payments</p>
-                <p className="text-2xl font-bold">{stats.recentPayments}</p>
+                <p className="text-2xl font-bold">{displayStats.recentPayments}</p>
               </div>
             </div>
           </CardContent>
