@@ -1337,16 +1337,19 @@ export class DatabaseStorage implements IStorage {
   }
   // Student Management Implementation
   async getStudents(schoolId: number, className?: string, stream?: string): Promise<Student[]> {
-    let query = db.select().from(students).where(eq(students.schoolId, schoolId));
+    const conditions = [eq(students.schoolId, schoolId)];
     
     if (className) {
-      query = query.where(and(eq(students.schoolId, schoolId), eq(students.className, className)));
+      conditions.push(eq(students.className, className));
     }
     if (stream) {
-      query = query.where(and(eq(students.schoolId, schoolId), eq(students.stream, stream)));
+      conditions.push(eq(students.stream, stream));
     }
     
-    return query.orderBy(students.className, students.rollNumber);
+    return db.select()
+      .from(students)
+      .where(and(...conditions))
+      .orderBy(students.className, students.rollNumber);
   }
 
   async getStudentById(id: number): Promise<Student | null> {
