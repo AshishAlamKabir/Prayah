@@ -20,6 +20,10 @@ interface Book {
   stock: number;
   imageUrl?: string;
   rating?: number;
+  category: string;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function BooksStore() {
