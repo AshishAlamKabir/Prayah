@@ -866,7 +866,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               createdBy: req.user.id
             });
 
-            await storage.createStudent(validatedData);
+            await storage.addStudent(validatedData);
             successfulImports++;
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
