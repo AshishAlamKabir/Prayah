@@ -1,0 +1,45 @@
+admission_no,roll_no,first_name,middlename,last_name,gender,date_of_birth,category,religion,caste,mobile_no,email,admission_date,blood_group,student_house,height,weight,measurement_date,father_name,father_phone,father_occupation,mother_name,mother_phone,mother_occupation,guardian_is,guardian_name,guardian_relation,guardian_email,guardian_phone,guardian_occupation,guardian_address,current_address,permanent_address,bank_account_no,bank_name,ifsc_code,national_identification_no,local_identification_no,rte,previous_school,note,Addhar No
+,1,Nishigandha ,Niribili ,Gogoi ,Female,24/12/2023,,Hindu ,OBC,9954452010,,2024,O+,,,,,Chandan Gogoi ,,,,Dipika Gogoi ,,,,,,,,,,"Rajabari, Bokakhat ",,,,,,,,,9.36E+11
+,2,Manas,Protim ,Doley ,Male,5/6/2014,,Hindu ,ST p,6000744577,,2018,,,,,,Dharmindar Doley ,,,,Munmi Loying Doley ,,,,,,,,,,"Ward 1, Manaspur Bokakht",,,,,,,,,8.23E+11
+,3,Kartik ,,Baiga,Male,22/10/2012,,Hindu ,OBC,9678317748,,2024,,,,,,Mulom Baiga,,,,Basdnti Baiga,,,,,,,,,,"2 No Ward, Bokakhat",,,,,,,,,8.05E+11
+,4,Uddipona ,,Loying ,Female,7/9/2013,,Hindu ,ST p,8822382369,,2019,O+,,,,,Rana Loying,,,,Anurekha Loying ,,,,,,,,,,"Udoi Nagar, Bokakhat",,,,,,,,,9.58E+12
+,5,Shardha,,Bordoloi,Female,18/10/2012,,Hindu ,Genaral ,8876580913,,2019,,,,,,Porag Bordoloi ,,,,Pinkimoni Bordoloi,,,,,,,,,,"Jyotipur , Bokakhat",,,,,,,,,9.86E+12
+,6,Rimpi ,,Bharali,Female,14/5/2014,,Hindu ,SC,7002995321,,2019,,,,,,Motilal Bharali ,,,,Junmoni Bharali ,,,,,,,,,,Panbari Adarsha Gaon ,,,,,,,,,2.35E+11
+,7,Jugantor ,,Saikia,Male,10/10/2013,,Hindu ,OBC,6002962797,,2017,,,,,,DigantaSaikia,,,,Junmoni Saikia,,,,,,,,,,Japori Pothar,,,,,,,,,9.91E+11
+,8,Yangana ,,Das,Female,xxx,,xxxxx,xxxx,xxxxx,,xxxxx,,,,,,xxxxx,,,,xxxxxx,,,,,,,,,,xxxxxx,,,,,,,,,1.00E+05
+,9,Mugdha ,,Hazarika,Female,9/8/2013,,Hindu ,OBC,9085669254,,2018,,,,,,Diganta Hazarika ,,,,Sumi Hazarika,,,,,,,,,,Sapjuri Bangali Gaon ,,,,,,,,,9.62E+11
+,10,Jiyana,,Borah ,Female,29/12/2013,,Hindu ,OBC,6001326702,,2020,,,,,,Torun Ch Borah ,,,,Mamoni Konwar Bora ,,,,,,,,,,"Jugalati, Bokakhat ",,,,,,,,,3.96E+11
+,11,Ranbeer ,,Kumar ,Male, ,,Hindu ,OBC,9954026118,,,B+,,,,,Pranab Kumar Pandit ,,,,Rina Pandit,,,,,,,,,,Bokakhat ,,,,,,,,,0.00E+00
+,12,Haridev,,Taid,Male,27/6/2014,,Hindu ,ST p,8134957269,,2018,,,,,,Lolit Taid,,,,Sumi Taid,,,,,,,,,,"Sapjuri, Bokakhat",,,,,,,,,7.31E+11
+,13,Nayanjyoti ,,Boraik,Male,28/4/2013,,Hindu ,OBC,9101065146,,,A+,,,,,Dulal Boraik,,,,Junmoni Boraik,,,,,,,,,,"Kolakhuwa , bokakhat", ,,,,,,,,
+,14,Patit ,,Malodas,Male,30/5/2014,,Hindu ,SC,6000214862,,2024,,,,,,Abhimanyu Malodas,,,,Gita Malodas,,,,,,,,,,Koroiati Gaon Bokakhat,,,,,,,,,
+,15,Lipi ,,Das (2) ,Female,,,Hindu ,SC,6000214862,,2024,,,,,,Dipon Das,,,,Nijora Das,,,,,,,,,,"Panbari, Sapjuri ",,,,,,,,,
+,16,Debasish ,Pran ,Hazarika,Male,13/3/2013,,Hindu ,Genaral ,7637897184,,2023,B+,,,,,Hemanta Hazarika,,,,Meghali Hazarika,,,,,,,,,,Sapjuri Notun Gaon ,,,,,,,,,8.36E+11
+,17,Augosti ,,Bora,Female,7/1/2014,,Hindu ,OBC ,6003921963,,2018,,,,,,Rajib Bora,,,,Kakoli Bora ,,,,,,,,,,"Jugalati, Bokakhat ",,,,,,,,,8.57E+11
+,18,Himangshu ,,Rajkhowa,Male,4/2/2014,,Hindu ,Genaral ,,,2025,,,,,,Bijit Rajkhowa,,,,Mritula Rajkhowa,,,,,,,,,,"Kolakhuwa , bokakhat",,,,,,,,,2.57E+11
+,19,Abhijit ,,Pegu ,Male,10/5/2014,,Hindu ,ST p,8811926432,,2025,,,,,,Noren Pegu ,,,,Lt. Rupa Pegu ,,,,,,,,,,Dergaon Nakkati,,,,,,,,,5.14E+11
+,20,Tondeep ,,Saikia,Male,15/9/2014,,Hindu ,OBC ,6000739359,,2019,,,,,,Jitul Saikia,,,,Rita Saikia,,,,,,,,,,"Udoi Nagar, Bokakhat",,,,,,,,,3.51E+11
+,21,Partha ,Protim ,Das,Male,,,Hindu ,SC,9365605597,,2024,,,,,,Pabitra Das,,,,Sorumoni Das,,,,,,,,,,Panbari Adarsha Gaon ,,,,,,,,,9.58E+11
+,22,Anisha,,Bora,Female,5/4/2014,,Hindu ,OBC,6001059388,,2024,,,,,,Monu Bora,,,,Amiya Bora,,,,,,,,,,"Koilakhat, Bokakhat",,,,,,,,,3.77E+11
+,23,Ankit ,,Das,Male,11/8/2014,,Hindu ,SC,6003596513,,2024,,,,,,Mukunda Das,,,,Mitali Das,,,,,,,,,,"Panbari, Bokakhat",,,,,,,,,3.60E+11
+,24,Mehnaj ,,Hussain ,Female,,,ISLAM,Genaral ,6000029345,,2018,,,,,,Mehtab Hussain ,,,,Narjutora Begum ,,,,,,,,,,Mohmaiki Gaon ,,,,,,,,,0.00E+00
+,25,Brotabed ,,Bhumij ,Male,28/8/2013,,Hindu ,OBC,8474855846,,2019,,,,,,Ranjit Bhumij ,`,,,Minsti Kurmi ,,,,,,,,,,Borjuri,,,,,,,,,9.71E+11
+,26,Tanisq,,Saikia,Male,24/12/2013,,Hindu ,Genaral ,6003814101,,2020,,,,,,Hemanata Saikia,,,,Ranju Saikia,,,,,,,,,,Bokakhat Ward 5,,,,,,,,,2.92E+11
+,27,Omjyoti ,,Urang ,Male,30/04/2012,,Hindu ,OBC ,9101308170,,2017,,,,,,Papu Urang ,,,,Junaki Urang ,,,,,,,,,,"Kandhulimari, Bokakhat",`,,,,,,,,5.74E+11
+,28,Utpal ,,Das,Male,31/5/2013,,Hindu ,SC,9395569804,,2024,,,,,,Jayanta Das,,,,Prajita Das,,,,,,,,,,Panbari Adarsha Gaon ,,,,,,,,,6.96E+11
+,29,Dhariti ,,Bora,Female,5/12/2013,,Hindu ,OBC,9613346695,,2024,,,,,,Hiteswar Bora,,,,Mrinali Bora,,,,,,,,,,Mohmaiki Gaon ,,,,,,,,,3.38E+11
+,30,Nirmal ,,Kutum,Male,5/12/2010,,Hindu ,ST p,7896676061,,,,,,,,Sanjay Kutum ,,,,Junu Kutum ,,,,,,,,,,"2 No Bohikhuwa, Bokakhat",,,,,,,,,
+,31,Bhaskar ,,Munda,Male,9/8/2014,,Hindu ,OBC,6002193532,,2018,,,,,,Sukendra Munda,,,,Dipa Munda,,,,,,,,,,Borbheta,,,,,,,,,3.42E+11
+,32,Debashree,,Devi ,Female,14/11/2013,,Hindu ,OBC,9365444988,,2017,,,,,,Manabjyoti Nath,,,,Anjana Saikia Devi ,,,,,,,,,,Koroiati Gaon Bokakhat,,,,,,,,,2.72E+11
+,33,Bhargob ,,Bora,Male,30/8/2013,,Hindu ,Genaral ,8876712565,,,,,,,,Padma Bora ,,,,Jyoti Bora,,,,,,,,,,"Jugalati, Bokakhat ",,,,,,,,,4.25E+11
+,34,Lipi ,,Das (1),Female,9/11/213,,Hindu ,SC,7086608952,,2018,,,,,,Jugen Das,,,,Riju Das,,,,,,,,,,Panbari Adarsha Gaon ,,,,,,,,,2.97E+11
+,35,Gitanjali ,,Loying ,Female,,,Hindu ,ST p,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,36,Alum ,,Charo ,Male,13/10/2013,,Hindu ,ST p,9101309688,,2018,,,,,,Pranabjyoti Charo,,,,Bidyamoti Charo ,,,,,,,,,,2 No Bohikhuwa,,,,,,,,,9.90E+11
+,37,Bhaswati ,,Patgiri,Female,5/9/2014,,Hindu ,ST p,6002638198,,2019,B+,,,,,Durnakanta Patgiri,,,,Ranu kutum Patgiri,,,,,,,,,,"Belaguri, Agoratoli",,,,,,,,,5.58E+11
+,38,Ayang,Appun ,Mili,Female,,,Hindu ,ST p,8822408135,,2018,B+,,,,,Ranjit Mili,,,,Purnima Pegu,,,,,,,,,,2 No Bohikhuwa,,,,,,,,,
+,39,Karan ,,Ghosh,Male,6/4/2013,,Hindu ,,9394842428,,2017,,,,,,Sunil Ghosh,,,,Rosona Ghosh,,,,,,,,,,Sapjuri ,,,,,,,,,
+,40,Tonmoy ,,Saikia,Male,,,Hindu ,Genaral ,9707374910,,,,,,,,Rinku Dutta,,,,Palabi Saikia,,,,,,,,,,Bogolitika,,,,,,,,,
+,41,Anamika ,,Hazarika,Female,,,Hindu ,,7896492534,,,,,,,,Ranjit Hazarika,,,,Lakhmi Bora,,,,,,,,,,Parangonia,,,,,,,,,
+,42,Yubraj,,Doley ,Male,18/01/2014,,Hindu ,ST p,60013547876,,2020,,,,,,Arjun Doley,,,,Pinky Doley,,,,,,,,,,"Amtenga , bokakhat",,,,,,,,,
+,43,Jagriti ,,Nath,Female,19/08/2013,,Hindu ,OBC,7002027124,,,,,,,,Sanjay Nath,,,,Smriti Nath,,,,,,,,,,"Bishnupur , Bokakhat",,,,,,,,,
+,44,Bastab ,,Bora,Male,,,Hindu ,Genaral ,8761865916,,2022,,,,,,Chandra Bora,,,,Jun Bora,,,,,,,,,,Sapjuri ,,,,,,,,,
