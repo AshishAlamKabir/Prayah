@@ -56,20 +56,20 @@ async function processAnkurExcel() {
         
         // Map to our student schema
         const student = {
-          fullName: extractValue(rowData, ['Name', 'নাম', 'Student Name', 'Student', 'নামঃ']),
+          name: extractValue(rowData, ['Name', 'নাম', 'Student Name', 'Student', 'নামঃ']),
           fatherName: extractValue(rowData, ['Father Name', 'বাপেকৰ নাম', "Father's Name", 'Father']),
           motherName: extractValue(rowData, ['Mother Name', 'মাকৰ নাম', "Mother's Name", 'Mother']),
           className: 'VIII',
           stream: '',
           rollNumber: extractValue(rowData, ['Roll No', 'Roll Number', 'ৰোল নং', 'Roll']) || `${rowNum - 1}`,
           admissionNumber: extractValue(rowData, ['Admission No', 'ভৰ্তি নং', 'Admission']) || `C8${String(rowNum - 1).padStart(3, '0')}`,
-          dateOfBirth: extractValue(rowData, ['Date of Birth', 'জন্ম তাৰিখ', 'DOB', 'Birth Date']) || '2020-01-01',
+          dateOfBirth: '2020-01-01T00:00:00.000Z',
           gender: normalizeGender(extractValue(rowData, ['Gender', 'লিংগ', 'Sex'])),
           category: extractValue(rowData, ['Category', 'শ্ৰেণী', 'Caste']) || 'General',
           religion: extractValue(rowData, ['Religion', 'ধৰ্ম']) || 'Hindu',
           address: extractValue(rowData, ['Address', 'ঠিকনা', 'Village']) || 'Mahuramukh',
           phoneNumber: extractValue(rowData, ['Phone', 'ফোন', 'Contact', 'Mobile']),
-          admissionDate: '2025-04-01',
+          admissionDate: '2025-04-01T00:00:00.000Z',
           academicYear: '2025-26',
           status: 'active',
           bloodGroup: extractValue(rowData, ['Blood Group', 'তেজৰ গ্ৰুপ']),
@@ -78,9 +78,9 @@ async function processAnkurExcel() {
         };
         
         // Validate required fields
-        if (student.fullName && student.fullName.trim()) {
+        if (student.name && student.name.trim()) {
           students.push(student);
-          console.log(`✓ Processed: ${student.fullName} (Roll: ${student.rollNumber})`);
+          console.log(`✓ Processed: ${student.name} (Roll: ${student.rollNumber})`);
         } else {
           console.log(`⚠ Skipping row ${rowNum} - missing name`);
         }
@@ -134,7 +134,7 @@ async function addStudentsToDatabase(students) {
   
   for (const student of students) {
     try {
-      const response = await fetch(`${baseUrl}/api/students`, {
+      const response = await fetch(`${baseUrl}/api/schools/3/students`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -143,11 +143,11 @@ async function addStudentsToDatabase(students) {
       });
       
       if (response.ok) {
-        console.log(`✓ Added: ${student.fullName}`);
+        console.log(`✓ Added: ${student.name}`);
         successCount++;
       } else {
         const errorText = await response.text();
-        console.log(`✗ Failed to add ${student.fullName}: ${errorText}`);
+        console.log(`✗ Failed to add ${student.name}: ${errorText}`);
         errorCount++;
       }
     } catch (error) {

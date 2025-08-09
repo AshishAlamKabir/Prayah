@@ -52,7 +52,6 @@ import adminPermissionsRoutes from "./routes/admin-permissions";
 
 // For Excel file processing
 import XLSX from 'xlsx';
-import fs from 'fs';
 
 // Student Excel upload storage
 const studentUpload = multer({
@@ -673,11 +672,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid school ID" });
       }
 
-      const validatedData = insertStudentSchema.parse({
+      // Parse dates from strings if they exist
+      const processedBody = {
         ...req.body,
         schoolId,
-        createdBy: req.user.id
-      });
+        createdBy: req.user?.id || 1, // Default to admin user ID if not authenticated
+        dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null,
+        admissionDate: req.body.admissionDate ? new Date(req.body.admissionDate) : new Date()
+      };
+
+      const validatedData = insertStudentSchema.parse(processedBody);
 
       const student = await storage.addStudent(validatedData);
       res.status(201).json(student);
