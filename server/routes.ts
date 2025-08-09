@@ -51,7 +51,8 @@ import schoolFeePaymentRoutes from "./routes/school-fee-payments";
 import adminPermissionsRoutes from "./routes/admin-permissions";
 
 // For Excel file processing
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx';
+import fs from 'fs';
 
 // Student Excel upload storage
 const studentUpload = multer({
@@ -723,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Student Excel upload preview endpoint
-  app.post("/api/schools/:schoolId/students/upload/preview", studentUpload.single('file'), async (req, res) => {
+  app.post("/api/schools/:schoolId/students/upload/preview", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       if (isNaN(schoolId) || !req.file) {
@@ -733,8 +734,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileName = req.file.originalname;
       
       try {
-        // Read Excel file
-        const workbook = XLSX.readFile(req.file.path);
+        // Read Excel file using buffer approach  
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const data = XLSX.utils.sheet_to_json(worksheet);
@@ -812,7 +814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Enhanced Excel upload for students
-  app.post("/api/schools/:schoolId/students/upload", studentUpload.single('file'), async (req, res) => {
+  app.post("/api/schools/:schoolId/students/upload", authMiddleware, requireSchoolPermission, studentUpload.single('file'), async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       if (isNaN(schoolId) || !req.file) {
@@ -822,8 +824,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileName = req.file.originalname;
       
       try {
-        // Read Excel file
-        const workbook = XLSX.readFile(req.file.path);
+        // Read Excel file using buffer approach
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const data = XLSX.utils.sheet_to_json(worksheet);
