@@ -207,7 +207,7 @@ export default function PublicationManagement() {
 
       {/* Status Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-xl h-14">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1 bg-gray-100 p-1 rounded-xl h-14">
           {Object.entries(submissionsByStatus).map(([status, statusSubmissions]) => {
             const statusConfig = {
               pending: { icon: Clock, label: "Pending", color: "data-[state=active]:bg-yellow-500 data-[state=active]:text-white" },

@@ -274,12 +274,12 @@ export default function SchoolAdminPanel({ schools, userPermissions }: SchoolAdm
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="activities">Activities</TabsTrigger>
-          <TabsTrigger value="media">Media</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-1">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-4">Overview</TabsTrigger>
+          <TabsTrigger value="students" className="text-xs sm:text-sm px-2 sm:px-4">Students</TabsTrigger>
+          <TabsTrigger value="notifications" className="text-xs sm:text-sm px-2 sm:px-4">Notifications</TabsTrigger>
+          <TabsTrigger value="activities" className="text-xs sm:text-sm px-2 sm:px-4">Activities</TabsTrigger>
+          <TabsTrigger value="media" className="text-xs sm:text-sm px-2 sm:px-4">Media</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

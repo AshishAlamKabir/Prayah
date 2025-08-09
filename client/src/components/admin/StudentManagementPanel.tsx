@@ -113,13 +113,13 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="list">Student List</TabsTrigger>
-          <TabsTrigger value="add">Add Student</TabsTrigger>
-          <TabsTrigger value="upload">Excel Upload</TabsTrigger>
-          <TabsTrigger value="fees">Fee Payments</TabsTrigger>
-          <TabsTrigger value="status">Status Manager</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 mb-6">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-1 sm:px-2">Overview</TabsTrigger>
+          <TabsTrigger value="list" className="text-xs sm:text-sm px-1 sm:px-2">Students</TabsTrigger>
+          <TabsTrigger value="add" className="text-xs sm:text-sm px-1 sm:px-2">Add</TabsTrigger>
+          <TabsTrigger value="upload" className="text-xs sm:text-sm px-1 sm:px-2">Upload</TabsTrigger>
+          <TabsTrigger value="fees" className="text-xs sm:text-sm px-1 sm:px-2">Fees</TabsTrigger>
+          <TabsTrigger value="status" className="text-xs sm:text-sm px-1 sm:px-2">Status</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">

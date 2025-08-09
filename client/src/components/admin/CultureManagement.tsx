@@ -285,11 +285,11 @@ export default function CultureManagement() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="programs">Add Program</TabsTrigger>
-          <TabsTrigger value="activities">Activities</TabsTrigger>
-          <TabsTrigger value="social">Social Media</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-4">Overview</TabsTrigger>
+          <TabsTrigger value="programs" className="text-xs sm:text-sm px-2 sm:px-4">Programs</TabsTrigger>
+          <TabsTrigger value="activities" className="text-xs sm:text-sm px-2 sm:px-4">Activities</TabsTrigger>
+          <TabsTrigger value="social" className="text-xs sm:text-sm px-2 sm:px-4">Social</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

@@ -370,7 +370,6 @@ export default function FeePaymentTracker({ schoolId, students }: FeePaymentTrac
                         <Input 
                           type="month" 
                           {...field} 
-                          defaultValue={getCurrentMonth()}
                         />
                       </FormControl>
                       <FormMessage />

@@ -434,11 +434,11 @@ export default function BookManagement() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="books">Books</TabsTrigger>
-          <TabsTrigger value="stock">Stock Management</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-4">Overview</TabsTrigger>
+          <TabsTrigger value="books" className="text-xs sm:text-sm px-2 sm:px-4">Books</TabsTrigger>
+          <TabsTrigger value="stock" className="text-xs sm:text-sm px-2 sm:px-4">Stock</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 sm:px-4">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

@@ -146,13 +146,13 @@ export default function RoleBasedAdmin() {
 
       {/* Management Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 sm:px-4">Overview</TabsTrigger>
           {(user.role === "admin" || user.role === "school_admin") && (
-            <TabsTrigger value="schools">Schools</TabsTrigger>
+            <TabsTrigger value="schools" className="text-xs sm:text-sm px-2 sm:px-4">Schools</TabsTrigger>
           )}
           {(user.role === "admin" || user.role === "culture_admin") && (
-            <TabsTrigger value="culture">Culture</TabsTrigger>
+            <TabsTrigger value="culture" className="text-xs sm:text-sm px-2 sm:px-4">Culture</TabsTrigger>
           )}
           {(user.role === "admin" || user.role === "school_admin") && (
             <TabsTrigger value="fees">Fee Management</TabsTrigger>
