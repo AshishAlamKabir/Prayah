@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TrendingUp, TrendingDown, Users, UserCheck } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, UserCheck, Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Student {
@@ -30,6 +31,7 @@ interface Student {
   rollNumber: string;
   className: string;
   status: string;
+  stream?: string;
 }
 
 interface StudentStatusManagerProps {
@@ -38,9 +40,12 @@ interface StudentStatusManagerProps {
 }
 
 export default function StudentStatusManager({ schoolId, students }: StudentStatusManagerProps) {
-  const [selectedStudent, setSelectedStudent] = useState<string>("");
+  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [newStatus, setNewStatus] = useState<string>("");
   const [reason, setReason] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [classFilter, setClassFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -58,27 +63,70 @@ export default function StudentStatusManager({ schoolId, students }: StudentStat
     return statusOption?.color as any || "default";
   };
 
-  const handleStatusUpdate = async () => {
-    if (!selectedStudent || !newStatus) return;
+  // Filter and search students
+  const filteredStudents = useMemo(() => {
+    return students?.filter(student => {
+      const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesClass = classFilter === "all" || student.className === classFilter;
+      const matchesStatus = statusFilter === "all" || student.status === statusFilter;
+      
+      return matchesSearch && matchesClass && matchesStatus;
+    }) || [];
+  }, [students, searchTerm, classFilter, statusFilter]);
+
+  // Get unique classes for filter
+  const uniqueClasses = useMemo(() => {
+    const classes = students?.map(s => s.className) || [];
+    return Array.from(new Set(classes)).sort();
+  }, [students]);
+
+  const handleStudentSelection = (studentId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedStudents([...selectedStudents, studentId]);
+    } else {
+      setSelectedStudents(selectedStudents.filter(id => id !== studentId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedStudents(filteredStudents.map(s => s.id));
+    } else {
+      setSelectedStudents([]);
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedStudents([]);
+  };
+
+  const handleBulkStatusUpdate = async () => {
+    if (selectedStudents.length === 0 || !newStatus) return;
 
     setIsSubmitting(true);
     try {
-      await apiRequest("PUT", `/api/students/${selectedStudent}/status`, {
-        body: JSON.stringify({
-          newStatus,
-          reason: reason || undefined,
-        }),
-      });
+      // Update status for all selected students
+      await Promise.all(
+        selectedStudents.map(studentId =>
+          apiRequest("PUT", `/api/students/${studentId}/status`, {
+            body: JSON.stringify({
+              newStatus,
+              reason: reason || undefined,
+            }),
+          })
+        )
+      );
 
       queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students"] });
       
       toast({
         title: "Success!",
-        description: "Student status updated successfully",
+        description: `Updated status for ${selectedStudents.length} student(s)`,
       });
 
       // Reset form
-      setSelectedStudent("");
+      setSelectedStudents([]);
       setNewStatus("");
       setReason("");
     } catch (error) {
@@ -116,33 +164,145 @@ export default function StudentStatusManager({ schoolId, students }: StudentStat
         ))}
       </div>
 
-      {/* Status Update Form */}
+      {/* Search and Filter Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Search className="w-5 h-5 mr-2" />
+            Search & Filter Students
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or roll number..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <Select value={classFilter} onValueChange={setClassFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by class" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Classes</SelectItem>
+                {uniqueClasses.map((className) => (
+                  <SelectItem key={className} value={className}>
+                    Class {className}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Student Selection Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center">
+              <Users className="w-5 h-5 mr-2" />
+              Select Students ({filteredStudents.length} found)
+            </span>
+            {selectedStudents.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">
+                  {selectedStudents.length} selected
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearSelection}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Clear
+                </Button>
+              </div>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border max-h-96 overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedStudents.length === filteredStudents.length && filteredStudents.length > 0}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
+                  <TableHead>Roll No.</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Class</TableHead>
+                  <TableHead>Current Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedStudents.includes(student.id)}
+                        onCheckedChange={(checked) => handleStudentSelection(student.id, checked as boolean)}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">{student.rollNumber}</TableCell>
+                    <TableCell>{student.name}</TableCell>
+                    <TableCell>
+                      {student.className}
+                      {student.stream && ` (${student.stream})`}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadgeVariant(student.status)}>
+                        {statusOptions.find(s => s.value === student.status)?.label || student.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredStudents.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      No students found matching your criteria
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bulk Status Update Form */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <UserCheck className="w-5 h-5 mr-2" />
-            Update Student Status
+            Update Status for Selected Students
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Select Student</label>
-                <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a student..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students?.map((student) => (
-                      <SelectItem key={student.id} value={student.id.toString()}>
-                        {student.rollNumber} - {student.name} ({student.className})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <div>
                 <label className="text-sm font-medium mb-2 block">New Status</label>
                 <Select value={newStatus} onValueChange={setNewStatus}>
@@ -158,6 +318,16 @@ export default function StudentStatusManager({ schoolId, students }: StudentStat
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="flex items-end">
+                <div className="text-sm text-muted-foreground">
+                  {selectedStudents.length === 0 ? (
+                    "No students selected"
+                  ) : (
+                    `Ready to update ${selectedStudents.length} student(s)`
+                  )}
+                </div>
+              </div>
             </div>
 
             <div>
@@ -171,10 +341,10 @@ export default function StudentStatusManager({ schoolId, students }: StudentStat
 
             <div className="flex justify-end">
               <Button 
-                onClick={handleStatusUpdate}
-                disabled={isSubmitting || !selectedStudent || !newStatus}
+                onClick={handleBulkStatusUpdate}
+                disabled={isSubmitting || selectedStudents.length === 0 || !newStatus}
               >
-                {isSubmitting ? "Updating..." : "Update Status"}
+                {isSubmitting ? "Updating..." : `Update Status (${selectedStudents.length})`}
               </Button>
             </div>
           </div>
