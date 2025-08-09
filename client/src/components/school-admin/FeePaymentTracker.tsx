@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,7 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, Plus, Receipt } from "lucide-react";
+import { DollarSign, Plus, Receipt, Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const feePaymentSchema = z.object({
@@ -65,6 +65,8 @@ interface FeePaymentTrackerProps {
 export default function FeePaymentTracker({ schoolId, students }: FeePaymentTrackerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedStudentPayments, setSelectedStudentPayments] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [classFilter, setClassFilter] = useState<string>("all");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -84,6 +86,28 @@ export default function FeePaymentTracker({ schoolId, students }: FeePaymentTrac
 
   const watchedStudentId = form.watch("studentId");
   const watchedPaymentMode = form.watch("paymentMode");
+
+  // Filter students based on search and class
+  const filteredStudents = useMemo(() => {
+    return students?.filter(student => {
+      const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesClass = classFilter === "all" || student.className === classFilter;
+      
+      return matchesSearch && matchesClass;
+    }) || [];
+  }, [students, searchTerm, classFilter]);
+
+  // Get unique classes for filter
+  const uniqueClasses = useMemo(() => {
+    const classes = students?.map(s => s.className) || [];
+    return Array.from(new Set(classes)).sort();
+  }, [students]);
+
+  const clearSearch = () => {
+    setSearchTerm("");
+    setClassFilter("all");
+  };
 
   // Load student payments when student is selected
   const loadStudentPayments = async (studentId: string) => {
@@ -178,6 +202,56 @@ export default function FeePaymentTracker({ schoolId, students }: FeePaymentTrac
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Search and Filter Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Find Student</h4>
+                  {(searchTerm || classFilter !== "all") && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearSearch}
+                      type="button"
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by name or roll number..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  
+                  <Select value={classFilter} onValueChange={setClassFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Classes</SelectItem>
+                      {uniqueClasses.map((className) => (
+                        <SelectItem key={className} value={className}>
+                          Class {className}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {filteredStudents.length !== students?.length && (
+                  <div className="text-sm text-muted-foreground">
+                    Showing {filteredStudents.length} of {students?.length || 0} students
+                  </div>
+                )}
+              </div>
+
               {/* Student Selection */}
               <FormField
                 control={form.control}
@@ -191,12 +265,18 @@ export default function FeePaymentTracker({ schoolId, students }: FeePaymentTrac
                           <SelectValue placeholder="Choose a student..." />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        {students?.map((student) => (
-                          <SelectItem key={student.id} value={student.id.toString()}>
-                            {student.rollNumber} - {student.name} ({student.className})
-                          </SelectItem>
-                        ))}
+                      <SelectContent className="max-h-60">
+                        {filteredStudents.length === 0 ? (
+                          <div className="p-4 text-center text-muted-foreground">
+                            No students found matching your criteria
+                          </div>
+                        ) : (
+                          filteredStudents.map((student) => (
+                            <SelectItem key={student.id} value={student.id.toString()}>
+                              {student.rollNumber} - {student.name} ({student.className})
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
