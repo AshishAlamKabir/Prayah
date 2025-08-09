@@ -98,7 +98,7 @@ export default function ExcelUploader({ schoolId, classHierarchy }: ExcelUploade
     if (!file) return;
 
     // Validate file type
-    if (!file.name.match(/\\.(xlsx|xls)$/)) {
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
       toast({
         title: "Invalid file type",
         description: "Please select an Excel file (.xlsx or .xls)",
