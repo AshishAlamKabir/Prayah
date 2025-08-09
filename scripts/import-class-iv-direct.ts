@@ -129,7 +129,7 @@ async function importStudents(): Promise<void> {
     console.log('🔄 Starting direct import of Class IV students for BJV...');
     
     // Read Excel file
-    const excelPath = path.join(process.cwd(), 'attached_assets', 'Class IV_1754717406342.xlsx');
+    const excelPath = path.join(process.cwd(), 'attached_assets', 'IV_1754723482090.xlsx');
     
     const workbook = XLSX.readFile(excelPath);
     const sheetName = workbook.SheetNames[0]; // Get first sheet
@@ -168,6 +168,7 @@ async function importStudents(): Promise<void> {
     
     const schoolId = 1; // BJV school ID
     const className = "IV";
+    const stream = null; // Primary classes don't have streams
     const createdBy = 1; // Admin user ID
     
     for (let i = 0; i < rows.length; i++) {
@@ -259,7 +260,7 @@ async function importStudents(): Promise<void> {
           name: fullName,
           rollNumber,
           className,
-          stream: null,
+          stream,
           admissionDate,
           status: 'active',
           parentName: parentName || null,
