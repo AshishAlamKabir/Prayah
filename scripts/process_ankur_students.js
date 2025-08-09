@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 async function processAnkurExcel() {
   try {
-    const excelFile = path.join(__dirname, '..', 'attached_assets', 'class 3_1754753556202.xlsx');
+    const excelFile = path.join(__dirname, '..', 'attached_assets', 'class 3_1754753643428.xlsx');
     
     console.log(`Processing Excel file: ${excelFile}`);
     
@@ -62,7 +62,7 @@ async function processAnkurExcel() {
           className: 'III',
           stream: '',
           rollNumber: extractValue(rowData, ['Roll No', 'Roll Number', 'ৰোল নং', 'Roll']) || `${rowNum - 1}`,
-          admissionNumber: extractValue(rowData, ['Admission No', 'ভৰ্তি নং', 'Admission']) || `C3${String(rowNum - 1).padStart(3, '0')}`,
+          admissionNumber: extractValue(rowData, ['Admission No', 'ভৰ্তি নং', 'Admission']) || `C3B${String(rowNum - 1).padStart(3, '0')}`,
           dateOfBirth: extractValue(rowData, ['Date of Birth', 'জন্ম তাৰিখ', 'DOB', 'Birth Date']) || '2020-01-01',
           gender: normalizeGender(extractValue(rowData, ['Gender', 'লিংগ', 'Sex'])),
           category: extractValue(rowData, ['Category', 'শ্ৰেণী', 'Caste']) || 'General',
@@ -162,14 +162,14 @@ async function addStudentsToDatabase(students) {
 }
 
 async function main() {
-  console.log('Class III Student Data Processor');
+  console.log('Class III (Second List) Student Data Processor');
   console.log('=' .repeat(40));
   
   const students = await processAnkurExcel();
   
   if (students && students.length > 0) {
     // Save to JSON for backup
-    const backupFile = path.join(__dirname, 'class3_students_backup.json');
+    const backupFile = path.join(__dirname, 'class3b_students_backup.json');
     fs.writeFileSync(backupFile, JSON.stringify(students, null, 2), 'utf8');
     console.log(`\nBackup saved to: ${backupFile}`);
     
