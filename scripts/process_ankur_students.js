@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 async function processAnkurExcel() {
   try {
-    const excelFile = path.join(__dirname, '..', 'attached_assets', 'Ankur_1754753443064.xlsx');
+    const excelFile = path.join(__dirname, '..', 'attached_assets', 'Kunhi_1754753482022.xlsx');
     
     console.log(`Processing Excel file: ${excelFile}`);
     
@@ -59,10 +59,10 @@ async function processAnkurExcel() {
           fullName: extractValue(rowData, ['Name', 'নাম', 'Student Name', 'Student', 'নামঃ']),
           fatherName: extractValue(rowData, ['Father Name', 'বাপেকৰ নাম', "Father's Name", 'Father']),
           motherName: extractValue(rowData, ['Mother Name', 'মাকৰ নাম', "Mother's Name", 'Mother']),
-          className: 'Ankur',
+          className: 'Kuhi',
           stream: '',
           rollNumber: extractValue(rowData, ['Roll No', 'Roll Number', 'ৰোল নং', 'Roll']) || `${rowNum - 1}`,
-          admissionNumber: extractValue(rowData, ['Admission No', 'ভৰ্তি নং', 'Admission']) || `ANK${String(rowNum - 1).padStart(3, '0')}`,
+          admissionNumber: extractValue(rowData, ['Admission No', 'ভৰ্তি নং', 'Admission']) || `KUH${String(rowNum - 1).padStart(3, '0')}`,
           dateOfBirth: extractValue(rowData, ['Date of Birth', 'জন্ম তাৰিখ', 'DOB', 'Birth Date']) || '2020-01-01',
           gender: normalizeGender(extractValue(rowData, ['Gender', 'লিংগ', 'Sex'])),
           category: extractValue(rowData, ['Category', 'শ্ৰেণী', 'Caste']) || 'General',
@@ -162,14 +162,14 @@ async function addStudentsToDatabase(students) {
 }
 
 async function main() {
-  console.log('Ankur Student Data Processor');
+  console.log('Kuhi Student Data Processor');
   console.log('=' .repeat(40));
   
   const students = await processAnkurExcel();
   
   if (students && students.length > 0) {
     // Save to JSON for backup
-    const backupFile = path.join(__dirname, 'ankur_students_backup.json');
+    const backupFile = path.join(__dirname, 'kunhi_students_backup.json');
     fs.writeFileSync(backupFile, JSON.stringify(students, null, 2), 'utf8');
     console.log(`\nBackup saved to: ${backupFile}`);
     
