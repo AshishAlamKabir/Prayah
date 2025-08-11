@@ -83,6 +83,88 @@ export default function Home() {
                 </div>
               </div>
               
+              <div className="mt-16">
+                <h3 className="text-2xl font-semibold mb-8 text-center">Our Leadership Team</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {/* Chief Advisor */}
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img 
+                        src="/attached_assets/Dilip phukan_1754924693932.jpg" 
+                        alt="Dilip Pookhan"
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold">Dilip Pookhan</h4>
+                    <p className="text-red-200">Chief Advisor</p>
+                  </div>
+                  
+                  {/* President */}
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img 
+                        src="/attached_assets/Nijora borthakur_1754924731273.jpg" 
+                        alt="Nijora Borthakur"
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold">Nijora Borthakur</h4>
+                    <p className="text-red-200">President</p>
+                  </div>
+                  
+                  {/* Vice Presidents */}
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img 
+                        src="/attached_assets/Amar kakoty_1754924777602.jpg" 
+                        alt="Amar Kakoty"
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold">Amar Kakoty</h4>
+                    <p className="text-red-200">Vice President</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img 
+                        src="/attached_assets/Ajanta Rajkhowa_1754924777601.jpg" 
+                        alt="Ajanta Rajkhowa"
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold">Ajanta Rajkhowa</h4>
+                    <p className="text-red-200">Vice President</p>
+                  </div>
+                  
+                  {/* Chief Secretary */}
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img 
+                        src="/attached_assets/Soneswar Narah_1754924810787.jpg" 
+                        alt="Soneswar Narah"
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold">Soneswar Narah</h4>
+                    <p className="text-red-200">Chief Secretary</p>
+                  </div>
+                  
+                  {/* Treasurer */}
+                  <div className="text-center">
+                    <div className="mb-4">
+                      <img 
+                        src="/attached_assets/Biju Chautal_1754925020183.jpg" 
+                        alt="Biju Choutal"
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
+                      />
+                    </div>
+                    <h4 className="text-lg font-semibold">Biju Choutal</h4>
+                    <p className="text-red-200">Treasurer</p>
+                  </div>
+                </div>
+              </div>
+              
               <div className="mt-10">
                 <h3 className="text-2xl font-semibold mb-6">Current Initiatives</h3>
                 <div className="grid md:grid-cols-2 gap-6">
