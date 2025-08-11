@@ -73,6 +73,20 @@ All role-based accounts are restricted to their assigned sections and cannot acc
 ### System Design Choices
 - **UI/UX**: Logo-matched design with authentic red and green color palette derived from the official Prayas logo, implemented using CSS custom properties and shadcn/ui templates.
 - **Technical Implementations**: Comprehensive authentication with `bcrypt`, role-based access control, file upload systems (Multer), payment backend with Stripe and Razorpay integrations, email notifications (SendGrid).
+
+## Recent Changes
+
+### Leadership Team Display (August 11, 2025)
+- **Replaced ineffective stats section** with organizational leadership team photos
+- **Added leadership profiles**: Dilip Pookhan (Chief Advisor), Nijora Borthakur (President), Amar Kakoty & Ajanta Rajkhowa (Vice Presidents), Soneswar Narah (Chief Secretary), Biju Choutal (Treasurer)
+- **Implemented responsive layout**: 2 columns on mobile, 3 on tablet, 6 on desktop for optimal viewing
+- **Enhanced homepage value**: Replaced meaningless zero-value statistics with meaningful organizational information
+
+### Security Fixes (August 11, 2025)
+- **Fixed NaN injection vulnerability** in user input validation for float() typecasts
+- **Applied comprehensive input validation** across all form inputs in both admin routes and main application
+- **Added proper error handling** with user-friendly feedback messages
+- **Secured price and stock validation** with range checks and exception handling
 - **Feature Specifications**:
     - **Payment System**: Supports book purchases, subscriptions, publication fees, school fees, and cultural program payments. Includes admin notifications and a payment method selector (Stripe/Razorpay).
     - **Book Publication**: User manuscript submission, admin review workflow (pending, approved, payment pending, rejected, published), secure PDF upload (50MB limit), and payment integration.

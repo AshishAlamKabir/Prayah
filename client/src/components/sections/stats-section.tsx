@@ -1,65 +1,64 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
-import { GraduationCap, FileText, Book, Users } from "lucide-react";
-import type { Stats } from "@shared/schema";
+import dilipPhukan from "@assets/Dilip phukan_1754924693932.jpg";
+import nijoraBot from "@assets/Nijora borthakur_1754924731273.jpg";
+import amarKakoty from "@assets/Amar kakoty_1754924777602.jpg";
+import ajantaRajkhowa from "@assets/Ajanta Rajkhowa_1754924777601.jpg";
+import soneswarNarah from "@assets/Soneswar Narah_1754924810787.jpg";
+import bijuChautal from "@assets/Biju Chautal_1754925020183.jpg";
 
 export default function StatsSection() {
-  const { data: stats, isLoading } = useQuery<Stats>({
-    queryKey: ["/api/stats"],
-  });
-
-  const statItems = [
+  const leadershipTeam = [
     {
-      icon: GraduationCap,
-      value: stats?.totalSchools || 0,
-      label: "Active Schools",
-      color: "text-red-800",
+      name: "Dilip Pookhan",
+      position: "Chief Advisor",
+      image: dilipPhukan,
     },
     {
-      icon: FileText,
-      value: stats?.totalPosts || 0,
-      label: "Community Posts", 
-      color: "text-red-800",
+      name: "Nijora Borthakur",
+      position: "President",
+      image: nijoraBot,
     },
     {
-      icon: Book,
-      value: stats?.totalBooks || 0,
-      label: "Published Works",
-      color: "text-red-800",
+      name: "Amar Kakoty",
+      position: "Vice President",
+      image: amarKakoty,
     },
     {
-      icon: Users,
-      value: stats?.totalMembers || 0,
-      label: "Active Members",
-      color: "text-red-800",
+      name: "Ajanta Rajkhowa",
+      position: "Vice President",
+      image: ajantaRajkhowa,
+    },
+    {
+      name: "Soneswar Narah",
+      position: "Chief Secretary",
+      image: soneswarNarah,
+    },
+    {
+      name: "Biju Choutal",
+      position: "Treasurer",
+      image: bijuChautal,
     },
   ];
 
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {statItems.map((item, index) => (
-            <Card key={index} className="revolutionary-card bg-gray-50 p-6">
-              <CardContent className="p-0">
-                {isLoading ? (
-                  <>
-                    <Skeleton className="h-8 w-8 mx-auto mb-2" />
-                    <Skeleton className="h-8 w-16 mx-auto mb-2" />
-                    <Skeleton className="h-4 w-20 mx-auto" />
-                  </>
-                ) : (
-                  <>
-                    <item.icon className={`h-8 w-8 mx-auto mb-2 ${item.color}`} />
-                    <div className={`text-3xl font-bold mb-2 ${item.color}`}>
-                      {item.value.toLocaleString()}
-                    </div>
-                    <div className="text-gray-600">{item.label}</div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Leadership Team</h2>
+          <p className="text-lg text-gray-600">Dedicated leaders driving educational and cultural transformation</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {leadershipTeam.map((leader, index) => (
+            <div key={index} className="text-center">
+              <div className="mb-4">
+                <img 
+                  src={leader.image} 
+                  alt={leader.name}
+                  className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-red-100 shadow-lg hover:border-red-300 transition-colors"
+                />
+              </div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-1">{leader.name}</h4>
+              <p className="text-xs text-red-600 font-medium">{leader.position}</p>
+            </div>
           ))}
         </div>
       </div>
