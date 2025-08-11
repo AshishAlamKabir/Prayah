@@ -402,10 +402,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Book not found" });
       }
 
+      // Clear books cache after stock update
+      cache.delete("books");
+
       res.json({ message: "Stock updated successfully", book: updatedBook });
     } catch (error) {
       console.error("Error updating book stock:", error);
       res.status(500).json({ message: "Failed to update stock" });
+    }
+  });
+
+  // Admin book management endpoints
+  app.post("/api/admin/books", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertBookSchema.parse(req.body);
+      const book = await storage.addBook(validatedData);
+      
+      // Clear books cache after adding new book
+      cache.delete("books");
+      
+      res.status(201).json(book);
+    } catch (error) {
+      if (error.name === "ZodError") {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error adding book:", error);
+      res.status(500).json({ message: "Failed to add book" });
+    }
+  });
+
+  app.put("/api/admin/books/:id", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookId = parseInt(req.params.id);
+      if (isNaN(bookId)) {
+        return res.status(400).json({ message: "Invalid book ID" });
+      }
+
+      const updatedBook = await storage.updateBook(bookId, req.body);
+      if (!updatedBook) {
+        return res.status(404).json({ message: "Book not found" });
+      }
+
+      // Clear books cache after updating book
+      cache.delete("books");
+
+      res.json(updatedBook);
+    } catch (error) {
+      console.error("Error updating book:", error);
+      res.status(500).json({ message: "Failed to update book" });
+    }
+  });
+
+  app.delete("/api/admin/books/:id", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const bookId = parseInt(req.params.id);
+      if (isNaN(bookId)) {
+        return res.status(400).json({ message: "Invalid book ID" });
+      }
+
+      const success = await storage.deleteBook(bookId);
+      if (!success) {
+        return res.status(404).json({ message: "Book not found" });
+      }
+
+      // Clear books cache after deleting book
+      cache.delete("books");
+
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting book:", error);
+      res.status(500).json({ message: "Failed to delete book" });
     }
   });
 
