@@ -13,6 +13,12 @@ import type { School, Book as BookType, CultureCategory } from "@shared/schema";
 import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
+import dilipPhukan from "@assets/Dilip phukan_1754924693932.jpg";
+import nijoraBot from "@assets/Nijora borthakur_1754924731273.jpg";
+import amarKakoty from "@assets/Amar kakoty_1754924777602.jpg";
+import ajantaRajkhowa from "@assets/Ajanta Rajkhowa_1754924777601.jpg";
+import soneswarNarah from "@assets/Soneswar Narah_1754924810787.jpg";
+import bijuChautal from "@assets/Biju Chautal_1754925020183.jpg";
 
 export default function Home() {
   const { data: schools, isLoading: schoolsLoading } = useQuery<School[]>({
@@ -90,7 +96,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="mb-4">
                       <img 
-                        src="/attached_assets/Dilip phukan_1754924693932.jpg" 
+                        src={dilipPhukan} 
                         alt="Dilip Pookhan"
                         className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                       />
@@ -103,7 +109,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="mb-4">
                       <img 
-                        src="/attached_assets/Nijora borthakur_1754924731273.jpg" 
+                        src={nijoraBot} 
                         alt="Nijora Borthakur"
                         className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                       />
@@ -116,7 +122,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="mb-4">
                       <img 
-                        src="/attached_assets/Amar kakoty_1754924777602.jpg" 
+                        src={amarKakoty} 
                         alt="Amar Kakoty"
                         className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                       />
@@ -128,7 +134,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="mb-4">
                       <img 
-                        src="/attached_assets/Ajanta Rajkhowa_1754924777601.jpg" 
+                        src={ajantaRajkhowa} 
                         alt="Ajanta Rajkhowa"
                         className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                       />
@@ -141,7 +147,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="mb-4">
                       <img 
-                        src="/attached_assets/Soneswar Narah_1754924810787.jpg" 
+                        src={soneswarNarah} 
                         alt="Soneswar Narah"
                         className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                       />
@@ -154,7 +160,7 @@ export default function Home() {
                   <div className="text-center">
                     <div className="mb-4">
                       <img 
-                        src="/attached_assets/Biju Chautal_1754925020183.jpg" 
+                        src={bijuChautal} 
                         alt="Biju Choutal"
                         className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
                       />
