@@ -53,7 +53,11 @@ export default function StatsSection() {
                 <img 
                   src={leader.image} 
                   alt={leader.name}
-                  className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-red-100 shadow-lg hover:border-red-300 transition-colors"
+                  className={`w-24 h-24 rounded-full mx-auto border-4 border-red-100 shadow-lg hover:border-red-300 transition-colors ${
+                    leader.name === "Dilip Pookhan" 
+                      ? "object-cover object-left-top" 
+                      : "object-cover"
+                  }`}
                 />
               </div>
               <h4 className="text-sm font-semibold text-gray-900 mb-1">{leader.name}</h4>
