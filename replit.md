@@ -5,15 +5,34 @@ BookStore is a comprehensive Flask-based e-commerce website focused on selling b
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-Tech stack preference: Python Flask backend with HTML/CSS/JavaScript frontend.
-Database preference: SQLite for simplicity and ease of deployment.
-UI framework: Bootstrap for responsive design and professional appearance.
-Security requirements: Session-based admin authentication with secure password hashing.
-Features required: Complete e-commerce functionality including cart, checkout, and inventory management.
+Tech stack preference: TypeScript/React frontend with Node.js/Express backend.
+Database preference: PostgreSQL (Neon Database) for scalability and reliability.
+UI framework: Tailwind CSS with shadcn/ui components for modern design.
+Security requirements: JWT-based authentication with role-based access control.
+Features required: Complete educational management system with student lifecycle tracking.
+Role-based access: Only PrayasAdmin has full super admin access; all other accounts are role-based with limited functionality according to their specific assignments.
 
 ## System Architecture
 
-The application employs a traditional Flask web application architecture optimized for e-commerce book sales with a clean separation between public store and admin management areas.
+The application employs a comprehensive educational management platform with role-based access control, built on modern web technologies with secure authentication and granular permissions.
+
+### Role-Based Access Control
+**Super Administrator:**
+- **PrayasAdmin**: Full system access - manages all schools, culture categories, users, and system settings
+
+**School Administrators (Limited to specific schools):**
+- **BokaghatAdmin**: Manages Bokaghat Jatiya Vidyalaya only
+- **BrahmaputraAdmin**: Manages Brahmaputra Jatiya Vidyalaya only  
+- **MohuramukhaAdmin**: Manages Mahuramukh Jatiya Vidyalaya only
+
+**Culture Administrators (Limited to specific categories):**
+- **MusicAdmin**: Manages Music programs and activities only
+- **FineArtsAdmin**: Manages Fine Arts programs only
+- **DanceAdmin**: Manages Dance programs only
+- **PoetryAdmin**: Manages Poetry programs only
+- **DramaAdmin**: Manages Drama programs only
+
+All role-based accounts are restricted to their assigned sections and cannot access other areas of the system.
 
 ### Frontend Architecture
 - **Templates**: Jinja2 templating engine with HTML5
