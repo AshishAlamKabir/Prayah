@@ -200,18 +200,21 @@ export default function BookManagement() {
     mutationFn: async (bookId: number) => {
       return apiRequest("DELETE", `/api/admin/books/${bookId}`);
     },
-    onSuccess: () => {
+    onSuccess: (_, bookId) => {
+      // Immediately update cache data manually to remove the deleted book
+      queryClient.setQueryData(["/api/books"], (oldData: Book[] | undefined) => {
+        return oldData ? oldData.filter(book => book.id !== bookId) : [];
+      });
+      
       // Force immediate cache invalidation with exact and broad patterns
       queryClient.invalidateQueries({ queryKey: ["/api/books"] });
       queryClient.invalidateQueries({ queryKey: ['/api/books'] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-stock"] });
       
-      // Also remove all cached data immediately
+      // Also remove all cached data immediately and refetch
       queryClient.removeQueries({ queryKey: ["/api/books"] });
       queryClient.removeQueries({ queryKey: ['/api/books'] });
-      
-      // Force refetch immediately
       queryClient.refetchQueries({ queryKey: ["/api/books"] });
       queryClient.refetchQueries({ queryKey: ['/api/books'] });
       
