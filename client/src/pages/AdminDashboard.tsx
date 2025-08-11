@@ -28,7 +28,8 @@ import {
   BookOpen,
   DollarSign,
   Bell,
-  ShoppingCart
+  ShoppingCart,
+  GraduationCap
 } from "lucide-react";
 import SchoolAdminPanel from "@/components/admin/SchoolAdminPanel";
 import CultureAdminPanel from "@/components/admin/CultureAdminPanel";
@@ -245,10 +246,86 @@ export default function AdminDashboard() {
           </div>
 
           <TabsContent value="overview" className="mt-6">
-            <SuperAdminPanel 
-              schools={accessibleSchools}
-              cultureCategories={accessibleCultureCategories}
-            />
+            {dashboardUser.role === "admin" ? (
+              <SuperAdminPanel 
+                schools={accessibleSchools}
+                cultureCategories={accessibleCultureCategories}
+              />
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3">
+                      {getRoleIcon(dashboardUser.role)}
+                      <div>
+                        <h2 className="text-2xl font-bold">{getRoleDisplayName(dashboardUser.role)}</h2>
+                        <p className="text-gray-600">Manage your assigned resources</p>
+                      </div>
+                    </div>
+                    
+                    {dashboardUser.role === "school_admin" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-gray-600">Assigned Schools</p>
+                                <p className="text-2xl font-bold">{accessibleSchools?.length || 0}</p>
+                              </div>
+                              <School className="w-8 h-8 text-blue-600" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                        
+                        {accessibleSchools?.map(school => (
+                          <Card key={school.id}>
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">{school.name}</p>
+                                  <p className="text-lg font-semibold">{school.studentCount || 0} Students</p>
+                                </div>
+                                <GraduationCap className="w-8 h-8 text-green-600" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {dashboardUser.role === "culture_admin" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-gray-600">Assigned Categories</p>
+                                <p className="text-2xl font-bold">{accessibleCultureCategories?.length || 0}</p>
+                              </div>
+                              <Palette className="w-8 h-8 text-green-600" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                        
+                        {accessibleCultureCategories?.map(category => (
+                          <Card key={category.id}>
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">{category.name}</p>
+                                  <p className="text-sm text-gray-500">{category.description}</p>
+                                </div>
+                                <Palette className="w-8 h-8 text-purple-600" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="schools" className="mt-6">
