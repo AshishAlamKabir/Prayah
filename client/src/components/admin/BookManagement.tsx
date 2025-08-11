@@ -118,9 +118,16 @@ export default function BookManagement() {
       });
     },
     onSuccess: () => {
+      // Force immediate cache invalidation for book additions
       queryClient.invalidateQueries({ queryKey: ["/api/books"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/books'] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-stock"] });
+      
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: ["/api/books"] });
+      queryClient.refetchQueries({ queryKey: ['/api/books'] });
+      
       setIsAddBookDialogOpen(false);
       setNewBook({
         title: "",
@@ -162,8 +169,15 @@ export default function BookManagement() {
       });
     },
     onSuccess: () => {
+      // Force immediate cache invalidation for book updates
       queryClient.invalidateQueries({ queryKey: ["/api/books"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/books'] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-analytics"] });
+      
+      // Force refetch to ensure immediate update
+      queryClient.refetchQueries({ queryKey: ["/api/books"] });
+      queryClient.refetchQueries({ queryKey: ['/api/books'] });
+      
       setEditingBook(null);
       toast({
         title: "Success",
@@ -185,9 +199,20 @@ export default function BookManagement() {
       return apiRequest("DELETE", `/api/admin/books/${bookId}`);
     },
     onSuccess: () => {
+      // Force immediate cache invalidation with exact and broad patterns
       queryClient.invalidateQueries({ queryKey: ["/api/books"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/books'] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-analytics"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/book-stock"] });
+      
+      // Also remove all cached data immediately
+      queryClient.removeQueries({ queryKey: ["/api/books"] });
+      queryClient.removeQueries({ queryKey: ['/api/books'] });
+      
+      // Force refetch immediately
+      queryClient.refetchQueries({ queryKey: ["/api/books"] });
+      queryClient.refetchQueries({ queryKey: ['/api/books'] });
+      
       toast({
         title: "Success",
         description: "Book deleted successfully"
