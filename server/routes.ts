@@ -416,15 +416,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/books", authMiddleware, adminMiddleware, async (req, res) => {
     try {
       const validatedData = insertBookSchema.parse(req.body);
-      const book = await storage.addBook(validatedData);
+      const book = await storage.addPublishedWork(validatedData);
       
       // Clear books cache after adding new book
       cache.delete("books");
       
       res.status(201).json(book);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error adding book:", error);
@@ -732,7 +732,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Add a new student
-  app.post("/api/schools/:schoolId/students", async (req, res) => {
+  app.post("/api/schools/:schoolId/students", authMiddleware, requireSchoolPermission, async (req, res) => {
     try {
       const schoolId = parseInt(req.params.schoolId);
       if (isNaN(schoolId)) {
@@ -743,7 +743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const processedBody = {
         ...req.body,
         schoolId,
-        createdBy: req.user?.id || 1, // Default to admin user ID if not authenticated
+        createdBy: req.user?.id, // Use authenticated user ID
         dateOfBirth: req.body.dateOfBirth ? new Date(req.body.dateOfBirth) : null,
         admissionDate: req.body.admissionDate ? new Date(req.body.admissionDate) : new Date()
       };
@@ -753,11 +753,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const student = await storage.addStudent(validatedData);
       res.status(201).json(student);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
-        return res.status(400).json({ message: validationError.message });
-      }
       console.error("Error adding student:", error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ 
+          message: "Validation error: " + validationError.message,
+          details: validationError
+        });
+      }
       res.status(500).json({ message: "Failed to add student" });
     }
   });
@@ -1084,8 +1087,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const payment = await storage.addStudentFeePayment(validatedData);
       res.status(201).json(payment);
     } catch (error) {
-      if (error.name === "ZodError") {
-        const validationError = fromZodError(error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
         return res.status(400).json({ message: validationError.message });
       }
       console.error("Error adding student fee payment:", error);
