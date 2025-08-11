@@ -300,14 +300,20 @@ export const bookStock = pgTable("book_stock", {
 export const schoolFeePayments = pgTable("school_fee_payments", {
   id: serial("id").primaryKey(),
   schoolId: integer("school_id").notNull().references(() => schools.id, { onDelete: 'cascade' }),
+  userId: integer("user_id").references(() => users.id, { onDelete: 'set null' }), // User who made the payment
   studentName: text("student_name").notNull(),
+  studentRollNo: text("student_roll_no").notNull(),
   className: text("class_name").notNull(),
   feeType: text("fee_type").notNull(), // monthly, annual, admission, examination, etc.
+  feeMonth: text("fee_month"), // For monthly fees
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   contactDetails: jsonb("contact_details").default({}), // phone, email, address
   status: text("status").default("pending"), // pending, approved, completed, cancelled
+  paymentStatus: text("payment_status").default("pending"), // pending, completed, failed
   paymentMethod: text("payment_method"), // razorpay, stripe, cash
   paymentLink: text("payment_link"), // Generated payment gateway link
+  razorpayOrderId: text("razorpay_order_id"), // Razorpay order ID
+  razorpayPaymentId: text("razorpay_payment_id"), // Razorpay payment ID
   adminApprovalRequired: boolean("admin_approval_required").default(true),
   approvedBy: integer("approved_by").references(() => users.id, { onDelete: 'set null' }),
   approvedAt: timestamp("approved_at"),
@@ -318,7 +324,9 @@ export const schoolFeePayments = pgTable("school_fee_payments", {
   return {
     schoolIdx: index('school_fee_payments_school_idx').on(table.schoolId),
     statusIdx: index('school_fee_payments_status_idx').on(table.status),
+    paymentStatusIdx: index('school_fee_payments_payment_status_idx').on(table.paymentStatus),
     studentIdx: index('school_fee_payments_student_idx').on(table.studentName),
+    rollNoIdx: index('school_fee_payments_roll_idx').on(table.studentRollNo),
     createdAtIdx: index('school_fee_payments_created_at_idx').on(table.createdAt),
   };
 });

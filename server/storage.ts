@@ -1040,33 +1040,7 @@ export class DatabaseStorage implements IStorage {
     return payment || undefined;
   }
 
-  // School fee payment operations
-  async createSchoolFeePayment(feePayment: InsertSchoolFeePayment): Promise<SchoolFeePayment> {
-    const [newFeePayment] = await db
-      .insert(schoolFeePayments)
-      .values(feePayment)
-      .returning();
-    return newFeePayment;
-  }
 
-  async getSchoolFeePayments(schoolId?: number): Promise<SchoolFeePayment[]> {
-    if (schoolId) {
-      return await db.select().from(schoolFeePayments).where(eq(schoolFeePayments.schoolId, schoolId)).orderBy(desc(schoolFeePayments.createdAt));
-    }
-    return await db.select().from(schoolFeePayments).orderBy(desc(schoolFeePayments.createdAt));
-  }
-
-  async updateSchoolFeePaymentStatus(id: number, status: string): Promise<SchoolFeePayment | undefined> {
-    const [feePayment] = await db
-      .update(schoolFeePayments)
-      .set({ 
-        status, 
-        updatedAt: new Date() 
-      })
-      .where(eq(schoolFeePayments.id, id))
-      .returning();
-    return feePayment || undefined;
-  }
 
   async updateSchoolPaymentConfig(schoolId: number, config: {
     feePaymentEnabled: boolean;
@@ -1174,22 +1148,19 @@ export class DatabaseStorage implements IStorage {
       .insert(schoolFeePayments)
       .values({
         userId: payment.userId,
-        amount: payment.amount.toString(),
+        amount: payment.amount,
         schoolId: payment.schoolId,
         studentRollNo: payment.studentRollNo,
         studentName: payment.studentName,
-        studentClass: payment.studentClass,
+        className: payment.className,
         feeMonth: payment.feeMonth,
         feeType: payment.feeType,
-        academicYear: payment.academicYear,
-        razorpayOrderId: payment.razorpayOrderId,
-        receiptNumber: payment.receiptNumber,
+        contactDetails: payment.contactDetails,
         paymentStatus: payment.paymentStatus,
-        currency: payment.currency,
+        status: payment.status,
         paymentMethod: payment.paymentMethod,
-        transactionFee: payment.transactionFee,
-        razorpayPaymentId: payment.razorpayPaymentId,
-        adminNotified: payment.adminNotified || false
+        razorpayOrderId: payment.razorpayOrderId,
+        razorpayPaymentId: payment.razorpayPaymentId
       })
       .returning();
     return feePayment;
