@@ -24,6 +24,8 @@ import ExcelUploader from "@/components/school-admin/ExcelUploader";
 import FeePaymentTracker from "@/components/school-admin/FeePaymentTracker";
 import StudentStatusManager from "@/components/school-admin/StudentStatusManager";
 import PaymentSummary from "@/components/school-admin/PaymentSummary";
+import PromotionSection from "@/components/school-admin/PromotionSection";
+import DropoutSection from "@/components/school-admin/DropoutSection";
 
 interface StudentManagementPanelProps {
   schools: any[];
@@ -113,11 +115,13 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1 mb-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-1 mb-6">
           <TabsTrigger value="overview" className="text-xs sm:text-sm px-1 sm:px-2">Overview</TabsTrigger>
           <TabsTrigger value="list" className="text-xs sm:text-sm px-1 sm:px-2">Students</TabsTrigger>
           <TabsTrigger value="add" className="text-xs sm:text-sm px-1 sm:px-2">Add</TabsTrigger>
           <TabsTrigger value="upload" className="text-xs sm:text-sm px-1 sm:px-2">Upload</TabsTrigger>
+          <TabsTrigger value="promotions" className="text-xs sm:text-sm px-1 sm:px-2">Promotions</TabsTrigger>
+          <TabsTrigger value="dropouts" className="text-xs sm:text-sm px-1 sm:px-2">Dropouts</TabsTrigger>
           <TabsTrigger value="fees" className="text-xs sm:text-sm px-1 sm:px-2">Fees</TabsTrigger>
           <TabsTrigger value="status" className="text-xs sm:text-sm px-1 sm:px-2">Status</TabsTrigger>
         </TabsList>
@@ -235,6 +239,18 @@ export default function StudentManagementPanel({ schools }: StudentManagementPan
           <FeePaymentTracker 
             schoolId={selectedSchool}
             students={students || []}
+          />
+        </TabsContent>
+
+        <TabsContent value="promotions" className="space-y-6 mt-6">
+          <PromotionSection 
+            schoolId={selectedSchool}
+          />
+        </TabsContent>
+
+        <TabsContent value="dropouts" className="space-y-6 mt-6">
+          <DropoutSection 
+            schoolId={selectedSchool}
           />
         </TabsContent>
 

@@ -116,11 +116,15 @@ export default function StudentStatusManager({ schoolId, students }: StudentStat
         )
       );
 
+      // Invalidate all student-related queries
       queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students", "dropouts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students", "status"] });
       
+      const statusLabel = statusOptions.find(opt => opt.value === newStatus)?.label || newStatus;
       toast({
         title: "Success!",
-        description: `Updated status for ${selectedStudents.length} student(s)`,
+        description: `${statusLabel} ${selectedStudents.length} student(s)${newStatus === 'promoted' ? ' and moved to next class' : ''}`,
       });
 
       // Reset form

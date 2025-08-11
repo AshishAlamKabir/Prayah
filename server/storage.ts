@@ -235,6 +235,8 @@ export interface IStorage {
   // Student Status Management
   updateStudentStatus(studentId: number, newStatus: string, newClass?: string, reason?: string, changedBy: number): Promise<StudentStatusChange>;
   getStudentStatusHistory(studentId: number): Promise<StudentStatusChange[]>;
+  getStudentsByStatus(schoolId: number, status: string): Promise<Student[]>;
+  getDropoutStudents(schoolId: number): Promise<Student[]>;
   
   // Student Fee Payments
   addStudentFeePayment(payment: InsertStudentFeePayment): Promise<StudentFeePayment>;
@@ -1399,6 +1401,28 @@ export class DatabaseStorage implements IStorage {
     const student = await this.getStudentById(studentId);
     if (!student) throw new Error("Student not found");
 
+    let finalNewClass = newClass || student.className;
+
+    // Auto-calculate next class for promotions
+    if (newStatus === "promoted" && !newClass) {
+      const nextClass = this.getNextClass(student.className);
+      if (nextClass) {
+        finalNewClass = nextClass;
+      } else {
+        throw new Error(`Cannot promote from ${student.className} - no next class available`);
+      }
+    }
+
+    // For demotions, calculate previous class if not specified
+    if (newStatus === "demoted" && !newClass) {
+      const previousClass = this.getPreviousClass(student.className);
+      if (previousClass) {
+        finalNewClass = previousClass;
+      } else {
+        throw new Error(`Cannot demote from ${student.className} - no previous class available`);
+      }
+    }
+
     // Record the status change
     const [statusChange] = await db
       .insert(studentStatusChanges)
@@ -1407,7 +1431,7 @@ export class DatabaseStorage implements IStorage {
         previousStatus: student.status,
         newStatus,
         previousClass: student.className,
-        newClass: newClass || student.className,
+        newClass: finalNewClass,
         reason,
         changedBy,
       })
@@ -1418,7 +1442,7 @@ export class DatabaseStorage implements IStorage {
       .update(students)
       .set({
         status: newStatus,
-        className: newClass || student.className,
+        className: finalNewClass,
         updatedAt: new Date(),
       })
       .where(eq(students.id, studentId));
@@ -1536,6 +1560,24 @@ export class DatabaseStorage implements IStorage {
     if (currentIndex <= 0) return null;
 
     return classList[currentIndex - 1];
-  }}
+  }
+
+  // Get students by status for dashboard filtering
+  async getStudentsByStatus(schoolId: number, status: string): Promise<Student[]> {
+    return db
+      .select()
+      .from(students)
+      .where(and(
+        eq(students.schoolId, schoolId),
+        eq(students.status, status)
+      ))
+      .orderBy(students.className, students.rollNumber);
+  }
+
+  // Get dropout students for separate section
+  async getDropoutStudents(schoolId: number): Promise<Student[]> {
+    return this.getStudentsByStatus(schoolId, 'dropped_out');
+  }
+}
 
 export const storage = new DatabaseStorage();

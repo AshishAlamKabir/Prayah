@@ -1150,6 +1150,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const previousClass = storage.getPreviousClass(req.params.className);
     res.json({ previousClass });
   });
+
+  // Get dropout students
+  app.get("/api/schools/:schoolId/students/dropouts", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const dropouts = await storage.getDropoutStudents(schoolId);
+      res.json(dropouts);
+    } catch (error) {
+      console.error("Error fetching dropout students:", error);
+      res.status(500).json({ message: "Failed to fetch dropout students" });
+    }
+  });
+
+  // Get students by status
+  app.get("/api/schools/:schoolId/students/status/:status", authMiddleware, requireSchoolPermission, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.schoolId);
+      const status = req.params.status;
+      
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const students = await storage.getStudentsByStatus(schoolId, status);
+      res.json(students);
+    } catch (error) {
+      console.error("Error fetching students by status:", error);
+      res.status(500).json({ message: "Failed to fetch students by status" });
+    }
+  });
   const httpServer = createServer(app);
   return httpServer;
 }
