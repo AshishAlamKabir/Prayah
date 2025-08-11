@@ -21,6 +21,9 @@ export default function Home() {
 
   const { data: books, isLoading: booksLoading } = useQuery<BookType[]>({
     queryKey: ["/api/books"],
+    staleTime: 0, // Always consider data stale to get fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: cultureCategories, isLoading: cultureLoading } = useQuery<CultureCategory[]>({

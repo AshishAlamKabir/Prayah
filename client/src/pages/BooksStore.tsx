@@ -32,9 +32,14 @@ export default function BooksStore() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Fetch books from the API
-  const { data: books = [], isLoading } = useQuery<Book[]>({
+  // Fetch books from the API with aggressive refresh
+  const { data: books = [], isLoading, refetch } = useQuery<Book[]>({
     queryKey: ['/api/books'],
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache for long
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 
   // Get unique genres for filter
@@ -67,6 +72,13 @@ export default function BooksStore() {
 
         {/* Search and Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <Button 
+            onClick={() => refetch()} 
+            variant="outline" 
+            className="w-fit"
+          >
+            Refresh Books
+          </Button>
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input

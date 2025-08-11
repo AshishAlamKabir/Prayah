@@ -94,6 +94,8 @@ export default function BookManagement() {
   // Fetch books
   const { data: books = [], isLoading: booksLoading } = useQuery<Book[]>({
     queryKey: ["/api/books"],
+    staleTime: 0, // Always get fresh data for admin
+    refetchOnMount: true,
   });
 
   // Fetch book analytics (super admin only)
