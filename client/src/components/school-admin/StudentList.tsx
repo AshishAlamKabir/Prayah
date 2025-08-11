@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Search, MoreHorizontal, Edit, Trash2, TrendingUp } from "lucide-react";
+import { Search, MoreHorizontal, Edit, Trash2, TrendingUp, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Student {
@@ -65,7 +65,15 @@ export default function StudentList({ schoolId, students, isLoading }: StudentLi
 
     try {
       await apiRequest("DELETE", `/api/students/${studentId}`);
+      
+      // Invalidate multiple related queries to ensure cache refresh
       queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students", "status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students", "dropouts"] });
+      
+      // Also refetch data immediately to ensure UI updates
+      await queryClient.refetchQueries({ queryKey: ["/api/schools", schoolId, "students"] });
+      
       toast({
         title: "Success",
         description: "Student deleted successfully",
@@ -102,6 +110,15 @@ export default function StudentList({ schoolId, students, isLoading }: StudentLi
         variant: "destructive",
       });
     }
+  };
+
+  const handleRefreshData = async () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students"] });
+    await queryClient.refetchQueries({ queryKey: ["/api/schools", schoolId, "students"] });
+    toast({
+      title: "Refreshed",
+      description: "Student data has been refreshed",
+    });
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -171,9 +188,20 @@ export default function StudentList({ schoolId, students, isLoading }: StudentLi
       {/* Students Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Students List ({filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'})
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>
+              Students List ({filteredStudents.length} {filteredStudents.length === 1 ? 'student' : 'students'})
+            </CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleRefreshData}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {filteredStudents.length === 0 ? (
