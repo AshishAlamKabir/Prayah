@@ -110,10 +110,8 @@ export default function StudentStatusManager({ schoolId, students }: StudentStat
       await Promise.all(
         selectedStudents.map(studentId =>
           apiRequest("PUT", `/api/students/${studentId}/status`, {
-            body: JSON.stringify({
-              newStatus,
-              reason: reason || undefined,
-            }),
+            newStatus,
+            reason: reason || undefined,
           })
         )
       );
