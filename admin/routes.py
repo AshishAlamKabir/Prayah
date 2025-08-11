@@ -117,10 +117,38 @@ def add_book():
         title = request.form['title']
         author = request.form['author']
         description = request.form.get('description', '')
-        price = float(request.form['price'])
-        stock = int(request.form['stock'])
+        # Validate price input to prevent NaN injection
+        price_str = request.form['price'].strip()
+        if price_str.lower() in ['nan', 'inf', '-inf', 'infinity', '-infinity']:
+            flash('Invalid price value provided.', 'error')
+            return render_template('admin/add_book.html')
+        try:
+            price = float(price_str)
+            if price < 0:
+                flash('Price must be a positive number.', 'error')
+                return render_template('admin/add_book.html')
+        except ValueError:
+            flash('Price must be a valid number.', 'error')
+            return render_template('admin/add_book.html')
+        # Validate stock input
+        try:
+            stock = int(request.form['stock'])
+            if stock < 0:
+                flash('Stock must be a non-negative integer.', 'error')
+                return render_template('admin/add_book.html')
+        except ValueError:
+            flash('Stock must be a valid integer.', 'error')
+            return render_template('admin/add_book.html')
         genre = request.form.get('genre', '')
-        stock_threshold = int(request.form.get('stock_threshold', 5))
+        # Validate stock_threshold input
+        try:
+            stock_threshold = int(request.form.get('stock_threshold', '5'))
+            if stock_threshold < 0:
+                flash('Stock threshold must be a non-negative integer.', 'error')
+                return render_template('admin/add_book.html')
+        except ValueError:
+            flash('Stock threshold must be a valid integer.', 'error')
+            return render_template('admin/add_book.html')
         
         image_filename = None
         if 'image' in request.files:
@@ -160,10 +188,38 @@ def edit_book(book_id):
         title = request.form['title']
         author = request.form['author']
         description = request.form.get('description', '')
-        price = float(request.form['price'])
-        stock = int(request.form['stock'])
+        # Validate price input to prevent NaN injection
+        price_str = request.form['price'].strip()
+        if price_str.lower() in ['nan', 'inf', '-inf', 'infinity', '-infinity']:
+            flash('Invalid price value provided.', 'error')
+            return render_template('admin/edit_book.html', book=book)
+        try:
+            price = float(price_str)
+            if price < 0:
+                flash('Price must be a positive number.', 'error')
+                return render_template('admin/edit_book.html', book=book)
+        except ValueError:
+            flash('Price must be a valid number.', 'error')
+            return render_template('admin/edit_book.html', book=book)
+        # Validate stock input
+        try:
+            stock = int(request.form['stock'])
+            if stock < 0:
+                flash('Stock must be a non-negative integer.', 'error')
+                return render_template('admin/edit_book.html', book=book)
+        except ValueError:
+            flash('Stock must be a valid integer.', 'error')
+            return render_template('admin/edit_book.html', book=book)
         genre = request.form.get('genre', '')
-        stock_threshold = int(request.form.get('stock_threshold', 5))
+        # Validate stock_threshold input
+        try:
+            stock_threshold = int(request.form.get('stock_threshold', '5'))
+            if stock_threshold < 0:
+                flash('Stock threshold must be a non-negative integer.', 'error')
+                return render_template('admin/edit_book.html', book=book)
+        except ValueError:
+            flash('Stock threshold must be a valid integer.', 'error')
+            return render_template('admin/edit_book.html', book=book)
         
         image_filename = book['image_filename']
         if 'image' in request.files:
