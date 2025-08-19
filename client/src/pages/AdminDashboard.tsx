@@ -29,7 +29,8 @@ import {
   DollarSign,
   Bell,
   ShoppingCart,
-  GraduationCap
+  GraduationCap,
+  Settings
 } from "lucide-react";
 import SchoolAdminPanel from "@/components/admin/SchoolAdminPanel";
 import CultureAdminPanel from "@/components/admin/CultureAdminPanel";
@@ -355,14 +356,243 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="content" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Content management features coming soon.</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Content Management</h2>
+                <p className="text-gray-600">Edit and manage content across the platform</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* School Content Management */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <School className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">School Content</h3>
+                          <p className="text-sm text-gray-600">{accessibleSchools?.length || 0} schools</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-4">Manage school descriptions, missions, visions, history, and media content.</p>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">Editable sections:</div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">About Us</Badge>
+                        <Badge variant="outline">Mission</Badge>
+                        <Badge variant="outline">Vision</Badge>
+                        <Badge variant="outline">History</Badge>
+                        <Badge variant="outline">Infrastructure</Badge>
+                        <Badge variant="outline">Media Gallery</Badge>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full mt-4" 
+                      onClick={() => setActiveTab("schools")}
+                    >
+                      Manage School Content
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Cultural Programs Content Management */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <Palette className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Cultural Programs</h3>
+                          <p className="text-sm text-gray-600">{accessibleCultureCategories?.length || 0} programs</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-4">Edit cultural program information, objectives, activities, and instructor details.</p>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">Editable sections:</div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">About Section</Badge>
+                        <Badge variant="outline">Objectives</Badge>
+                        <Badge variant="outline">Activities</Badge>
+                        <Badge variant="outline">Instructor Info</Badge>
+                        <Badge variant="outline">Schedule</Badge>
+                        <Badge variant="outline">Media Files</Badge>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full mt-4" 
+                      onClick={() => setActiveTab("culture")}
+                    >
+                      Manage Cultural Content
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* About Page Content Management */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <FileText className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">About Page</h3>
+                          <p className="text-sm text-gray-600">Platform information</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-4">Manage Prayas Study Circle information, mission, and organizational content.</p>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">Editable sections:</div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Mission</Badge>
+                        <Badge variant="outline">Vision</Badge>
+                        <Badge variant="outline">History</Badge>
+                        <Badge variant="outline">Team Info</Badge>
+                        <Badge variant="outline">Achievements</Badge>
+                      </div>
+                    </div>
+                    <Link href="/about">
+                      <Button className="w-full mt-4" variant="outline">
+                        View About Page
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Books and Publications */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-orange-100 rounded-lg">
+                          <BookOpen className="w-6 h-6 text-orange-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Books & Publications</h3>
+                          <p className="text-sm text-gray-600">Book store content</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-4">Manage book descriptions, categories, featured content, and publication details.</p>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">Editable sections:</div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Book Info</Badge>
+                        <Badge variant="outline">Categories</Badge>
+                        <Badge variant="outline">Descriptions</Badge>
+                        <Badge variant="outline">Featured Books</Badge>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full mt-4" 
+                      onClick={() => setActiveTab("books")}
+                    >
+                      Manage Book Content
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Community Content */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-teal-100 rounded-lg">
+                          <Users className="w-6 h-6 text-teal-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Community Posts</h3>
+                          <p className="text-sm text-gray-600">User submissions</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-4">Review and manage community posts, announcements, and user-generated content.</p>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">Management features:</div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Post Approval</Badge>
+                        <Badge variant="outline">Content Review</Badge>
+                        <Badge variant="outline">Categories</Badge>
+                        <Badge variant="outline">Announcements</Badge>
+                      </div>
+                    </div>
+                    <Link href="/community">
+                      <Button className="w-full mt-4" variant="outline">
+                        View Community
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* General Platform Settings */}
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gray-100 rounded-lg">
+                          <Settings className="w-6 h-6 text-gray-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold">Platform Settings</h3>
+                          <p className="text-sm text-gray-600">Global configuration</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 mb-4">Configure platform-wide settings, navigation, and general content.</p>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-500">Configuration options:</div>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">Navigation</Badge>
+                        <Badge variant="outline">Footer Content</Badge>
+                        <Badge variant="outline">Contact Info</Badge>
+                        <Badge variant="outline">Social Links</Badge>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-4" variant="outline" disabled>
+                      Platform Settings
+                      <span className="text-xs ml-2">(Coming Soon)</span>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Content Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Content Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{accessibleSchools?.length || 0}</div>
+                      <div className="text-sm text-gray-600">Schools</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{accessibleCultureCategories?.length || 0}</div>
+                      <div className="text-sm text-gray-600">Cultural Programs</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">1</div>
+                      <div className="text-sm text-gray-600">About Page</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">All</div>
+                      <div className="text-sm text-gray-600">Sections Active</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="books" className="mt-6">
