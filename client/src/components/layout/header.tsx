@@ -20,6 +20,7 @@ export default function Header() {
 
   const navigation = [
     { name: "Home", href: "/", external: false },
+    { name: "About", href: "/about", external: false },
     { name: "Schools", href: "/schools", external: false },
     { name: "Art & Culture", href: "/culture", external: false },
     { name: "Books Store", href: "/books-store", external: false },

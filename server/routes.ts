@@ -1,6 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import {
+  ObjectStorageService,
+  ObjectNotFoundError,
+} from "./objectStorage";
 import { cache } from "./cache";
 import multer from "multer";
 import path from "path";
@@ -73,6 +77,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test endpoint to verify routes are working
   app.get("/api/test", (req, res) => {
     res.json({ message: "Routes are working" });
+  });
+
+  // Object storage endpoints for media management
+
+  // This endpoint is used to serve public assets.
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // This endpoint is used to serve private objects publicly (for media galleries)
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error accessing object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // This endpoint is used to get the upload URL for an object entity.
+  app.post("/api/objects/upload", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
+  // Example endpoint for updating media files after upload
+  app.put("/api/media-files", async (req, res) => {
+    if (!req.body.mediaURL || !req.body.entityType || !req.body.entityId) {
+      return res.status(400).json({ 
+        error: "mediaURL, entityType, and entityId are required" 
+      });
+    }
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(
+        req.body.mediaURL,
+      );
+
+      // Update the corresponding entity with the media file information
+      if (req.body.entityType === 'school') {
+        // Update school media files
+        const school = await storage.getSchool(req.body.entityId);
+        if (school) {
+          const updatedMediaFiles = [...(school.mediaFiles as any[] || []), {
+            url: objectPath,
+            description: req.body.description || '',
+            type: req.body.mediaType || 'image',
+            uploadedAt: new Date().toISOString()
+          }];
+          await storage.updateSchool(req.body.entityId, {
+            mediaFiles: updatedMediaFiles
+          });
+        }
+      } else if (req.body.entityType === 'culture') {
+        // Update culture category media files
+        const category = await storage.getCultureCategory(req.body.entityId);
+        if (category) {
+          const updatedMediaFiles = [...(category.mediaFiles as any[] || []), {
+            url: objectPath,
+            description: req.body.description || '',
+            type: req.body.mediaType || 'image',
+            uploadedAt: new Date().toISOString()
+          }];
+          await storage.updateCultureCategory(req.body.entityId, {
+            mediaFiles: updatedMediaFiles
+          });
+        }
+      }
+
+      res.status(200).json({
+        objectPath: objectPath,
+        message: "Media file updated successfully"
+      });
+    } catch (error) {
+      console.error("Error updating media file:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   // Enhanced authentication endpoints

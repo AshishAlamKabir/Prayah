@@ -62,16 +62,25 @@ export const schools = pgTable("schools", {
   location: text("location").notNull(),
   description: text("description").notNull(),
   detailedDescription: text("detailed_description"),
+  aboutUs: text("about_us"), // Detailed about section
+  mission: text("mission"), // School mission statement
+  vision: text("vision"), // School vision statement
+  history: text("history"), // School history and founding story
+  principalMessage: text("principal_message"), // Message from principal
   studentCount: integer("student_count").default(0),
+  teacherCount: integer("teacher_count").default(0),
   imageUrl: text("image_url"),
   logo: text("logo"),
-  mediaFiles: jsonb("media_files").default([]), // Array of image/video URLs
+  mediaFiles: jsonb("media_files").default([]), // Array of image/video URLs with descriptions
+  galleryImages: jsonb("gallery_images").default([]), // School photo gallery
   programs: text("programs").array(),
   contactEmail: text("contact_email"),
   contactPhone: text("contact_phone"),
   website: text("website"),
   achievements: text("achievements").array(),
   facilities: text("facilities").array(),
+  infrastructure: text("infrastructure").array(), // Infrastructure details
+  extracurriculars: text("extracurriculars").array(), // Extra-curricular activities
   // Fee payment configuration
   feePaymentEnabled: boolean("fee_payment_enabled").default(false),
   paymentMethods: jsonb("payment_methods").default(["razorpay"]), // Available payment methods
@@ -87,13 +96,32 @@ export const cultureCategories = pgTable("culture_categories", {
   name: text("name").notNull(), // music, fine-arts, dance-drama-poems
   description: text("description").notNull(),
   detailedDescription: text("detailed_description"),
+  aboutSection: text("about_section"), // Detailed about the cultural program
+  objectives: text("objectives").array(), // Program objectives
+  activities: text("activities").array(), // Types of activities offered
+  instructorInfo: text("instructor_info"), // Information about instructors
+  scheduleInfo: text("schedule_info"), // Program schedule details
+  requirements: text("requirements"), // Prerequisites or requirements
+  achievements: text("achievements").array(), // Notable achievements
+  history: text("history"), // History of the cultural program
+  philosophy: text("philosophy"), // Teaching philosophy and approach
   icon: text("icon").notNull(),
   programs: jsonb("programs").default([]),
-  mediaFiles: jsonb("media_files").default([]), // Images, videos, audio files
+  mediaFiles: jsonb("media_files").default([]), // Images, videos, audio files with descriptions
+  galleryImages: jsonb("gallery_images").default([]), // Cultural program gallery
+  performanceVideos: jsonb("performance_videos").default([]), // Performance recordings
   youtubeChannelUrl: text("youtube_channel_url"),
+  socialMediaLinks: jsonb("social_media_links").default({}), // Facebook, Instagram, etc.
   featured: boolean("featured").default(false),
+  adminId: integer("admin_id").references(() => users.id, { onDelete: 'set null' }), // Assigned admin for this category
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    nameIdx: index('culture_categories_name_idx').on(table.name),
+    featuredIdx: index('culture_categories_featured_idx').on(table.featured),
+    adminIdx: index('culture_categories_admin_idx').on(table.adminId),
+  };
 });
 
 // User sessions table for authentication

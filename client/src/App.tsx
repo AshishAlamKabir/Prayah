@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import About from "@/pages/About";
 import Schools from "@/pages/schools";
 import SchoolDetail from "@/pages/SchoolDetail";
 import Culture from "@/pages/culture";
@@ -36,6 +37,7 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/about" component={About} />
           <Route path="/schools" component={Schools} />
           <Route path="/schools/:id" component={SchoolDetail} />
           <Route path="/culture" component={Culture} />
