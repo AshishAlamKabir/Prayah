@@ -65,6 +65,9 @@ import {
   type InsertStudentFeePayment,
   type StudentExcelUpload,
   type InsertStudentExcelUpload,
+  bookRallyTransactions,
+  type BookRallyTransaction,
+  type InsertBookRallyTransaction,
   CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
@@ -125,6 +128,11 @@ export interface IStorage {
   // Order item operations
   createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem>;
   getOrderItems(orderId: number): Promise<OrderItem[]>;
+  
+  // Book Rally Audit operations
+  getBookRallyTransactions(): Promise<BookRallyTransaction[]>;
+  createBookRallyTransaction(transaction: InsertBookRallyTransaction): Promise<BookRallyTransaction>;
+  verifyBookRallyTransaction(id: number, verifiedBy: number): Promise<BookRallyTransaction | undefined>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -943,6 +951,36 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(orderItems)
       .where(eq(orderItems.orderId, orderId));
+  }
+
+  // Book Rally Audit operations
+  async getBookRallyTransactions(): Promise<BookRallyTransaction[]> {
+    return await db
+      .select()
+      .from(bookRallyTransactions)
+      .orderBy(desc(bookRallyTransactions.createdAt));
+  }
+
+  async createBookRallyTransaction(transaction: InsertBookRallyTransaction): Promise<BookRallyTransaction> {
+    const [newTransaction] = await db
+      .insert(bookRallyTransactions)
+      .values(transaction)
+      .returning();
+    return newTransaction;
+  }
+
+  async verifyBookRallyTransaction(id: number, verifiedBy: number): Promise<BookRallyTransaction | undefined> {
+    const [updatedTransaction] = await db
+      .update(bookRallyTransactions)
+      .set({ 
+        isVerified: true, 
+        verifiedBy,
+        verifiedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(bookRallyTransactions.id, id))
+      .returning();
+    return updatedTransaction || undefined;
   }
 
   // Publication submission operations

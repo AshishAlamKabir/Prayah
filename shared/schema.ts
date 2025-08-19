@@ -683,6 +683,47 @@ export const insertFeeStructureSchema = createInsertSchema(feeStructures).omit({
   updatedAt: true,
 });
 
+// Book Rally Transactions table for finance tracking
+export const bookRallyTransactions = pgTable("book_rally_transactions", {
+  id: serial("id").primaryKey(),
+  transactionType: text("transaction_type").notNull(), // 'sale', 'purchase', 'expense', 'refund'
+  category: text("category").notNull(), // 'book_sale', 'book_purchase', 'logistics', 'promotion', 'refund'
+  bookId: integer("book_id").references(() => books.id, { onDelete: 'set null' }), // Link to book if applicable
+  orderId: integer("order_id").references(() => orders.id, { onDelete: 'set null' }), // Link to order if applicable
+  description: text("description").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("inr"),
+  quantity: integer("quantity"), // For book sales/purchases
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }), // Price per unit
+  vendorName: text("vendor_name"), // For purchases/expenses
+  customerName: text("customer_name"), // For sales
+  invoiceNumber: text("invoice_number"), // Reference invoice/receipt
+  paymentMethod: text("payment_method"), // cash, card, upi, bank_transfer
+  receiptUrl: text("receipt_url"), // Link to uploaded receipt/invoice
+  notes: text("notes"), // Additional notes
+  recordedBy: integer("recorded_by").notNull().references(() => users.id, { onDelete: 'restrict' }), // Admin who recorded
+  isVerified: boolean("is_verified").default(false), // For audit verification
+  verifiedBy: integer("verified_by").references(() => users.id, { onDelete: 'set null' }), // Admin who verified
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    typeIdx: index('book_rally_transactions_type_idx').on(table.transactionType),
+    categoryIdx: index('book_rally_transactions_category_idx').on(table.category),
+    bookIdx: index('book_rally_transactions_book_idx').on(table.bookId),
+    orderIdx: index('book_rally_transactions_order_idx').on(table.orderId),
+    recordedByIdx: index('book_rally_transactions_recorded_by_idx').on(table.recordedBy),
+    createdAtIdx: index('book_rally_transactions_created_at_idx').on(table.createdAt),
+  };
+});
+
+export const insertBookRallyTransactionSchema = createInsertSchema(bookRallyTransactions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Fee payment notification types
 export type FeePaymentNotification = typeof feePaymentNotifications.$inferSelect;
 export type InsertFeePaymentNotification = z.infer<typeof insertFeePaymentNotificationSchema>;
@@ -690,6 +731,10 @@ export type InsertFeePaymentNotification = z.infer<typeof insertFeePaymentNotifi
 // Fee structure types
 export type FeeStructure = typeof feeStructures.$inferSelect;
 export type InsertFeeStructure = z.infer<typeof insertFeeStructureSchema>;
+
+// Book Rally Transaction types
+export type BookRallyTransaction = typeof bookRallyTransactions.$inferSelect;
+export type InsertBookRallyTransaction = z.infer<typeof insertBookRallyTransactionSchema>;
 
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
@@ -766,6 +811,13 @@ export const feePaymentNotificationsRelations = relations(feePaymentNotification
 
 export const feeStructuresRelations = relations(feeStructures, ({ one }) => ({
   school: one(schools, { fields: [feeStructures.schoolId], references: [schools.id] }),
+}));
+
+export const bookRallyTransactionsRelations = relations(bookRallyTransactions, ({ one }) => ({
+  book: one(books, { fields: [bookRallyTransactions.bookId], references: [books.id] }),
+  order: one(orders, { fields: [bookRallyTransactions.orderId], references: [orders.id] }),
+  recordedByUser: one(users, { fields: [bookRallyTransactions.recordedBy], references: [users.id], relationName: "recordedBy" }),
+  verifiedByUser: one(users, { fields: [bookRallyTransactions.verifiedBy], references: [users.id], relationName: "verifiedBy" }),
 }));
 
 export const schoolsRelations = relations(schools, ({ many }) => ({

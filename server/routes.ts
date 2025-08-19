@@ -22,6 +22,7 @@ import {
   insertCartItemSchema,
   insertOrderSchema,
   insertOrderItemSchema,
+  insertBookRallyTransactionSchema,
   insertStudentSchema,
   insertStudentStatusChangeSchema,
   insertStudentFeePaymentSchema,
@@ -715,6 +716,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating order tracking:", error);
       res.status(500).json({ message: "Failed to update tracking number" });
+    }
+  });
+
+  // ===== BOOK RALLY AUDIT ROUTES =====
+  // Financial tracking for book rally operations
+
+  app.get("/api/book-rally-audit", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const transactions = await storage.getBookRallyTransactions();
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching book rally transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  app.post("/api/book-rally-audit", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertBookRallyTransactionSchema.parse({
+        ...req.body,
+        recordedBy: req.user?.id,
+      });
+
+      const transaction = await storage.createBookRallyTransaction(validatedData);
+      res.status(201).json(transaction);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating book rally transaction:", error);
+      res.status(500).json({ message: "Failed to create transaction" });
+    }
+  });
+
+  app.patch("/api/book-rally-audit/:id/verify", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const transactionId = parseInt(req.params.id);
+      if (isNaN(transactionId)) {
+        return res.status(400).json({ message: "Invalid transaction ID" });
+      }
+
+      const updatedTransaction = await storage.verifyBookRallyTransaction(transactionId, req.user?.id!);
+      if (!updatedTransaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+
+      res.json(updatedTransaction);
+    } catch (error) {
+      console.error("Error verifying book rally transaction:", error);
+      res.status(500).json({ message: "Failed to verify transaction" });
     }
   });
 
