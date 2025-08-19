@@ -23,6 +23,7 @@ import {
   insertOrderSchema,
   insertOrderItemSchema,
   insertBookRallyTransactionSchema,
+  insertPublicationTransactionSchema,
   insertStudentSchema,
   insertStudentStatusChangeSchema,
   insertStudentFeePaymentSchema,
@@ -766,6 +767,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedTransaction);
     } catch (error) {
       console.error("Error verifying book rally transaction:", error);
+      res.status(500).json({ message: "Failed to verify transaction" });
+    }
+  });
+
+  // ===== PUBLICATIONS AUDIT ROUTES =====
+  // Financial tracking for publication operations
+
+  app.get("/api/publications-audit", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const transactions = await storage.getPublicationTransactions();
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching publication transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  app.post("/api/publications-audit", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertPublicationTransactionSchema.parse({
+        ...req.body,
+        recordedBy: req.user?.id,
+      });
+
+      const transaction = await storage.createPublicationTransaction(validatedData);
+      res.status(201).json(transaction);
+    } catch (error) {
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      console.error("Error creating publication transaction:", error);
+      res.status(500).json({ message: "Failed to create transaction" });
+    }
+  });
+
+  app.patch("/api/publications-audit/:id/verify", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const transactionId = parseInt(req.params.id);
+      if (isNaN(transactionId)) {
+        return res.status(400).json({ message: "Invalid transaction ID" });
+      }
+
+      const updatedTransaction = await storage.verifyPublicationTransaction(transactionId, req.user?.id!);
+      if (!updatedTransaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+
+      res.json(updatedTransaction);
+    } catch (error) {
+      console.error("Error verifying publication transaction:", error);
       res.status(500).json({ message: "Failed to verify transaction" });
     }
   });

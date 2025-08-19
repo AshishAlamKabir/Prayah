@@ -736,6 +736,48 @@ export type InsertFeeStructure = z.infer<typeof insertFeeStructureSchema>;
 export type BookRallyTransaction = typeof bookRallyTransactions.$inferSelect;
 export type InsertBookRallyTransaction = z.infer<typeof insertBookRallyTransactionSchema>;
 
+// Publication Transactions table for finance tracking
+export const publicationTransactions = pgTable("publication_transactions", {
+  id: serial("id").primaryKey(),
+  transactionType: text("transaction_type").notNull(), // 'revenue', 'expense', 'commission', 'refund'
+  category: text("category").notNull(), // 'submission_fee', 'review_fee', 'publication_fee', 'printing_cost', 'marketing', 'author_royalty', 'commission', 'refund'
+  submissionId: integer("submission_id").references(() => publicationSubmissions.id, { onDelete: 'set null' }), // Link to submission if applicable
+  description: text("description").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").default("inr"),
+  authorName: text("author_name"), // For royalty payments or submission fees
+  manuscriptTitle: text("manuscript_title"), // Title of the work
+  vendorName: text("vendor_name"), // For expenses
+  invoiceNumber: text("invoice_number"), // Reference invoice/receipt
+  paymentMethod: text("payment_method"), // cash, card, upi, bank_transfer
+  receiptUrl: text("receipt_url"), // Link to uploaded receipt/invoice
+  notes: text("notes"), // Additional notes
+  recordedBy: integer("recorded_by").notNull().references(() => users.id, { onDelete: 'restrict' }), // Admin who recorded
+  isVerified: boolean("is_verified").default(false), // For audit verification
+  verifiedBy: integer("verified_by").references(() => users.id, { onDelete: 'set null' }), // Admin who verified
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    typeIdx: index('publication_transactions_type_idx').on(table.transactionType),
+    categoryIdx: index('publication_transactions_category_idx').on(table.category),
+    submissionIdx: index('publication_transactions_submission_idx').on(table.submissionId),
+    recordedByIdx: index('publication_transactions_recorded_by_idx').on(table.recordedBy),
+    createdAtIdx: index('publication_transactions_created_at_idx').on(table.createdAt),
+  };
+});
+
+export const insertPublicationTransactionSchema = createInsertSchema(publicationTransactions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Publication Transaction types
+export type PublicationTransaction = typeof publicationTransactions.$inferSelect;
+export type InsertPublicationTransaction = z.infer<typeof insertPublicationTransactionSchema>;
+
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(userSessions),
@@ -818,6 +860,12 @@ export const bookRallyTransactionsRelations = relations(bookRallyTransactions, (
   order: one(orders, { fields: [bookRallyTransactions.orderId], references: [orders.id] }),
   recordedByUser: one(users, { fields: [bookRallyTransactions.recordedBy], references: [users.id], relationName: "recordedBy" }),
   verifiedByUser: one(users, { fields: [bookRallyTransactions.verifiedBy], references: [users.id], relationName: "verifiedBy" }),
+}));
+
+export const publicationTransactionsRelations = relations(publicationTransactions, ({ one }) => ({
+  submission: one(publicationSubmissions, { fields: [publicationTransactions.submissionId], references: [publicationSubmissions.id] }),
+  recordedByUser: one(users, { fields: [publicationTransactions.recordedBy], references: [users.id], relationName: "recordedBy" }),
+  verifiedByUser: one(users, { fields: [publicationTransactions.verifiedBy], references: [users.id], relationName: "verifiedBy" }),
 }));
 
 export const schoolsRelations = relations(schools, ({ many }) => ({

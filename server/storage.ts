@@ -68,6 +68,9 @@ import {
   bookRallyTransactions,
   type BookRallyTransaction,
   type InsertBookRallyTransaction,
+  publicationTransactions,
+  type PublicationTransaction,
+  type InsertPublicationTransaction,
   CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
@@ -133,6 +136,11 @@ export interface IStorage {
   getBookRallyTransactions(): Promise<BookRallyTransaction[]>;
   createBookRallyTransaction(transaction: InsertBookRallyTransaction): Promise<BookRallyTransaction>;
   verifyBookRallyTransaction(id: number, verifiedBy: number): Promise<BookRallyTransaction | undefined>;
+  
+  // Publication Audit operations
+  getPublicationTransactions(): Promise<PublicationTransaction[]>;
+  createPublicationTransaction(transaction: InsertPublicationTransaction): Promise<PublicationTransaction>;
+  verifyPublicationTransaction(id: number, verifiedBy: number): Promise<PublicationTransaction | undefined>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -979,6 +987,36 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(bookRallyTransactions.id, id))
+      .returning();
+    return updatedTransaction || undefined;
+  }
+
+  // Publication Audit operations
+  async getPublicationTransactions(): Promise<PublicationTransaction[]> {
+    return await db
+      .select()
+      .from(publicationTransactions)
+      .orderBy(desc(publicationTransactions.createdAt));
+  }
+
+  async createPublicationTransaction(transaction: InsertPublicationTransaction): Promise<PublicationTransaction> {
+    const [newTransaction] = await db
+      .insert(publicationTransactions)
+      .values(transaction)
+      .returning();
+    return newTransaction;
+  }
+
+  async verifyPublicationTransaction(id: number, verifiedBy: number): Promise<PublicationTransaction | undefined> {
+    const [updatedTransaction] = await db
+      .update(publicationTransactions)
+      .set({ 
+        isVerified: true, 
+        verifiedBy,
+        verifiedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(publicationTransactions.id, id))
       .returning();
     return updatedTransaction || undefined;
   }
