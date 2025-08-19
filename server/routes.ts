@@ -21,6 +21,7 @@ import {
   insertFeeStructureSchema,
   insertCartItemSchema,
   insertOrderSchema,
+  insertOrderItemSchema,
   insertStudentSchema,
   insertStudentStatusChangeSchema,
   insertStudentFeePaymentSchema,
@@ -416,7 +417,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/books", authMiddleware, adminMiddleware, async (req, res) => {
     try {
       const validatedData = insertBookSchema.parse(req.body);
-      const book = await storage.addPublishedWork(validatedData);
+      const book = await storage.createBook(validatedData);
       
       // Clear books cache after adding new book
       cache.delete("books");
@@ -606,6 +607,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: validationError.message });
       }
       res.status(500).json({ message: "Failed to create order" });
+    }
+  });
+
+  // Order items endpoints
+  app.post("/api/order-items", authMiddleware, async (req, res) => {
+    try {
+      const validatedData = insertOrderItemSchema.parse(req.body);
+      const orderItem = await storage.createOrderItem(validatedData);
+      res.status(201).json(orderItem);
+    } catch (error) {
+      console.error("Error creating order item:", error);
+      if (error instanceof Error && error.name === "ZodError") {
+        const validationError = fromZodError(error as any);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to create order item" });
+    }
+  });
+
+  app.get("/api/orders/:orderId/items", authMiddleware, async (req, res) => {
+    try {
+      const orderId = parseInt(req.params.orderId);
+      if (isNaN(orderId)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+      }
+
+      const orderItems = await storage.getOrderItems(orderId);
+      res.json(orderItems);
+    } catch (error) {
+      console.error("Error fetching order items:", error);
+      res.status(500).json({ message: "Failed to fetch order items" });
     }
   });
 

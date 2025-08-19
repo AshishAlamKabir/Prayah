@@ -67,8 +67,12 @@ export default function CartCheckout() {
     setIsProcessing(true);
 
     try {
+      // Generate order number
+      const orderNumber = `ORD-${Date.now().toString().slice(-8)}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+      
       // Create order data
       const orderData = {
+        orderNumber,
         totalAmount: total,
         currency: "inr",
         shippingAddress: {
@@ -90,29 +94,60 @@ export default function CartCheckout() {
           phone: formData.phone
         },
         notes: formData.notes,
-        paymentMethod: "cod", // Cash on delivery for now
-        orderItems: cartItems.map(item => ({
-          bookId: item.bookId,
-          quantity: item.quantity,
-          price: item.book?.price || 0,
-          title: item.book?.title,
-          author: item.book?.author
-        }))
+        paymentMethod: "cod", // Cash on delivery
+        status: "pending",
+        paymentStatus: "pending"
       };
 
-      // For now, we'll simulate order creation
-      // In a real app, you'd call an API to create the order
-      console.log("Order data:", orderData);
+      // Create order via API
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Order creation failed: ${response.statusText}`);
+      }
+
+      const order = await response.json();
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Create order items for each cart item
+      const orderItemPromises = cartItems.map(async (item) => {
+        const orderItemResponse = await fetch("/api/order-items", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            bookId: item.bookId,
+            quantity: item.quantity,
+            price: item.book?.price || 0,
+            title: item.book?.title || "Unknown Title",
+            author: item.book?.author || "Unknown Author"
+          })
+        });
+        
+        if (!orderItemResponse.ok) {
+          throw new Error(`Failed to create order item: ${orderItemResponse.statusText}`);
+        }
+        
+        return orderItemResponse.json();
+      });
+
+      await Promise.all(orderItemPromises);
       
-      // Clear the cart
+      // Clear the cart after successful order creation
       await clearCart();
       
       toast({
         title: "Order Placed Successfully!",
-        description: `Your order for ${formatCurrency(total)} has been placed. You will receive a confirmation email shortly.`
+        description: `Your order #${orderNumber} for ${formatCurrency(total)} has been placed. You will receive a confirmation email shortly.`
       });
       
       // Navigate to a success page or back to store
@@ -122,7 +157,7 @@ export default function CartCheckout() {
       console.error("Checkout error:", error);
       toast({
         title: "Order Failed",
-        description: "There was an error processing your order. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error processing your order. Please try again.",
         variant: "destructive"
       });
     } finally {

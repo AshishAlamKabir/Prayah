@@ -121,6 +121,10 @@ export interface IStorage {
   getAllOrders(): Promise<Order[]>;
   updateOrderStatus(id: number, updates: Partial<Order>): Promise<Order | undefined>;
   updateOrderTracking(id: number, trackingNumber: string): Promise<Order | undefined>;
+  
+  // Order item operations
+  createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem>;
+  getOrderItems(orderId: number): Promise<OrderItem[]>;
 
   // Community post operations
   getCommunityPosts(status?: string): Promise<CommunityPost[]>;
@@ -923,6 +927,22 @@ export class DatabaseStorage implements IStorage {
   async markOrderNotified(id: number): Promise<any> {
     // TODO: Implement when order schema is ready
     return null;
+  }
+
+  // Order item operations
+  async createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem> {
+    const [newOrderItem] = await db
+      .insert(orderItems)
+      .values(orderItem)
+      .returning();
+    return newOrderItem;
+  }
+
+  async getOrderItems(orderId: number): Promise<OrderItem[]> {
+    return await db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId));
   }
 
   // Publication submission operations
