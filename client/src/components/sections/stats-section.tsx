@@ -1,70 +1,82 @@
-import dilipPhukan from "@assets/Dilip phukan_1754924693932.jpg";
-import nijoraBot from "@assets/Nijora borthakur_1754924731273.jpg";
-import amarKakoty from "@assets/Amar kakoty_1754924777602.jpg";
-import ajantaRajkhowa from "@assets/Ajanta Rajkhowa_1754924777601.jpg";
-import soneswarNarah from "@assets/Soneswar Narah_1754924810787.jpg";
-import bijuChautal from "@assets/Biju Chautal_1754925020183.jpg";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { MapPin, Users, GraduationCap } from "lucide-react";
+import type { School } from "@shared/schema";
 
 export default function StatsSection() {
-  const leadershipTeam = [
-    {
-      name: "Dilip Pookhan",
-      position: "Chief Advisor",
-      image: dilipPhukan,
-    },
-    {
-      name: "Nijora Borthakur",
-      position: "President",
-      image: nijoraBot,
-    },
-    {
-      name: "Amar Kakoty",
-      position: "Vice President",
-      image: amarKakoty,
-    },
-    {
-      name: "Ajanta Rajkhowa",
-      position: "Vice President",
-      image: ajantaRajkhowa,
-    },
-    {
-      name: "Soneswar Narah",
-      position: "Chief Secretary",
-      image: soneswarNarah,
-    },
-    {
-      name: "Biju Choutal",
-      position: "Treasurer",
-      image: bijuChautal,
-    },
-  ];
+  const { data: schools, isLoading } = useQuery<School[]>({
+    queryKey: ["/api/schools"],
+  });
 
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Leadership Team</h2>
-          <p className="text-lg text-gray-600">Dedicated leaders driving educational and cultural transformation</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Schools Directory</h2>
+          <p className="text-lg text-gray-600">Educational institutions committed to transformative learning</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {leadershipTeam.map((leader, index) => (
-            <div key={index} className="text-center">
-              <div className="mb-4">
-                <img 
-                  src={leader.image} 
-                  alt={leader.name}
-                  className={`w-24 h-24 rounded-full mx-auto border-4 border-red-100 shadow-lg hover:border-red-300 transition-colors ${
-                    leader.name === "Dilip Pookhan" 
-                      ? "object-cover object-left-top" 
-                      : "object-cover"
-                  }`}
-                />
-              </div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-1">{leader.name}</h4>
-              <p className="text-xs text-red-600 font-medium">{leader.position}</p>
-            </div>
-          ))}
-        </div>
+        
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((index) => (
+              <Card key={index} className="p-6">
+                <CardContent className="p-0">
+                  <Skeleton className="h-48 w-full mb-4 rounded-lg" />
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2 mb-2" />
+                  <Skeleton className="h-4 w-2/3" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {schools?.map((school) => (
+              <Card key={school.id} className="group hover:shadow-xl transition-all duration-300 border-gray-200 hover:border-red-200">
+                <CardContent className="p-6">
+                  {school.imageUrl && (
+                    <div className="mb-4 overflow-hidden rounded-lg">
+                      <img 
+                        src={school.imageUrl} 
+                        alt={school.name}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
+                    {school.name}
+                  </h3>
+                  
+                  <div className="flex items-center text-gray-600 mb-2">
+                    <MapPin className="h-4 w-4 mr-2 text-red-500" />
+                    <span className="text-sm">{school.location}</span>
+                  </div>
+                  
+                  <div className="flex items-center text-gray-600 mb-3">
+                    <Users className="h-4 w-4 mr-2 text-red-500" />
+                    <span className="text-sm">{school.studentCount} Students</span>
+                  </div>
+                  
+                  <p className="text-gray-700 text-sm leading-relaxed mb-4 line-clamp-3">
+                    {school.description}
+                  </p>
+                  
+                  {school.programs && school.programs.length > 0 && (
+                    <div className="flex items-center text-gray-600">
+                      <GraduationCap className="h-4 w-4 mr-2 text-red-500" />
+                      <span className="text-sm">{school.programs.slice(0, 2).join(", ")}</span>
+                      {school.programs.length > 2 && (
+                        <span className="text-sm text-gray-500"> +{school.programs.length - 2} more</span>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
