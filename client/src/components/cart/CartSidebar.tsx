@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { ShoppingCart, Plus, Minus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
@@ -10,6 +11,7 @@ import { formatCurrency } from "@/utils/business";
 
 export function CartSidebar() {
   const { user } = useAuth();
+  const [, navigate] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   
   const {
@@ -37,7 +39,7 @@ export function CartSidebar() {
   const handleCheckout = () => {
     // Navigate to checkout page
     setIsOpen(false);
-    window.location.href = "/checkout";
+    navigate("/checkout");
   };
 
   return (

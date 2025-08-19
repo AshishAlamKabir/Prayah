@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useCart } from "@/hooks/useCart";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,8 @@ import { ShoppingCart, CreditCard, MapPin, User } from "lucide-react";
 
 export default function CartCheckout() {
   const [, navigate] = useLocation();
-  const { cartItems, clearCart, isLoadingCart } = useCart();
+  const { data: user } = useQuery({ queryKey: ["/api/auth/me"] });
+  const { cartItems, clearCart, isLoading } = useCart((user as any)?.id || 0);
   const { toast } = useToast();
   
   const [isProcessing, setIsProcessing] = useState(false);
@@ -165,7 +167,7 @@ export default function CartCheckout() {
     }
   };
 
-  if (isLoadingCart) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center">
