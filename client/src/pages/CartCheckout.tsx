@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/utils/business";
 import { ShoppingCart, CreditCard, MapPin, User } from "lucide-react";
@@ -36,12 +37,66 @@ export default function CartCheckout() {
     notes: ""
   });
 
+  // Shipping rates based on states in India
+  const getShippingRate = (state: string, subtotal: number) => {
+    // Free shipping over ₹500 for all states
+    if (subtotal >= 500) return 0;
+    
+    const normalizedState = state.toLowerCase().trim();
+    
+    // Metropolitan states - Lower shipping rates
+    const metroStates = ['delhi', 'mumbai', 'maharashtra', 'karnataka', 'tamil nadu', 'west bengal', 'gujarat', 'telangana', 'haryana'];
+    
+    // Northeast states - Higher shipping due to distance
+    const northeastStates = ['assam', 'arunachal pradesh', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'tripura', 'sikkim'];
+    
+    // Remote states and territories - Highest shipping
+    const remoteStates = ['jammu and kashmir', 'ladakh', 'himachal pradesh', 'uttarakhand', 'andaman and nicobar islands', 'lakshadweep'];
+    
+    if (metroStates.some(metro => normalizedState.includes(metro.toLowerCase()))) {
+      return 40; // Lower rate for metro cities
+    } else if (northeastStates.some(ne => normalizedState.includes(ne.toLowerCase()))) {
+      return 80; // Higher rate for northeast
+    } else if (remoteStates.some(remote => normalizedState.includes(remote.toLowerCase()))) {
+      return 100; // Highest rate for remote areas
+    } else {
+      return 60; // Standard rate for other states
+    }
+  };
+
   const subtotal = cartItems.reduce((sum, item) => sum + (item.book?.price || 0) * item.quantity, 0);
-  const shipping = subtotal > 500 ? 0 : 50; // Free shipping over ₹500
+  const shipping = getShippingRate(formData.state, subtotal);
   const total = subtotal + shipping;
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const indianStates = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", 
+    "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", 
+    "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", 
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", 
+    "Uttarakhand", "West Bengal", "Delhi", "Jammu and Kashmir", "Ladakh", 
+    "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+    "Lakshadweep", "Puducherry"
+  ];
+
+  const getShippingInfo = (state: string) => {
+    const normalizedState = state.toLowerCase().trim();
+    const metroStates = ['delhi', 'mumbai', 'maharashtra', 'karnataka', 'tamil nadu', 'west bengal', 'gujarat', 'telangana', 'haryana'];
+    const northeastStates = ['assam', 'arunachal pradesh', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'tripura', 'sikkim'];
+    const remoteStates = ['jammu and kashmir', 'ladakh', 'himachal pradesh', 'uttarakhand', 'andaman and nicobar islands', 'lakshadweep'];
+    
+    if (metroStates.some(metro => normalizedState.includes(metro.toLowerCase()))) {
+      return { rate: 40, zone: "Metro Zone", days: "2-3 business days" };
+    } else if (northeastStates.some(ne => normalizedState.includes(ne.toLowerCase()))) {
+      return { rate: 80, zone: "Northeast Zone", days: "4-6 business days" };
+    } else if (remoteStates.some(remote => normalizedState.includes(remote.toLowerCase()))) {
+      return { rate: 100, zone: "Remote Zone", days: "5-8 business days" };
+    } else {
+      return { rate: 60, zone: "Standard Zone", days: "3-5 business days" };
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -281,12 +336,21 @@ export default function CartCheckout() {
                   </div>
                   <div>
                     <Label htmlFor="state">State *</Label>
-                    <Input
-                      id="state"
-                      value={formData.state}
-                      onChange={(e) => handleInputChange("state", e.target.value)}
-                      required
-                    />
+                    <Select 
+                      value={formData.state} 
+                      onValueChange={(value) => handleInputChange("state", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your state" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {indianStates.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -349,9 +413,21 @@ export default function CartCheckout() {
                     <span>{formatCurrency(subtotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Shipping</span>
+                    <div className="flex flex-col">
+                      <span>Shipping</span>
+                      {formData.state && (
+                        <span className="text-xs text-gray-500">
+                          {getShippingInfo(formData.state).zone} • {getShippingInfo(formData.state).days}
+                        </span>
+                      )}
+                    </div>
                     <span>{shipping === 0 ? "Free" : formatCurrency(shipping)}</span>
                   </div>
+                  {subtotal >= 500 && (
+                    <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
+                      🎉 You've qualified for free shipping!
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total</span>
                     <span>{formatCurrency(total)}</span>
