@@ -42,6 +42,7 @@ import FeePaymentAccessControl from "@/components/admin/FeePaymentAccessControl"
 import BookRallyAudit from "@/components/admin/BookRallyAudit";
 import PublicationsAudit from "@/components/admin/PublicationsAudit";
 import { OrderManagement } from "@/components/admin/OrderManagement";
+import ContentEditor from "@/components/admin/ContentEditor";
 import { Link } from "wouter";
 
 interface User {
@@ -234,11 +235,12 @@ export default function AdminDashboard() {
         {/* Dashboard Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-1 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-10 gap-1 h-auto p-1">
               <TabsTrigger value="overview" className="whitespace-nowrap px-3 py-2 text-sm">Overview</TabsTrigger>
               {(dashboardUser.role === "admin" || dashboardUser.role === "school_admin") && <TabsTrigger value="schools" className="whitespace-nowrap px-3 py-2 text-sm">Schools</TabsTrigger>}
               {(dashboardUser.role === "admin" || dashboardUser.role === "culture_admin") && <TabsTrigger value="culture" className="whitespace-nowrap px-3 py-2 text-sm">Culture</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="content" className="whitespace-nowrap px-3 py-2 text-sm">Content</TabsTrigger>}
+              {dashboardUser.role === "admin" && <TabsTrigger value="content-editor" className="whitespace-nowrap px-3 py-2 text-sm">Content Editor</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="books" className="whitespace-nowrap px-3 py-2 text-sm">Books</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="orders" className="whitespace-nowrap px-3 py-2 text-sm">Orders</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="analytics" className="whitespace-nowrap px-3 py-2 text-sm">Analytics</TabsTrigger>}
@@ -391,7 +393,7 @@ export default function AdminDashboard() {
                     </div>
                     <Button 
                       className="w-full mt-4" 
-                      onClick={() => setActiveTab("schools")}
+                      onClick={() => setActiveTab("content-editor")}
                     >
                       Manage School Content
                     </Button>
@@ -426,7 +428,7 @@ export default function AdminDashboard() {
                     </div>
                     <Button 
                       className="w-full mt-4" 
-                      onClick={() => setActiveTab("culture")}
+                      onClick={() => setActiveTab("content-editor")}
                     >
                       Manage Cultural Content
                     </Button>
@@ -593,6 +595,13 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="content-editor" className="mt-6">
+            <ContentEditor 
+              schools={accessibleSchools || []}
+              cultureCategories={accessibleCultureCategories || []}
+            />
           </TabsContent>
 
           <TabsContent value="books" className="mt-6">

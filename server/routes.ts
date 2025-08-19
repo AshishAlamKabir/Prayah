@@ -402,6 +402,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update school content (PUT endpoint for ContentEditor)
+  app.put("/api/schools/:id", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const schoolId = parseInt(req.params.id);
+      if (isNaN(schoolId)) {
+        return res.status(400).json({ message: "Invalid school ID" });
+      }
+
+      const school = await storage.getSchool(schoolId);
+      if (!school) {
+        return res.status(404).json({ message: "School not found" });
+      }
+
+      // Update school with the content data from ContentEditor
+      const updatedSchool = await storage.updateSchool(schoolId, {
+        aboutUs: req.body.aboutUs,
+        mission: req.body.mission,
+        vision: req.body.vision,
+        history: req.body.history,
+        principalMessage: req.body.principalMessage,
+        detailedDescription: req.body.detailedDescription,
+        contactEmail: req.body.contactEmail,
+        contactPhone: req.body.contactPhone,
+        website: req.body.website,
+        achievements: req.body.achievements,
+        facilities: req.body.facilities,
+        infrastructure: req.body.infrastructure,
+        extracurriculars: req.body.extracurriculars
+      });
+
+      // Clear cache after update
+      cache.delete("schools");
+      cache.delete(`school_${schoolId}`);
+
+      res.json(updatedSchool);
+    } catch (error) {
+      console.error("Error updating school content:", error);
+      res.status(500).json({ message: "Failed to update school content" });
+    }
+  });
+
   app.get("/api/schools/:id/payment-status", async (req, res) => {
     try {
       const schoolId = parseInt(req.params.id);
@@ -1429,6 +1470,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch students by status" });
     }
   });
+
+  // Culture Categories endpoints
+  app.get("/api/culture-categories", async (req, res) => {
+    try {
+      const cacheKey = "culture_categories";
+      let categories = cache.get(cacheKey);
+      
+      if (!categories) {
+        categories = await storage.getCultureCategories();
+        cache.set(cacheKey, categories, 5 * 60 * 1000);
+      }
+      
+      res.set('Cache-Control', 'public, max-age=300');
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching culture categories:", error);
+      res.status(500).json({ message: "Failed to fetch culture categories" });
+    }
+  });
+
+  // Update culture category content (PUT endpoint for ContentEditor)
+  app.put("/api/culture-categories/:id", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+      if (isNaN(categoryId)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+
+      const category = await storage.getCultureCategory(categoryId);
+      if (!category) {
+        return res.status(404).json({ message: "Culture category not found" });
+      }
+
+      // Update culture category with the content data from ContentEditor
+      const updatedCategory = await storage.updateCultureCategory(categoryId, {
+        aboutSection: req.body.aboutSection,
+        detailedDescription: req.body.detailedDescription,
+        objectives: req.body.objectives,
+        activities: req.body.activities,
+        instructorInfo: req.body.instructorInfo,
+        scheduleInfo: req.body.scheduleInfo,
+        requirements: req.body.requirements,
+        achievements: req.body.achievements,
+        history: req.body.history,
+        philosophy: req.body.philosophy,
+        youtubeChannelUrl: req.body.youtubeChannelUrl
+      });
+
+      // Clear cache after update
+      cache.delete("culture_categories");
+      cache.delete(`culture_category_${categoryId}`);
+
+      res.json(updatedCategory);
+    } catch (error) {
+      console.error("Error updating culture category content:", error);
+      res.status(500).json({ message: "Failed to update culture category content" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
