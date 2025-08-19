@@ -78,7 +78,7 @@ export default function Books() {
           {isLoading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {Array.from({ length: 8 }).map((_, i) => (
-                <Card key={i} className="revolutionary-card overflow-hidden">
+                <Card key={i} className="interactive-card overflow-hidden">
                   <Skeleton className="h-48 w-full" />
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-2">
@@ -123,7 +123,7 @@ export default function Books() {
               
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {filteredBooks.map((book) => (
-                  <Card key={book.id} className="revolutionary-card bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                  <Card key={book.id} className="interactive-card bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                     <div className="h-48 bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
                       <Book className="h-16 w-16 text-amber-800" />
                     </div>

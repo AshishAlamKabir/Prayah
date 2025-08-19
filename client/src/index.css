@@ -13,7 +13,7 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(0, 62.8%, 30.6%); /* Revolutionary red */
+  --primary: hsl(0, 62.8%, 30.6%); /* Primary red */
   --primary-foreground: hsl(0, 0%, 98%);
   --secondary: hsl(60, 4.8%, 95.9%);
   --secondary-foreground: hsl(24, 9.8%, 10%);
@@ -24,10 +24,10 @@
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
   
-  /* Revolutionary theme colors */
-  --revolutionary-red: hsl(0, 62.8%, 30.6%);
+  /* Theme colors */
+  --brand-red: hsl(0, 62.8%, 30.6%);
   --deep-red: hsl(0, 62.8%, 25%);
-  --socialist-green: hsl(120, 40%, 25%);
+  --brand-green: hsl(120, 40%, 25%);
   --light-green: hsl(120, 55%, 45%);
 }
 
@@ -65,12 +65,12 @@
 }
 
 @layer components {
-  .revolutionary-card {
+  .interactive-card {
     @apply transform transition-all duration-300 hover:scale-105;
   }
   
-  .revolutionary-red-bg {
-    background-color: var(--revolutionary-red);
+  .brand-red-bg {
+    background-color: var(--brand-red);
   }
   
   .deep-red-bg {

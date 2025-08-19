@@ -111,7 +111,7 @@ export default function Admin() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
             {statsLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <Card key={i} className="revolutionary-card bg-white p-6">
+                <Card key={i} className="interactive-card bg-white p-6">
                   <Skeleton className="h-8 w-8 mb-2" />
                   <Skeleton className="h-8 w-16 mb-2" />
                   <Skeleton className="h-4 w-20" />
@@ -119,22 +119,22 @@ export default function Admin() {
               ))
             ) : (
               <>
-                <Card className="revolutionary-card bg-white p-6 text-center">
+                <Card className="interactive-card bg-white p-6 text-center">
                   <Users className="h-8 w-8 text-red-800 mx-auto mb-2" />
                   <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalUsers || 0}</div>
                   <div className="text-gray-600">Total Users</div>
                 </Card>
-                <Card className="revolutionary-card bg-white p-6 text-center">
+                <Card className="interactive-card bg-white p-6 text-center">
                   <FileText className="h-8 w-8 text-red-800 mx-auto mb-2" />
                   <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalPosts || 0}</div>
                   <div className="text-gray-600">Community Posts</div>
                 </Card>
-                <Card className="revolutionary-card bg-white p-6 text-center">
+                <Card className="interactive-card bg-white p-6 text-center">
                   <BarChart3 className="h-8 w-8 text-red-800 mx-auto mb-2" />
                   <div className="text-3xl font-bold text-red-800 mb-2">{(stats as any)?.totalSchools || 0}</div>
                   <div className="text-gray-600">Active Schools</div>
                 </Card>
-                <Card className="revolutionary-card bg-white p-6 text-center">
+                <Card className="interactive-card bg-white p-6 text-center">
                   <Clock className="h-8 w-8 text-red-800 mx-auto mb-2" />
                   <div className="text-3xl font-bold text-red-800 mb-2">{pendingPosts?.length || 0}</div>
                   <div className="text-gray-600">Pending Reviews</div>

@@ -76,11 +76,18 @@ All role-based accounts are restricted to their assigned sections and cannot acc
 
 ## Recent Changes
 
-### Leadership Team Display (August 11, 2025)
-- **Replaced ineffective stats section** with organizational leadership team photos
-- **Added leadership profiles**: Dilip Pookhan (Chief Advisor), Nijora Borthakur (President), Amar Kakoty & Ajanta Rajkhowa (Vice Presidents), Soneswar Narah (Chief Secretary), Biju Choutal (Treasurer)
-- **Implemented responsive layout**: 2 columns on mobile, 3 on tablet, 6 on desktop for optimal viewing
-- **Enhanced homepage value**: Replaced meaningless zero-value statistics with meaningful organizational information
+### Leadership Team to Schools Directory Transformation (August 19, 2025)
+- **Converted leadership section to schools directory** as requested by user
+- **Created dynamic school showcase** displaying actual schools from database with images, locations, student counts, and programs
+- **Implemented responsive card layout** with hover effects and proper spacing
+- **Added school data integration** fetching real school information instead of static content
+
+### Content Neutralization (August 19, 2025)
+- **Removed politically charged language** throughout entire website per user request
+- **Replaced "revolutionary" terminology** with neutral educational language ("progressive", "creative", "educational")
+- **Updated CSS classes** from "revolutionary-card" to "interactive-card" for neutral branding
+- **Modified seed data** to use appropriate educational terminology instead of political references
+- **Ensured platform-wide consistency** in language and tone for educational focus
 
 ### Security Fixes (August 11, 2025)
 - **Fixed NaN injection vulnerability** in user input validation for float() typecasts

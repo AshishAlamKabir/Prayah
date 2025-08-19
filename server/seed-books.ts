@@ -4,22 +4,22 @@ import { books } from "@shared/schema";
 async function seedBooks() {
   const booksData = [
     {
-      title: "Revolutionary Thoughts of Assam",
+      title: "Progressive Thoughts of Assam",
       author: "Dr. Hiren Gohain",
-      description: "A comprehensive analysis of revolutionary movements in Assam and their impact on social transformation.",
+      description: "A comprehensive analysis of social movements in Assam and their impact on educational development.",
       category: "Political Theory",
       price: 299.00,
       isbn: "978-81-123-4567-8",
       inStock: true,
       featured: true,
       subscriptionOnly: false,
-      pdfUrl: "/pdfs/revolutionary-thoughts-assam.pdf",
-      tags: ["revolution", "assam", "political-theory", "social-change"]
+      pdfUrl: "/pdfs/progressive-thoughts-assam.pdf",
+      tags: ["social-movement", "assam", "political-theory", "social-change"]
     },
     {
       title: "Songs of Freedom: Assamese Folk Heritage",
       author: "Bhupen Hazarika",
-      description: "Collection of traditional and revolutionary folk songs that inspired generations of freedom fighters.",
+      description: "Collection of traditional and inspiring folk songs that motivated generations of freedom fighters.",
       category: "Music & Culture",
       price: 199.00,
       isbn: "978-81-234-5678-9",
@@ -69,17 +69,17 @@ async function seedBooks() {
       tags: ["community", "marginalized", "stories", "resilience"]
     },
     {
-      title: "Revolutionary Women of Northeast India",
+      title: "Pioneering Women of Northeast India",
       author: "Dr. Indira Goswami",
-      description: "Biographical accounts of women revolutionaries who fought for independence and social justice.",
+      description: "Biographical accounts of women leaders who fought for independence and social justice.",
       category: "Biography",
       price: 399.00,
       isbn: "978-81-678-9012-3",
       inStock: true,
       featured: true,
       subscriptionOnly: true,
-      pdfUrl: "/pdfs/revolutionary-women.pdf",
-      tags: ["women", "revolution", "biography", "northeast", "independence"]
+      pdfUrl: "/pdfs/pioneering-women.pdf",
+      tags: ["women", "leadership", "biography", "northeast", "independence"]
     },
     {
       title: "Sustainable Agriculture Practices",

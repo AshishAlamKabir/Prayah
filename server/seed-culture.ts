@@ -7,8 +7,8 @@ async function seedCultureCategories() {
       name: "music",
       displayName: "Music Programs",
       icon: "🎵",
-      description: "Revolutionary music programs that blend traditional folk music with modern expression",
-      detailedDescription: "Our music programs celebrate the rich musical heritage of Assam while incorporating contemporary revolutionary themes. Students learn traditional instruments like dhol, pepa, and taal, alongside modern instruments. We organize regular concerts, folk music festivals, and community singing sessions that bring together people from all walks of life. The programs emphasize music as a tool for social change, cultural preservation, and community building.",
+      description: "Creative music programs that blend traditional folk music with modern expression",
+      detailedDescription: "Our music programs celebrate the rich musical heritage of Assam while incorporating contemporary educational themes. Students learn traditional instruments like dhol, pepa, and taal, alongside modern instruments. We organize regular concerts, folk music festivals, and community singing sessions that bring together people from all walks of life. The programs emphasize music as a tool for cultural preservation and community building.",
       youtubeChannelUrl: "https://www.youtube.com/channel/UCPrayasMusicRevolution",
       programs: [
         {
@@ -18,8 +18,8 @@ async function seedCultureCategories() {
           schedule: "Mondays & Wednesdays 4-6 PM"
         },
         {
-          name: "Revolutionary Songs Workshop",
-          description: "Compose and perform songs that inspire social change",
+          name: "Creative Songs Workshop",
+          description: "Compose and perform songs that inspire community building",
           instructor: "Bhupen Hazarika Jr.",
           schedule: "Fridays 5-7 PM"
         },
@@ -40,10 +40,10 @@ async function seedCultureCategories() {
         },
         {
           type: "audio",
-          url: "/audio/revolutionary-song.mp3", 
-          caption: "Revolutionary Song - Unity in Diversity",
+          url: "/audio/unity-song.mp3", 
+          caption: "Unity Song - Harmony in Diversity",
           description: "Original composition about social harmony",
-          tags: ["revolutionary", "original", "social-change"]
+          tags: ["unity", "original", "social-harmony"]
         },
         {
           type: "image",
