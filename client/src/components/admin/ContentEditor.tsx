@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import PlatformSettings from "./PlatformSettings";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
@@ -668,30 +669,7 @@ export default function ContentEditor({ schools, cultureCategories }: ContentEdi
 
         {/* Platform Settings */}
         <TabsContent value="platform">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                Platform Settings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Platform Configuration</h3>
-                <p className="text-gray-600 mb-6">
-                  Advanced platform settings including navigation, footer content, contact information, and social media links will be available in a future update.
-                </p>
-                <div className="space-y-2">
-                  <Badge variant="outline" className="mr-2">Navigation Menu</Badge>
-                  <Badge variant="outline" className="mr-2">Footer Content</Badge>
-                  <Badge variant="outline" className="mr-2">Contact Information</Badge>
-                  <Badge variant="outline" className="mr-2">Social Media Links</Badge>
-                  <Badge variant="outline" className="mr-2">Theme Settings</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <PlatformSettings />
         </TabsContent>
       </Tabs>
     </div>

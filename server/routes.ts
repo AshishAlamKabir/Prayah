@@ -1592,6 +1592,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Platform Settings endpoints
+  app.get("/api/platform-settings", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const settings = await storage.getPlatformSettings();
+      res.json(settings);
+    } catch (error) {
+      console.error("Error fetching platform settings:", error);
+      res.status(500).json({ message: "Failed to fetch platform settings" });
+    }
+  });
+
+  app.put("/api/platform-settings", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const settings = await storage.updatePlatformSettings(req.body);
+      if (!settings) {
+        return res.status(404).json({ message: "Platform settings not found" });
+      }
+      res.json(settings);
+    } catch (error) {
+      console.error("Error updating platform settings:", error);
+      res.status(500).json({ message: "Failed to update platform settings" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

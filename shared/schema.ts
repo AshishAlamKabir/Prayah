@@ -843,6 +843,65 @@ export const insertCultureWingTransactionSchema = createInsertSchema(cultureWing
 export type CultureWingTransaction = typeof cultureWingTransactions.$inferSelect;
 export type InsertCultureWingTransaction = z.infer<typeof insertCultureWingTransactionSchema>;
 
+// Platform Settings table for global configuration
+export const platformSettings = pgTable("platform_settings", {
+  id: serial("id").primaryKey(),
+  // Navigation Settings
+  primaryMenuItems: jsonb("primary_menu_items").default('["Home", "Schools", "Culture", "Books", "Community"]'),
+  secondaryMenuItems: jsonb("secondary_menu_items").default('["About", "Contact", "Publications"]'),
+  showLanguageSelector: boolean("show_language_selector").default(true),
+  showSearchBar: boolean("show_search_bar").default(true),
+  
+  // Footer Content
+  footerDescription: text("footer_description").default("A comprehensive educational platform empowering communities through quality education and cultural programs."),
+  copyrightText: text("copyright_text").default("© 2025 Prayas Education Platform. All rights reserved."),
+  footerLinks: jsonb("footer_links").default('[]'),
+  
+  // Contact Information
+  organizationName: text("organization_name").default("Prayas Education Platform"),
+  address: text("address"),
+  phone: text("phone"),
+  email: text("email"),
+  officeHours: text("office_hours").default("Monday - Friday: 9:00 AM - 5:00 PM"),
+  
+  // Social Media
+  facebookUrl: text("facebook_url"),
+  instagramUrl: text("instagram_url"),
+  youtubeUrl: text("youtube_url"),
+  twitterUrl: text("twitter_url"),
+  
+  // Theme Settings
+  primaryColor: text("primary_color").default("#dc2626"),
+  secondaryColor: text("secondary_color").default("#16a34a"),
+  showAnnouncementBar: boolean("show_announcement_bar").default(false),
+  announcementText: text("announcement_text"),
+  
+  // Platform Features
+  enableBookstore: boolean("enable_bookstore").default(true),
+  enableCommunityPosts: boolean("enable_community_posts").default(true),
+  enablePublications: boolean("enable_publications").default(true),
+  enableCulturalPrograms: boolean("enable_cultural_programs").default(true),
+  enableFeePayments: boolean("enable_fee_payments").default(true),
+  
+  // SEO & Meta
+  siteTitle: text("site_title").default("Prayas Education Platform"),
+  siteDescription: text("site_description").default("A comprehensive educational platform providing quality education, cultural programs, books, and community engagement."),
+  keywords: text("keywords").default("education, school, cultural programs, books, community, students, learning"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPlatformSettingsSchema = createInsertSchema(platformSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Platform Settings types
+export type PlatformSettings = typeof platformSettings.$inferSelect;
+export type InsertPlatformSettings = z.infer<typeof insertPlatformSettingsSchema>;
+
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(userSessions),

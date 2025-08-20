@@ -74,6 +74,9 @@ import {
   cultureWingTransactions,
   type CultureWingTransaction,
   type InsertCultureWingTransaction,
+  platformSettings,
+  type PlatformSettings,
+  type InsertPlatformSettings,
   CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
@@ -1058,6 +1061,35 @@ export class DatabaseStorage implements IStorage {
       .where(eq(cultureWingTransactions.id, id))
       .returning();
     return updatedTransaction || undefined;
+  }
+
+  // Platform Settings operations
+  async getPlatformSettings(): Promise<PlatformSettings | undefined> {
+    const [settings] = await db.select().from(platformSettings).limit(1);
+    if (!settings) {
+      // Create default settings if none exist
+      const [defaultSettings] = await db
+        .insert(platformSettings)
+        .values({})
+        .returning();
+      return defaultSettings;
+    }
+    return settings;
+  }
+
+  async updatePlatformSettings(updates: Partial<PlatformSettings>): Promise<PlatformSettings | undefined> {
+    const existing = await this.getPlatformSettings();
+    if (!existing) return undefined;
+
+    const [updatedSettings] = await db
+      .update(platformSettings)
+      .set({ 
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(platformSettings.id, existing.id))
+      .returning();
+    return updatedSettings || undefined;
   }
 
   // Publication submission operations
