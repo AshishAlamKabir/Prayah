@@ -1,7 +1,35 @@
 import { Link } from "wouter";
 import { Zap, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Footer() {
+  const { data: platformSettings } = useQuery({
+    queryKey: ["/api/platform-settings"],
+  });
+
+  const socialLinks = [
+    {
+      icon: Facebook,
+      url: (platformSettings as any)?.facebook_url,
+      name: "Facebook"
+    },
+    {
+      icon: Twitter, 
+      url: (platformSettings as any)?.twitter_url,
+      name: "Twitter"
+    },
+    {
+      icon: Instagram,
+      url: (platformSettings as any)?.instagram_url, 
+      name: "Instagram"
+    },
+    {
+      icon: Youtube,
+      url: (platformSettings as any)?.youtube_url,
+      name: "YouTube"
+    }
+  ];
+
   return (
     <footer className="bg-gray-900 text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,16 +37,28 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <Zap className="h-8 w-8 text-red-800" />
-              <h3 className="text-xl font-bold">Prayas</h3>
+              <h3 className="text-xl font-bold">{(platformSettings as any)?.site_title || "Prayas"}</h3>
             </div>
             <p className="text-gray-400 mb-4">
-              Revolutionary community organization platform empowering education, culture, and social change through digital unity.
+              {(platformSettings as any)?.footer_description || "Revolutionary community organization platform empowering education, culture, and social change through digital unity."}
             </p>
             <div className="flex space-x-4">
-              <Facebook className="h-6 w-6 hover:text-red-800 cursor-pointer transition-colors" />
-              <Twitter className="h-6 w-6 hover:text-red-800 cursor-pointer transition-colors" />
-              <Instagram className="h-6 w-6 hover:text-red-800 cursor-pointer transition-colors" />
-              <Youtube className="h-6 w-6 hover:text-red-800 cursor-pointer transition-colors" />
+              {socialLinks.map(({ icon: Icon, url, name }) => (
+                url ? (
+                  <a
+                    key={name}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-red-300 transition-colors"
+                    aria-label={`Follow us on ${name}`}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </a>
+                ) : (
+                  <Icon key={name} className="h-6 w-6 text-gray-600 cursor-not-allowed" />
+                )
+              ))}
             </div>
           </div>
           
@@ -69,7 +109,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 Prayas Revolutionary Community Organization. All rights reserved.</p>
+          <p>{(platformSettings as any)?.copyright_text || "&copy; 2024 Prayas Revolutionary Community Organization. All rights reserved."}</p>
         </div>
       </div>
     </footer>
