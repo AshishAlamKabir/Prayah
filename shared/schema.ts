@@ -806,6 +806,43 @@ export const insertPublicationTransactionSchema = createInsertSchema(publication
 export type PublicationTransaction = typeof publicationTransactions.$inferSelect;
 export type InsertPublicationTransaction = z.infer<typeof insertPublicationTransactionSchema>;
 
+// Culture Wing Transactions table for cultural wing audit tracking
+export const cultureWingTransactions = pgTable("culture_wing_transactions", {
+  id: serial("id").primaryKey(),
+  wingId: integer("wing_id").notNull().references(() => cultureCategories.id, { onDelete: 'cascade' }),
+  transactionType: text("transaction_type").notNull(), // 'program_fee', 'instructor_payment', 'equipment_purchase', 'venue_rental', 'performance_income', 'workshop_fee', 'maintenance', 'other'
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  description: text("description").notNull(),
+  participantName: text("participant_name"),
+  instructorName: text("instructor_name"),
+  programName: text("program_name"),
+  date: timestamp("date").notNull(),
+  verified: boolean("verified").default(false),
+  verifiedBy: integer("verified_by").references(() => users.id, { onDelete: 'set null' }),
+  verifiedAt: timestamp("verified_at"),
+  recordedBy: integer("recorded_by").notNull().references(() => users.id, { onDelete: 'restrict' }),
+  createdAt: timestamp("created_at").defaultNow(),
+  notes: text("notes"),
+}, (table) => {
+  return {
+    wingIdx: index('culture_wing_transactions_wing_idx').on(table.wingId),
+    typeIdx: index('culture_wing_transactions_type_idx').on(table.transactionType),
+    dateIdx: index('culture_wing_transactions_date_idx').on(table.date),
+    recordedByIdx: index('culture_wing_transactions_recorded_by_idx').on(table.recordedBy),
+    createdAtIdx: index('culture_wing_transactions_created_at_idx').on(table.createdAt),
+  };
+});
+
+export const insertCultureWingTransactionSchema = createInsertSchema(cultureWingTransactions).omit({
+  id: true,
+  createdAt: true,
+  verifiedAt: true,
+});
+
+// Culture Wing Transaction types
+export type CultureWingTransaction = typeof cultureWingTransactions.$inferSelect;
+export type InsertCultureWingTransaction = z.infer<typeof insertCultureWingTransactionSchema>;
+
 // Database Relations for referential integrity and query optimization
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(userSessions),

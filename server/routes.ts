@@ -1529,6 +1529,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Culture Wing Audit endpoints
+  app.get("/api/culture-wing-audit/:wingId", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const wingId = parseInt(req.params.wingId);
+      if (isNaN(wingId)) {
+        return res.status(400).json({ message: "Invalid wing ID" });
+      }
+
+      const transactions = await storage.getCultureWingTransactions(wingId);
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching culture wing transactions:", error);
+      res.status(500).json({ message: "Failed to fetch culture wing transactions" });
+    }
+  });
+
+  app.post("/api/culture-wing-audit", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const { wingId, transactionType, amount, description, participantName, instructorName, programName, date, notes } = req.body;
+
+      if (!wingId || !transactionType || !amount || !description) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const transaction = await storage.createCultureWingTransaction({
+        wingId,
+        transactionType,
+        amount: parseFloat(amount).toString(),
+        description,
+        participantName,
+        instructorName,
+        programName,
+        date: new Date(date),
+        notes,
+        recordedBy: req.user!.id
+      });
+
+      res.status(201).json(transaction);
+    } catch (error) {
+      console.error("Error creating culture wing transaction:", error);
+      res.status(500).json({ message: "Failed to create culture wing transaction" });
+    }
+  });
+
+  app.patch("/api/culture-wing-audit/:id/verify", authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+      const transactionId = parseInt(req.params.id);
+      if (isNaN(transactionId)) {
+        return res.status(400).json({ message: "Invalid transaction ID" });
+      }
+
+      const transaction = await storage.verifyCultureWingTransaction(transactionId, req.user!.id);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+
+      res.json(transaction);
+    } catch (error) {
+      console.error("Error verifying culture wing transaction:", error);
+      res.status(500).json({ message: "Failed to verify culture wing transaction" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

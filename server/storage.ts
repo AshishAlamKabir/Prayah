@@ -71,6 +71,9 @@ import {
   publicationTransactions,
   type PublicationTransaction,
   type InsertPublicationTransaction,
+  cultureWingTransactions,
+  type CultureWingTransaction,
+  type InsertCultureWingTransaction,
   CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
@@ -1017,6 +1020,42 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(publicationTransactions.id, id))
+      .returning();
+    return updatedTransaction || undefined;
+  }
+
+  // Culture Wing Audit operations
+  async getCultureWingTransactions(wingId?: number): Promise<CultureWingTransaction[]> {
+    if (wingId) {
+      return await db
+        .select()
+        .from(cultureWingTransactions)
+        .where(eq(cultureWingTransactions.wingId, wingId))
+        .orderBy(desc(cultureWingTransactions.createdAt));
+    }
+    return await db
+      .select()
+      .from(cultureWingTransactions)
+      .orderBy(desc(cultureWingTransactions.createdAt));
+  }
+
+  async createCultureWingTransaction(transaction: InsertCultureWingTransaction): Promise<CultureWingTransaction> {
+    const [newTransaction] = await db
+      .insert(cultureWingTransactions)
+      .values(transaction)
+      .returning();
+    return newTransaction;
+  }
+
+  async verifyCultureWingTransaction(id: number, verifiedBy: number): Promise<CultureWingTransaction | undefined> {
+    const [updatedTransaction] = await db
+      .update(cultureWingTransactions)
+      .set({ 
+        verified: true, 
+        verifiedBy,
+        verifiedAt: new Date()
+      })
+      .where(eq(cultureWingTransactions.id, id))
       .returning();
     return updatedTransaction || undefined;
   }

@@ -43,6 +43,7 @@ import BookRallyAudit from "@/components/admin/BookRallyAudit";
 import PublicationsAudit from "@/components/admin/PublicationsAudit";
 import { OrderManagement } from "@/components/admin/OrderManagement";
 import ContentEditor from "@/components/admin/ContentEditor";
+import CultureWingAudit from "@/components/admin/CultureWingAudit";
 import { Link } from "wouter";
 
 interface User {
@@ -247,6 +248,7 @@ export default function AdminDashboard() {
               {dashboardUser.role === "admin" && <TabsTrigger value="payments" className="whitespace-nowrap px-3 py-2 text-sm">Fee Payments</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="book-rally-audit" className="whitespace-nowrap px-3 py-2 text-sm">Book Rally Audit</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="publications-audit" className="whitespace-nowrap px-3 py-2 text-sm">Publications Audit</TabsTrigger>}
+              {(dashboardUser.role === "admin" || dashboardUser.role === "culture_admin") && <TabsTrigger value="culture-wing-audit" className="whitespace-nowrap px-3 py-2 text-sm">Culture Wing Audit</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="payment-access" className="whitespace-nowrap px-3 py-2 text-sm">Payment Access</TabsTrigger>}
               {dashboardUser.role === "admin" && <TabsTrigger value="notifications" className="whitespace-nowrap px-3 py-2 text-sm">Notifications</TabsTrigger>}
             </TabsList>
@@ -651,6 +653,14 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-6">
                 <PublicationsAudit />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="culture-wing-audit" className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <CultureWingAudit />
               </CardContent>
             </Card>
           </TabsContent>
