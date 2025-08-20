@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -93,6 +93,14 @@ export default function AdminLogin() {
             >
               {loginMutation.isPending ? "Signing in..." : "Sign In"}
             </Button>
+
+            <div className="text-center mt-4">
+              <Link href="/admin/forgot-password">
+                <Button variant="ghost" className="text-sm text-red-600 hover:text-red-700">
+                  Forgot your password?
+                </Button>
+              </Link>
+            </div>
           </form>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">

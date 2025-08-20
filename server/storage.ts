@@ -77,6 +77,9 @@ import {
   platformSettings,
   type PlatformSettings,
   type InsertPlatformSettings,
+  passwordResetTokens,
+  type PasswordResetToken,
+  type InsertPasswordResetToken,
   CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
@@ -1090,6 +1093,55 @@ export class DatabaseStorage implements IStorage {
       .where(eq(platformSettings.id, existing.id))
       .returning();
     return updatedSettings || undefined;
+  }
+
+  // Password Reset operations
+  async createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const [newToken] = await db
+      .insert(passwordResetTokens)
+      .values(token)
+      .returning();
+    return newToken;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(and(
+        eq(passwordResetTokens.token, token),
+        eq(passwordResetTokens.used, false),
+        sql`${passwordResetTokens.expiresAt} > NOW()`
+      ));
+    return resetToken || undefined;
+  }
+
+  async markPasswordResetTokenAsUsed(token: string): Promise<void> {
+    await db
+      .update(passwordResetTokens)
+      .set({ used: true })
+      .where(eq(passwordResetTokens.token, token));
+  }
+
+  async cleanupExpiredPasswordResetTokens(): Promise<void> {
+    await db
+      .delete(passwordResetTokens)
+      .where(sql`${passwordResetTokens.expiresAt} < NOW() OR ${passwordResetTokens.used} = true`);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async updateUserPassword(userId: number, hashedPassword: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.id, userId));
   }
 
   // Publication submission operations

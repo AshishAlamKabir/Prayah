@@ -26,6 +26,8 @@ import BookPublication from "@/pages/BookPublication";
 import AdminDashboard from "@/pages/AdminDashboard";
 import SchoolAdminDashboard from "@/pages/SchoolAdminDashboard";
 import AdminLogin from "@/pages/AdminLogin";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import SchoolFeePayment from "@/pages/SchoolFeePayment";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
@@ -60,6 +62,9 @@ function Router() {
           <Route path="/publish" component={BookPublication} />
           <Route path="/schools/:schoolId/fee-payment" component={SchoolFeePayment} />
           <Route path="/admin-login" component={AdminLogin} />
+          <Route path="/admin/login" component={AdminLogin} />
+          <Route path="/admin/forgot-password" component={ForgotPassword} />
+          <Route path="/admin/reset-password" component={ResetPassword} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route component={NotFound} />
