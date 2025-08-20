@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -149,6 +149,14 @@ export default function Login() {
               >
                 {loginMutation.isPending ? "Signing in..." : "Sign In"}
               </Button>
+
+              <div className="text-center mt-4">
+                <Link href="/forgot-password">
+                  <Button variant="ghost" className="text-sm text-red-600 hover:text-red-700">
+                    Forgot your password?
+                  </Button>
+                </Link>
+              </div>
             </form>
           </Form>
           <div className="mt-4 text-center">

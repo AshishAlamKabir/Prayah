@@ -66,6 +66,8 @@ function Router() {
           <Route path="/admin/forgot-password" component={ForgotPassword} />
           <Route path="/admin/reset-password" component={ResetPassword} />
           <Route path="/login" component={Login} />
+          <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/reset-password" component={ResetPassword} />
           <Route path="/register" component={Register} />
           <Route component={NotFound} />
         </Switch>

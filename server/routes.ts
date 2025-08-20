@@ -1648,7 +1648,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // In a real application, you would send an email here
       // For now, we'll return the reset link for testing
-      const resetLink = `${req.protocol}://${req.get('host')}/admin/reset-password?token=${token}`;
+      const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${token}`;
       
       console.log('Password reset link:', resetLink);
       
