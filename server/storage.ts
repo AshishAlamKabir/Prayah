@@ -1129,13 +1129,6 @@ export class DatabaseStorage implements IStorage {
       .where(sql`${passwordResetTokens.expiresAt} < NOW() OR ${passwordResetTokens.used} = true`);
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email));
-    return user || undefined;
-  }
 
   async updateUserPassword(userId: number, hashedPassword: string): Promise<void> {
     await db
