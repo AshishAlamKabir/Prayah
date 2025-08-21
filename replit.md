@@ -10,7 +10,7 @@ Database preference: PostgreSQL (Neon Database) for scalability and reliability.
 UI framework: Tailwind CSS with shadcn/ui components for modern design.
 Security requirements: JWT-based authentication with role-based access control.
 Features required: Complete educational management system with student lifecycle tracking.
-Role-based access: Only PrayasAdmin has full super admin access; all other accounts are role-based with limited functionality according to their specific assignments.
+Role-based access: Only PrayasAdhayanChakraAdmin has full super admin access; all other accounts are role-based with limited functionality according to their specific assignments.
 
 ## System Architecture
 
@@ -18,7 +18,7 @@ The application employs a comprehensive educational management platform with rol
 
 ### Role-Based Access Control
 **Super Administrator:**
-- **PrayasAdmin**: Full system access - manages all schools, culture categories, users, and system settings
+- **PrayasAdhayanChakraAdmin**: Full system access - manages all schools, culture categories, users, and system settings
 
 **School Administrators (Limited to specific schools):**
 - **BokaghatAdmin**: Manages Bokaghat Jatiya Vidyalaya only
@@ -60,10 +60,10 @@ All role-based accounts are restricted to their assigned sections and cannot acc
 - **Admin Pages**: Secure Login, Dashboard (statistics), Book Management (add/edit/delete), Inventory Management, Orders Management, CSV Export.
 - **UI Components**: Bootstrap components, responsive cards, data tables, modals, forms with validation.
 
-### Integration with Prayas Platform
-- **Navigation Integration**: The "Books" tab in the Prayas navigation now links directly to the Flask BookStore (running on port 3000).
+### Integration with PrayasAdhayanChakra Platform
+- **Navigation Integration**: The "Books" tab in the PrayasAdhayanChakra navigation now links directly to the Flask BookStore (running on port 3000).
 - **External Link**: Opens bookstore in new tab with external link indicator for seamless user experience.
-- **Dual Platform**: Maintains both the educational Prayas platform (React/Node.js) and commercial BookStore (Flask/Python) as integrated services.
+- **Dual Platform**: Maintains both the educational PrayasAdhayanChakra platform (React/Node.js) and commercial BookStore (Flask/Python) as integrated services.
 
 ### Data Flow
 - **Client-Server Communication**: RESTful API endpoints; TanStack Query for caching and synchronization; Zod schemas for validation; comprehensive error handling.
@@ -71,7 +71,7 @@ All role-based accounts are restricted to their assigned sections and cannot acc
 - **Database Operations**: Drizzle ORM for type-safe queries; IStorage abstraction; Drizzle Kit for migrations; connection pooling.
 
 ### System Design Choices
-- **UI/UX**: Logo-matched design with authentic red and green color palette derived from the official Prayas logo, implemented using CSS custom properties and shadcn/ui templates.
+- **UI/UX**: Logo-matched design with authentic red and green color palette derived from the official PrayasAdhayanChakra logo, implemented using CSS custom properties and shadcn/ui templates.
 - **Technical Implementations**: Comprehensive authentication with `bcrypt`, role-based access control, file upload systems (Multer), payment backend with Stripe and Razorpay integrations, email notifications (SendGrid).
 
 ## Recent Changes

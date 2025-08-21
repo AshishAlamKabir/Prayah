@@ -43,10 +43,10 @@ export default function Header() {
             <div className="flex items-center space-x-3 cursor-pointer">
               <img 
                 src={prayasLogo} 
-                alt="Prayas Logo" 
+                alt="PrayasAdhayanChakra Logo" 
                 className="h-12 w-12 object-contain rounded-lg shadow-sm"
               />
-              <h1 className="text-2xl md:text-3xl font-bold">প্রয়াস</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">প্রয়াস অধ্যয়ন চক্র</h1>
             </div>
           </Link>
           

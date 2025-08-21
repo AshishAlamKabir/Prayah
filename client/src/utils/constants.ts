@@ -1,7 +1,7 @@
 // Application constants and configuration
 
 export const APP_CONFIG = {
-  name: "Prayas E-commerce Platform",
+  name: "PrayasAdhayanChakra E-commerce Platform",
   version: "1.0.0",
   description: "Comprehensive e-commerce bookstore integrated with educational management",
 } as const;

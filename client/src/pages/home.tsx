@@ -51,10 +51,10 @@ export default function Home() {
       <section className="bg-red-800 text-white py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-6">About Prayas Study Circle</h2>
+            <h2 className="text-4xl font-bold mb-6">About PrayasAdhayanChakra Study Circle</h2>
             <div className="text-left max-w-4xl mx-auto space-y-6">
               <p className="text-lg leading-relaxed">
-                Prayas Adhyayan Chakra (প্ৰয়াস অধ্যয়ন চক্ৰ, PACB) is a non-profit, non-governmental organization 
+                PrayasAdhayanChakra (প্ৰয়াস অধ্যয়ন চক্ৰ, PADC) is a non-profit, non-governmental organization 
                 founded in 1996 in Bokakhat, Assam. Guided by the constitutional values of equality, justice, 
                 and fraternity, PACB works to create an equitable society through education and cultural 
                 preservation, particularly focusing on marginalized communities.
@@ -64,7 +64,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-2xl font-semibold mb-4">Our Journey</h3>
                   <p className="text-lg leading-relaxed mb-4">
-                    PACB began as a grassroots study circle serving rural areas around Bokakhat, addressing 
+                    PADC began as a grassroots study circle serving rural areas around Bokakhat, addressing 
                     the educational needs of economically disadvantaged children. Our early initiatives included 
                     awareness campaigns encouraging students to pursue formal education and textbook distribution 
                     drives for families unable to afford educational materials.
@@ -78,7 +78,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-2xl font-semibold mb-4">Our Mission</h3>
                   <p className="text-lg leading-relaxed mb-4">
-                    PACB is deeply committed to preserving and promoting the languages and cultures of Assam's 
+                    PADC is deeply committed to preserving and promoting the languages and cultures of Assam's 
                     diverse communities, with particular attention to those historically marginalized and 
                     discriminated against.
                   </p>

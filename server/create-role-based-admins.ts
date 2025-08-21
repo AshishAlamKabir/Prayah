@@ -51,7 +51,7 @@ async function createRoleBasedAdmins() {
     const cultureAdmins = [
       {
         username: "MusicAdmin",
-        email: "music@prayasculture.org",
+        email: "music@prayasadhayanachakraculture.org",
         password: passwordHash,
         firstName: "Music",
         lastName: "Administrator",
@@ -62,7 +62,7 @@ async function createRoleBasedAdmins() {
       },
       {
         username: "FineArtsAdmin",
-        email: "finearts@prayasculture.org", 
+        email: "finearts@prayasadhayanachakraculture.org", 
         password: passwordHash,
         firstName: "Fine Arts",
         lastName: "Administrator",
@@ -73,7 +73,7 @@ async function createRoleBasedAdmins() {
       },
       {
         username: "DanceAdmin",
-        email: "dance@prayasculture.org",
+        email: "dance@prayasadhayanachakraculture.org",
         password: passwordHash,
         firstName: "Dance",
         lastName: "Administrator", 
@@ -84,7 +84,7 @@ async function createRoleBasedAdmins() {
       },
       {
         username: "PoetryAdmin",
-        email: "poetry@prayasculture.org",
+        email: "poetry@prayasadhayanachakraculture.org",
         password: passwordHash,
         firstName: "Poetry", 
         lastName: "Administrator",
@@ -95,7 +95,7 @@ async function createRoleBasedAdmins() {
       },
       {
         username: "DramaAdmin",
-        email: "drama@prayasculture.org",
+        email: "drama@prayasadhayanachakraculture.org",
         password: passwordHash,
         firstName: "Drama",
         lastName: "Administrator",

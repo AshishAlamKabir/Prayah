@@ -37,10 +37,10 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <Zap className="h-8 w-8 text-red-800" />
-              <h3 className="text-xl font-bold">{(platformSettings as any)?.site_title || "Prayas"}</h3>
+              <h3 className="text-xl font-bold">{(platformSettings as any)?.site_title || "PrayasAdhayanChakra"}</h3>
             </div>
             <p className="text-gray-400 mb-4">
-              {(platformSettings as any)?.footer_description || "Revolutionary community organization platform empowering education, culture, and social change through digital unity."}
+              {(platformSettings as any)?.footer_description || "Educational community organization platform empowering education, culture, and social change through digital unity."}
             </p>
             <div className="flex space-x-4">
               {socialLinks.map(({ icon: Icon, url, name }) => (
@@ -101,7 +101,7 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect</h4>
             <ul className="space-y-2 text-gray-400">
-              <li>Email: info@prayas.org</li>
+              <li>Email: info@prayasadhayanachakra.org</li>
               <li>Phone: +91 9876543210</li>
               <li>Address: Revolution Center, Mumbai</li>
             </ul>
@@ -109,7 +109,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p>{(platformSettings as any)?.copyright_text || "&copy; 2024 Prayas Revolutionary Community Organization. All rights reserved."}</p>
+          <p>{(platformSettings as any)?.copyright_text || "&copy; 2024 PrayasAdhayanChakra Educational Community Organization. All rights reserved."}</p>
         </div>
       </div>
     </footer>
