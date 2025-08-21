@@ -3,18 +3,25 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
-// Configure WebSocket for Neon with proper error handling
+// Safe Neon configuration for Node.js compatibility
 neonConfig.webSocketConstructor = ws;
 
-// Simplified configuration to avoid WebSocket errors
+// Conservative settings to prevent WebSocket errors
 neonConfig.pipelineConnect = false;
 neonConfig.useSecureWebSocket = true;
 
-// Add custom error handling for WebSocket
-neonConfig.wsProxy = (host) => `${host}:443/v1`;
-
-// Disable problematic features that cause connection issues
-neonConfig.pipelineTLS = false;
+// Safe error handling - don't modify error objects
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  // Log errors safely without modifying error.message property
+  const safeArgs = args.map(arg => {
+    if (arg instanceof Error) {
+      return `Error: ${arg.name} - ${arg.message}`;
+    }
+    return arg;
+  });
+  originalConsoleError(...safeArgs);
+};
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -22,13 +29,13 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Create pool with simplified configuration to avoid WebSocket errors
+// Safe pool configuration compatible with latest Neon serverless
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  max: 10, // Reduced pool size for stability
-  min: 1,  // Minimum connections
-  idleTimeoutMillis: 30000, // Shorter idle timeout
-  connectionTimeoutMillis: 10000, // Longer timeout for initial connection
+  max: 5, // Conservative pool size for serverless
+  min: 0, // No minimum connections for serverless
+  idleTimeoutMillis: 20000, // Shorter idle timeout for serverless
+  connectionTimeoutMillis: 15000, // Longer connection timeout
 });
 
 export const db = drizzle({ client: pool, schema });
