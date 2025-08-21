@@ -35,6 +35,8 @@ import {
   CLASS_ORDER
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import bcrypt from 'bcrypt';
+import phonepeRoutes from './routes/phonepe';
 import { 
   authMiddleware, 
   adminMiddleware, 
@@ -1687,7 +1689,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Hash new password
-      const bcrypt = require('bcrypt');
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Update user password
@@ -1704,7 +1705,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PhonePe Payment Gateway routes
-  const phonepeRoutes = require('./routes/phonepe').default;
   app.use('/api/phonepe', phonepeRoutes);
 
   const httpServer = createServer(app);
