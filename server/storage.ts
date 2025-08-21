@@ -80,6 +80,9 @@ import {
   passwordResetTokens,
   type PasswordResetToken,
   type InsertPasswordResetToken,
+  phonepeTransactions,
+  type PhonePeTransaction,
+  type InsertPhonePeTransaction,
   CLASS_ORDER,
 } from "@shared/schema";
 import { db } from "./db";
