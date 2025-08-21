@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Phone, Mail, Globe, Star, Award, CreditCard } from "lucide-react";
 import { Link } from "wouter";
+import type { School } from "@shared/schema";
 import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
 import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
 import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
@@ -47,7 +48,7 @@ export default function SchoolDetail() {
   const [match, params] = useRoute("/schools/:id");
   const schoolId = params?.id;
 
-  const { data: school, isLoading } = useQuery({
+  const { data: school, isLoading } = useQuery<School>({
     queryKey: ["/api/schools", schoolId],
     enabled: !!schoolId,
   });
@@ -157,13 +158,13 @@ export default function SchoolDetail() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {school.detailedDescription || school.description}
+                  {school.detailedDescription || school.description || "No description available."}
                 </p>
               </CardContent>
             </Card>
 
             {/* Media Gallery */}
-            {school.mediaFiles && school.mediaFiles.length > 0 && (
+            {school.mediaFiles && Array.isArray(school.mediaFiles) && school.mediaFiles.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-red-600 dark:text-red-400">Media Gallery</CardTitle>
@@ -202,7 +203,7 @@ export default function SchoolDetail() {
             )}
 
             {/* Programs */}
-            {school.programs && school.programs.length > 0 && (
+            {school.programs && Array.isArray(school.programs) && school.programs.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-red-600 dark:text-red-400">Academic Programs</CardTitle>
