@@ -1703,6 +1703,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PhonePe Payment Gateway routes
+  const phonepeRoutes = require('./routes/phonepe').default;
+  app.use('/api/phonepe', phonepeRoutes);
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1144,6 +1144,54 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId));
   }
 
+  // PhonePe Transactions
+  async createPhonePeTransaction(transactionData: any): Promise<any> {
+    const [transaction] = await db
+      .insert(phonepeTransactions)
+      .values({
+        merchantTransactionId: transactionData.merchantTransactionId,
+        merchantUserId: transactionData.merchantUserId,
+        amount: transactionData.amount,
+        currency: transactionData.currency || 'INR',
+        redirectUrl: transactionData.redirectUrl,
+        redirectMode: transactionData.redirectMode || 'POST',
+        callbackUrl: transactionData.callbackUrl,
+        merchantOrderId: transactionData.merchantOrderId,
+        paymentInstrument: transactionData.paymentInstrument,
+        userId: transactionData.userId,
+        orderType: transactionData.orderType,
+        orderData: transactionData.orderData
+      })
+      .returning();
+    return transaction;
+  }
+
+  async updatePhonePeTransaction(merchantTransactionId: string, updateData: any): Promise<void> {
+    await db
+      .update(phonepeTransactions)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(eq(phonepeTransactions.merchantTransactionId, merchantTransactionId));
+  }
+
+  async getPhonePeTransaction(merchantTransactionId: string): Promise<any> {
+    const [transaction] = await db
+      .select()
+      .from(phonepeTransactions)
+      .where(eq(phonepeTransactions.merchantTransactionId, merchantTransactionId));
+    return transaction;
+  }
+
+  async getPhonePeTransactionsByUser(userId: number): Promise<any[]> {
+    return await db
+      .select()
+      .from(phonepeTransactions)
+      .where(eq(phonepeTransactions.userId, userId))
+      .orderBy(phonepeTransactions.createdAt);
+  }
+
   // Publication submission operations
   async getPublicationSubmissions(status?: string): Promise<PublicationSubmission[]> {
     if (status) {

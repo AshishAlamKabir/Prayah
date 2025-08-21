@@ -1204,3 +1204,47 @@ export const studentExcelUploadsRelations = relations(studentExcelUploads, ({ on
   school: one(schools, { fields: [studentExcelUploads.schoolId], references: [schools.id] }),
   uploader: one(users, { fields: [studentExcelUploads.uploadedBy], references: [users.id] }),
 }));
+
+// PhonePe Transactions table
+export const phonepeTransactions = pgTable("phonepe_transactions", {
+  id: serial("id").primaryKey(),
+  merchantTransactionId: varchar("merchant_transaction_id", { length: 255 }).unique().notNull(),
+  merchantUserId: varchar("merchant_user_id", { length: 255 }).notNull(),
+  amount: integer("amount").notNull(),
+  currency: varchar("currency", { length: 10 }).default("INR"),
+  redirectUrl: text("redirect_url"),
+  redirectMode: varchar("redirect_mode", { length: 20 }).default("POST"),
+  callbackUrl: text("callback_url"),
+  merchantOrderId: varchar("merchant_order_id", { length: 255 }),
+  paymentInstrument: jsonb("payment_instrument"),
+  responseCode: varchar("response_code", { length: 50 }),
+  state: varchar("state", { length: 50 }),
+  transactionId: varchar("transaction_id", { length: 255 }),
+  providerReferenceId: varchar("provider_reference_id", { length: 255 }),
+  userId: integer("user_id").references(() => users.id),
+  orderType: varchar("order_type", { length: 50 }),
+  orderData: jsonb("order_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    merchantTransactionIdx: index('phonepe_merchant_transaction_idx').on(table.merchantTransactionId),
+    userIdx: index('phonepe_user_idx').on(table.userId),
+    stateIdx: index('phonepe_state_idx').on(table.state),
+    createdAtIdx: index('phonepe_created_at_idx').on(table.createdAt),
+  };
+});
+
+export const insertPhonePeTransactionSchema = createInsertSchema(phonepeTransactions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type PhonePeTransaction = typeof phonepeTransactions.$inferSelect;
+export type InsertPhonePeTransaction = z.infer<typeof insertPhonePeTransactionSchema>;
+
+// PhonePe transactions relations
+export const phonepeTransactionsRelations = relations(phonepeTransactions, ({ one }) => ({
+  user: one(users, { fields: [phonepeTransactions.userId], references: [users.id] }),
+}));
