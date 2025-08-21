@@ -5,9 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Phone, Mail, Globe, Star, Award, CreditCard } from "lucide-react";
 import { Link } from "wouter";
-import mohuramukh_logo from "@assets/mohura mukh logo_1753439814424.jpg";
-import brahmaputra_logo from "@assets/brahmaputra logo_1753439814424.jpg";
-import bokaghat_logo from "@assets/b j b logo_1753439981026.jpg";
+import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
+import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
+import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
 
 // Component to show fee payment card only if enabled
 function FeePaymentCard({ schoolId }: { schoolId: number }) {
