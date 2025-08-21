@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Users, Phone, Mail, Globe, Star, Award, CreditCard } from "lucide-react";
 import { Link } from "wouter";
 import type { School } from "@shared/schema";
-import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
-import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
-import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
+import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
+import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
+import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
 
 // Component to show fee payment card only if enabled
 function FeePaymentCard({ schoolId }: { schoolId: number }) {
@@ -56,11 +56,11 @@ export default function SchoolDetail() {
   const getSchoolLogo = (schoolName: string) => {
     switch (schoolName) {
       case "Mohuramukh Jatiya Vidyalai":
-        return mohuramukh_logo;
+        return mohuramukhtLogo;
       case "Brahmaputra Jatiya Vidyalai":
-        return brahmaputra_logo;
+        return brahmaputraLogo;
       case "Bokaghat Jatiya Vidyalai":
-        return bokaghat_logo;
+        return bokaghatLogo;
       default:
         return null;
     }

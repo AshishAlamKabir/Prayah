@@ -16,9 +16,10 @@ import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
 import dilipPhukan from "@assets/Dilip_phukan_1754924693932.jpg";
 import nijoraBot from "@assets/Nijora_borthakur_1754924731273.jpg";
 import amarKakoty from "@assets/Amar_kakoty_1754924777602.jpg";
-import ajantaRajkhowa from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
-import soneswarNarah from "@assets/Soneswar_Narah_1754924810787.jpg";
-import bijuChautal from "@assets/Biju_Chautal_1754925020183.jpg";
+// Note: Some assets may not be available yet
+// import ajantaRajkhowa from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
+// import soneswarNarah from "@assets/Soneswar_Narah_1754924810787.jpg";
+// import bijuChautal from "@assets/Biju_Chautal_1754925020183.jpg";
 
 export default function Home() {
   const { data: schools, isLoading: schoolsLoading } = useQuery<School[]>({
