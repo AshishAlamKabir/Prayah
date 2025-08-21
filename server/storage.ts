@@ -240,6 +240,7 @@ export interface IStorage {
   createSchoolFeePayment(payment: InsertSchoolFeePayment): Promise<SchoolFeePayment>;
   getSchoolFeePayment(id: number): Promise<SchoolFeePayment | undefined>;
   getSchoolFeePaymentByRazorpayOrderId(orderId: string): Promise<SchoolFeePayment | undefined>;
+  updateSchoolFeePaymentStatus(id: number, status: string): Promise<SchoolFeePayment | undefined>;
   updateSchoolFeePaymentStatus(id: number, updates: Partial<SchoolFeePayment>): Promise<SchoolFeePayment | undefined>;
   getSchoolFeePayments(schoolId?: number, userId?: number): Promise<SchoolFeePayment[]>;
   checkDuplicateFeePayment(schoolId: number, studentRollNo: string, feeMonth: string): Promise<SchoolFeePayment | undefined>;
@@ -265,7 +266,7 @@ export interface IStorage {
   deleteStudent(id: number): Promise<void>;
   
   // Student Status Management
-  updateStudentStatus(studentId: number, newStatus: string, newClass?: string, reason?: string, changedBy: number): Promise<StudentStatusChange>;
+  updateStudentStatus(studentId: number, newStatus: string, changedBy: number, newClass?: string, reason?: string): Promise<StudentStatusChange>;
   getStudentStatusHistory(studentId: number): Promise<StudentStatusChange[]>;
   getStudentsByStatus(schoolId: number, status: string): Promise<Student[]>;
   getDropoutStudents(schoolId: number): Promise<Student[]>;
@@ -500,19 +501,25 @@ export class DatabaseStorage implements IStorage {
   // School operations
   async getSchools(): Promise<(School & { studentCount: number })[]> {
     const schoolsWithCounts = await db
-      .select({
-        ...schools,
-        studentCount: sql<number>`COALESCE(COUNT(${students.id}), 0)`
-      })
+      .select()
       .from(schools)
       .leftJoin(students, eq(students.schoolId, schools.id))
-      .groupBy(schools.id)
       .orderBy(desc(schools.createdAt));
 
-    return schoolsWithCounts.map(school => ({
-      ...school,
-      studentCount: Number(school.studentCount)
-    }));
+    // Group by school and count students
+    const schoolMap = new Map<number, School & { studentCount: number }>();
+    
+    for (const row of schoolsWithCounts) {
+      const school = row.schools;
+      if (!schoolMap.has(school.id)) {
+        schoolMap.set(school.id, { ...school, studentCount: 0 });
+      }
+      if (row.students) {
+        schoolMap.get(school.id)!.studentCount++;
+      }
+    }
+
+    return Array.from(schoolMap.values());
   }
 
   async getSchool(id: number): Promise<School | undefined> {
