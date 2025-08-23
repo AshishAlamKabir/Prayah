@@ -22,15 +22,13 @@ try {
   console.log('Processing', rows.length, 'classes\n');
   
   const feeStructures = [];
-  const razorpayChargeRate = 0.0236; // 2.36%
-  const razorpayFixedCharge = 2; // ₹2 per transaction
+  const razorpayChargeRate = 0; // No charges
+  const razorpayFixedCharge = 0; // No fixed charges
   
-  // Function to calculate what student pays including Razorpay charges
+  // Function to calculate what student pays - NO CHARGES
   function calculateStudentAmount(schoolAmount) {
-    const percentageCharge = schoolAmount * razorpayChargeRate;
-    const totalCharge = percentageCharge + razorpayFixedCharge;
-    const studentPaysAmount = schoolAmount + totalCharge;
-    return Math.ceil(studentPaysAmount);
+    // Student pays exactly what school receives - no additional charges
+    return schoolAmount;
   }
   
   // Find MJV school ID

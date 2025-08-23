@@ -22,16 +22,13 @@ try {
   console.log('Processing', rows.length, 'classes\n');
   
   const feeStructures = [];
-  const razorpayChargeRate = 0.0236; // 2.36%
-  const razorpayFixedCharge = 2; // ₹2 per transaction
+  const razorpayChargeRate = 0; // No charges
+  const razorpayFixedCharge = 0; // No fixed charges
   
   // Function to calculate what student pays including Razorpay charges
   function calculateStudentAmount(schoolAmount) {
-    // Student pays: School Amount + (School Amount * 2.36%) + ₹2
-    const percentageCharge = schoolAmount * razorpayChargeRate;
-    const totalCharge = percentageCharge + razorpayFixedCharge;
-    const studentPaysAmount = schoolAmount + totalCharge;
-    return Math.ceil(studentPaysAmount); // Round up to nearest rupee
+    // NO CHARGES - Student pays exactly what school receives
+    return schoolAmount; // No additional charges
   }
   
   rows.forEach(row => {

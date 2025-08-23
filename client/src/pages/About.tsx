@@ -9,32 +9,39 @@ import ajantaPhoto from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
 import amarPhoto from "@assets/Amar_kakoty_1754924777602.jpg";
 import dilipPhoto from "@assets/Dilip_phukan_1754924693932.jpg";
 import nijoraPhoto from "@assets/Nijora_borthakur_1754924731273.jpg";
+import soneswarPhoto from "@assets/Soneswar_Narah_1754924810787.jpg";
 
 export default function About() {
   const teamMembers = [
     {
-      name: "Ajanta Rajkhowa",
-      role: "Educational Leadership", 
-      description: "Dedicated educator committed to fostering critical thinking and academic excellence",
-      image: ajantaPhoto
-    },
-    {
-      name: "Amar Kakoty", 
-      role: "Cultural Coordinator",
-      description: "Preserving and promoting regional cultural traditions through various artistic expressions",
-      image: amarPhoto
-    },
-    {
-      name: "Dilip Phukan",
-      role: "Community Development",
-      description: "Building stronger communities through grassroots organizing and social initiatives", 
+      name: "Dilip Phookan",
+      role: "Chief Advisor", 
+      description: "Strategic leadership and guidance for organizational excellence and vision",
       image: dilipPhoto
     },
     {
-      name: "Nijora Borthakur",
-      role: "Arts & Heritage",
-      description: "Promoting cultural heritage and artistic expression in our educational programs",
+      name: "Nijora Borthakur", 
+      role: "President",
+      description: "Leading the organization with dedication to educational and cultural advancement",
       image: nijoraPhoto
+    },
+    {
+      name: "Amar Kakoty",
+      role: "Vice President",
+      description: "Supporting organizational initiatives in cultural programs and community development", 
+      image: amarPhoto
+    },
+    {
+      name: "Ajanta Rajkhowa",
+      role: "Vice President",
+      description: "Driving educational excellence and academic innovation across all programs",
+      image: ajantaPhoto
+    },
+    {
+      name: "Soneswar Narah",
+      role: "Chief Advisor",
+      description: "Providing strategic direction and wisdom for sustainable growth and impact",
+      image: soneswarPhoto
     }
   ];
 
@@ -241,7 +248,7 @@ export default function About() {
               Our organization is guided by dedicated leaders who bring diverse expertise in education, arts, community development, and organizational management. Our collaborative leadership model ensures that decisions are made with input from all stakeholders.
             </p>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
               {teamMembers.map((member, index) => (
                 <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                   <CardContent className="pt-6">
@@ -249,7 +256,7 @@ export default function About() {
                       <img 
                         src={member.image} 
                         alt={member.name}
-                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-red-100 dark:border-red-800"
+                        className="w-24 h-24 xl:w-28 xl:h-28 rounded-full mx-auto object-cover border-4 border-red-100 dark:border-red-800"
                       />
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-red-600">{member.name}</h3>

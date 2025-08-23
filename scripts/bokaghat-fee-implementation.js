@@ -5,9 +5,9 @@ import fs from 'fs';
 // Read the extracted fee data
 const feeData = JSON.parse(fs.readFileSync('fee_structure_raw.json', 'utf8'));
 
-// Razorpay charges calculation
-const RAZORPAY_PERCENTAGE = 2.36; // 2% + 18% GST on 2% = 2.36%
-const RAZORPAY_FIXED_CHARGE = 0; // No fixed charge for most transactions
+// Payment gateway charges - REMOVED ALL CHARGES
+const RAZORPAY_PERCENTAGE = 0; // No percentage charges
+const RAZORPAY_FIXED_CHARGE = 0; // No fixed charges
 
 function parseInstallmentFee(feeString) {
   if (typeof feeString === 'number') return { amount: feeString, installments: 1 };
@@ -21,14 +21,13 @@ function parseInstallmentFee(feeString) {
 }
 
 function calculateRazorpayCharges(amount) {
-  const razorpayCharge = (amount * RAZORPAY_PERCENTAGE) / 100;
-  const totalAmount = amount + razorpayCharge + RAZORPAY_FIXED_CHARGE;
+  // NO CHARGES - Student pays exactly what school receives
   return {
     originalAmount: amount,
-    razorpayCharge: Math.ceil(razorpayCharge), // Round up to avoid loss
-    fixedCharge: RAZORPAY_FIXED_CHARGE,
-    totalAmount: Math.ceil(totalAmount),
-    schoolReceives: amount // School gets the exact amount from Excel
+    razorpayCharge: 0, // No charges
+    fixedCharge: 0,
+    totalAmount: amount, // Same as original amount
+    schoolReceives: amount
   };
 }
 
