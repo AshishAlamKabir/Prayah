@@ -4,22 +4,37 @@ import { Badge } from "@/components/ui/badge";
 import { Users, BookOpen, Palette, Award, Globe, Heart, Target, Star } from "lucide-react";
 import { Link } from "wouter";
 
+// Import leader images
+import ajantaPhoto from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
+import amarPhoto from "@assets/Amar_kakoty_1754924777602.jpg";
+import dilipPhoto from "@assets/Dilip_phukan_1754924693932.jpg";
+import nijoraPhoto from "@assets/Nijora_borthakur_1754924731273.jpg";
+
 export default function About() {
   const teamMembers = [
     {
-      name: "Educational Leadership",
-      role: "Academic Excellence",
-      description: "Dedicated educators committed to fostering critical thinking and academic achievement"
+      name: "Ajanta Rajkhowa",
+      role: "Educational Leadership", 
+      description: "Dedicated educator committed to fostering critical thinking and academic excellence",
+      image: ajantaPhoto
     },
     {
-      name: "Cultural Coordinators", 
+      name: "Amar Kakoty", 
+      role: "Cultural Coordinator",
+      description: "Preserving and promoting regional cultural traditions through various artistic expressions",
+      image: amarPhoto
+    },
+    {
+      name: "Dilip Phukan",
+      role: "Community Development",
+      description: "Building stronger communities through grassroots organizing and social initiatives", 
+      image: dilipPhoto
+    },
+    {
+      name: "Nijora Borthakur",
       role: "Arts & Heritage",
-      description: "Preserving and promoting regional cultural traditions through various artistic expressions"
-    },
-    {
-      name: "Community Organizers",
-      role: "Social Development", 
-      description: "Building stronger communities through grassroots organizing and social initiatives"
+      description: "Promoting cultural heritage and artistic expression in our educational programs",
+      image: nijoraPhoto
     }
   ];
 
@@ -226,13 +241,20 @@ export default function About() {
               Our organization is guided by dedicated leaders who bring diverse expertise in education, arts, community development, and organizational management. Our collaborative leadership model ensures that decisions are made with input from all stakeholders.
             </p>
             
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {teamMembers.map((member, index) => (
-                <Card key={index} className="text-center">
+                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                   <CardContent className="pt-6">
+                    <div className="mb-4">
+                      <img 
+                        src={member.image} 
+                        alt={member.name}
+                        className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-red-100 dark:border-red-800"
+                      />
+                    </div>
                     <h3 className="text-xl font-bold mb-2 text-red-600">{member.name}</h3>
-                    <Badge variant="outline" className="mb-4">{member.role}</Badge>
-                    <p className="text-gray-600 dark:text-gray-400">{member.description}</p>
+                    <Badge variant="outline" className="mb-4 text-green-600 border-green-600">{member.role}</Badge>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{member.description}</p>
                   </CardContent>
                 </Card>
               ))}
