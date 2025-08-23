@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useAdminOrders } from "@/hooks/useOrders";
 import { OrderService } from "@/services/orderService";
@@ -188,6 +188,9 @@ export function OrderManagement() {
                         <DialogContent className="max-w-2xl">
                           <DialogHeader>
                             <DialogTitle>Order Details - {order.orderNumber}</DialogTitle>
+                            <DialogDescription>
+                              View complete details and items for this order.
+                            </DialogDescription>
                           </DialogHeader>
                           {selectedOrder && (
                             <div className="space-y-4">
@@ -265,6 +268,9 @@ export function OrderManagement() {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Update Order - {order.orderNumber}</DialogTitle>
+                            <DialogDescription>
+                              Update the status, tracking information, and admin notes for this order.
+                            </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>

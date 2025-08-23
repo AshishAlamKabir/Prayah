@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -205,6 +205,9 @@ export default function CommunityManagement() {
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>{post.title}</DialogTitle>
+                <DialogDescription>
+                  View complete details of this community post including content, media, and metadata.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
@@ -279,6 +282,9 @@ export default function CommunityManagement() {
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Reject Post</DialogTitle>
+                          <DialogDescription>
+                            Provide a reason for rejecting this community post. This action cannot be undone.
+                          </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div>
