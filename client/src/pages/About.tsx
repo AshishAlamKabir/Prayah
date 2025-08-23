@@ -7,7 +7,7 @@ import { Link } from "wouter";
 // Import leader images
 import ajantaPhoto from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
 import amarPhoto from "@assets/Amar_kakoty_1754924777602.jpg";
-import dilipPhoto from "@assets/Dilip_phukan_1754924693932.jpg";
+import dilipPhoto from "@assets/Dilip phukan_1754630842171.jpg";
 import nijoraPhoto from "@assets/Nijora_borthakur_1754924731273.jpg";
 import soneswarPhoto from "@assets/Soneswar_Narah_1754924810787.jpg";
 
@@ -39,8 +39,8 @@ export default function About() {
     },
     {
       name: "Soneswar Narah",
-      role: "Chief Advisor",
-      description: "Providing strategic direction and wisdom for sustainable growth and impact",
+      role: "Chief Secretary",
+      description: "Managing administrative operations and organizational coordination",
       image: soneswarPhoto
     }
   ];

@@ -13,15 +13,44 @@ import type { School, Book as BookType, CultureCategory } from "@shared/schema";
 import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
-import dilipPhukan from "@assets/Dilip_phukan_1754924693932.jpg";
-import nijoraBot from "@assets/Nijora_borthakur_1754924731273.jpg";
-import amarKakoty from "@assets/Amar_kakoty_1754924777602.jpg";
-// Note: Some assets may not be available yet
-// import ajantaRajkhowa from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
-// import soneswarNarah from "@assets/Soneswar_Narah_1754924810787.jpg";
-// import bijuChautal from "@assets/Biju_Chautal_1754925020183.jpg";
+
+// Import leader images
+import ajantaPhoto from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
+import amarPhoto from "@assets/Amar_kakoty_1754924777602.jpg";
+import dilipPhoto from "@assets/Dilip phukan_1754630842171.jpg";
+import nijoraPhoto from "@assets/Nijora_borthakur_1754924731273.jpg";
+import soneswarPhoto from "@assets/Soneswar_Narah_1754924810787.jpg";
 
 export default function Home() {
+  // Leadership team data
+  const leadershipTeam = [
+    {
+      name: "Dilip Phookan",
+      role: "Chief Advisor",
+      image: dilipPhoto
+    },
+    {
+      name: "Nijora Borthakur",
+      role: "President",
+      image: nijoraPhoto
+    },
+    {
+      name: "Amar Kakoty",
+      role: "Vice President",
+      image: amarPhoto
+    },
+    {
+      name: "Ajanta Rajkhowa",
+      role: "Vice President",
+      image: ajantaPhoto
+    },
+    {
+      name: "Soneswar Narah",
+      role: "Chief Secretary",
+      image: soneswarPhoto
+    }
+  ];
+
   const { data: schools, isLoading: schoolsLoading } = useQuery<School[]>({
     queryKey: ["/api/schools"],
   });
@@ -115,6 +144,35 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Leadership Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Leadership</h2>
+            <p className="text-xl text-gray-600">Dedicated leaders guiding our mission of educational excellence and cultural preservation</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {leadershipTeam.map((leader, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow bg-gradient-to-br from-red-50 to-green-50">
+                <CardContent className="pt-6">
+                  <div className="mb-4">
+                    <img 
+                      src={leader.image} 
+                      alt={leader.name}
+                      className="w-24 h-24 xl:w-28 xl:h-28 rounded-full mx-auto object-cover border-4 border-red-100 shadow-lg"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3 className="text-lg font-bold mb-2 text-red-600">{leader.name}</h3>
+                  <p className="text-green-600 font-medium text-sm">{leader.role}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
