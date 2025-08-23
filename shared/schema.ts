@@ -689,7 +689,7 @@ export const feeStructures = pgTable("fee_structures", {
   className: varchar("class_name", { length: 50 }).notNull(),
   feeType: varchar("fee_type", { length: 20 }).notNull(), // 'monthly', 'renewal', 'admission'
   schoolAmount: decimal("school_amount", { precision: 10, scale: 2 }).notNull(), // Amount school receives
-  razorpayChargePercent: decimal("razorpay_charge_percent", { precision: 5, scale: 4 }).default("2.36"), // 2.36%
+  razorpayChargePercent: decimal("razorpay_charge_percent", { precision: 5, scale: 4 }).default("0.00"), // No charges!
   razorpayFixedCharge: decimal("razorpay_fixed_charge", { precision: 10, scale: 2 }).default("0.00"),
   studentPaysAmount: decimal("student_pays_amount", { precision: 10, scale: 2 }).notNull(), // Total amount student pays
   installments: integer("installments").default(1),

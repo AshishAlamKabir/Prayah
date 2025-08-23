@@ -95,7 +95,7 @@ export default function SchoolFeePayment() {
       );
       
       if (feeStructure) {
-        form.setValue("amount", parseFloat(feeStructure.studentPaysAmount));
+        form.setValue("amount", parseFloat(feeStructure.schoolAmount));
       }
     }
   }, [watchedSchoolId, watchedClass, watchedFeeType, feeStructures, form]);
@@ -511,22 +511,22 @@ export default function SchoolFeePayment() {
                         <Calculator className="h-4 w-4 mr-2" />
                         Fee Structure for {watchedClass} - {watchedFeeType === 'monthly' ? 'Monthly Fee' : 'Yearly Admission Fee'}
                       </h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">School Receives:</span>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">School Fee Amount:</span>
                           <div className="font-medium text-green-700">₹{feeStructure.schoolAmount}</div>
                         </div>
-                        <div>
+                        <div className="flex justify-between items-center">
                           <span className="text-gray-600">Payment Gateway Charge:</span>
-                          <div className="font-medium text-red-600">₹{(parseFloat(feeStructure.studentPaysAmount) - parseFloat(feeStructure.schoolAmount)).toFixed(2)}</div>
+                          <div className="font-medium text-green-600">₹0.00 (No charges!)</div>
                         </div>
-                        <div className="col-span-2 pt-2 border-t border-blue-200">
+                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
                           <span className="text-gray-600">Total Amount You Pay:</span>
-                          <div className="font-bold text-lg text-blue-900">₹{feeStructure.studentPaysAmount}</div>
+                          <div className="font-bold text-lg text-blue-900">₹{feeStructure.schoolAmount}</div>
                         </div>
                         {feeStructure.installments > 1 && (
-                          <div className="col-span-2 text-sm text-blue-700">
-                            Can be paid in {feeStructure.installments} installments of ₹{Math.ceil(parseFloat(feeStructure.studentPaysAmount) / feeStructure.installments)} each
+                          <div className="text-sm text-blue-700">
+                            Can be paid in {feeStructure.installments} installments of ₹{Math.ceil(parseFloat(feeStructure.schoolAmount) / feeStructure.installments)} each
                           </div>
                         )}
                       </div>
