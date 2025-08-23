@@ -29,13 +29,13 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Safe pool configuration compatible with latest Neon serverless
+// Robust pool configuration for Neon serverless with retry logic
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
   max: 5, // Conservative pool size for serverless
   min: 0, // No minimum connections for serverless
-  idleTimeoutMillis: 20000, // Shorter idle timeout for serverless
-  connectionTimeoutMillis: 15000, // Longer connection timeout
+  idleTimeoutMillis: 30000, // Extended idle timeout for stability
+  connectionTimeoutMillis: 10000, // 10 second connection timeout as requested
 });
 
 export const db = drizzle({ client: pool, schema });

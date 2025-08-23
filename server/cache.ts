@@ -31,11 +31,15 @@ class SimpleCache {
   // Clean up expired entries
   cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
+    const keysToDelete: string[] = [];
+    
+    this.cache.forEach((item, key) => {
       if (now > item.expires) {
-        this.cache.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    
+    keysToDelete.forEach(key => this.cache.delete(key));
   }
 }
 
@@ -46,29 +50,129 @@ setInterval(() => {
   cache.cleanup();
 }, 10 * 60 * 1000);
 
-// Preload critical data to avoid initial delays
+// Utility function to wait/delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Retry wrapper with exponential backoff
+async function retryOperation<T>(
+  operation: () => Promise<T>,
+  operationName: string,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T | null> {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 ${operationName} - Attempt ${attempt}/${maxRetries}`);
+      
+      // Set a 10-second timeout for each operation
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Operation timeout')), 10000);
+      });
+      
+      const result = await Promise.race([operation(), timeoutPromise]);
+      console.log(`✅ ${operationName} - Success on attempt ${attempt}`);
+      return result;
+      
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      if (isLastAttempt) {
+        console.error(`❌ ${operationName} - Failed after ${maxRetries} attempts:`, errorMessage);
+        return null;
+      } else {
+        const waitTime = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
+        console.warn(`⚠️ ${operationName} - Attempt ${attempt} failed: ${errorMessage}. Retrying in ${waitTime}ms...`);
+        await delay(waitTime);
+      }
+    }
+  }
+  return null;
+}
+
+// Load individual data types with error isolation
+async function loadDataType<T>(
+  operation: () => Promise<T>,
+  cacheKey: string,
+  ttl: number,
+  operationName: string
+): Promise<boolean> {
+  const result = await retryOperation(operation, operationName);
+  
+  if (result !== null) {
+    cache.set(cacheKey, result, ttl);
+    return true;
+  }
+  return false;
+}
+
+// Preload critical data with robust error handling and retry logic
 export async function preloadCriticalData() {
+  console.log("🚀 Preloading critical data into cache...");
+  
   try {
-    console.log("🚀 Preloading critical data into cache...");
-    
     // Import storage here to avoid circular dependency
     const { storage } = await import("./storage");
     
-    // Preload most frequently accessed data
-    const [schools, books, stats, categories] = await Promise.all([
-      storage.getSchools(),
-      storage.getBooks(),
-      storage.getStats(),
-      storage.getCultureCategories()
-    ]);
+    const loadingTasks = [
+      {
+        name: "Schools",
+        operation: () => storage.getSchools(),
+        cacheKey: "schools",
+        ttl: 5 * 60 * 1000
+      },
+      {
+        name: "Books",
+        operation: () => storage.getBooks(),
+        cacheKey: "books:all", 
+        ttl: 5 * 60 * 1000
+      },
+      {
+        name: "Stats",
+        operation: () => storage.getStats(),
+        cacheKey: "stats",
+        ttl: 3 * 60 * 1000
+      },
+      {
+        name: "Culture Categories",
+        operation: () => storage.getCultureCategories(),
+        cacheKey: "culture-categories",
+        ttl: 10 * 60 * 1000
+      }
+    ];
     
-    cache.set("schools", schools, 5 * 60 * 1000);
-    cache.set("books:all", books, 5 * 60 * 1000);
-    cache.set("stats", stats, 3 * 60 * 1000);
-    cache.set("culture-categories", categories, 10 * 60 * 1000);
+    // Load each data type independently with isolated error handling
+    const results = await Promise.allSettled(
+      loadingTasks.map(task => 
+        loadDataType(task.operation, task.cacheKey, task.ttl, task.name)
+      )
+    );
     
-    console.log("✅ Critical data preloaded successfully");
+    // Count successful and failed loads
+    const successful = results.filter((result, index) => {
+      if (result.status === 'fulfilled' && result.value === true) {
+        return true;
+      }
+      if (result.status === 'rejected') {
+        console.error(`❌ ${loadingTasks[index].name} loading completely failed:`, result.reason);
+      }
+      return false;
+    }).length;
+    
+    const total = loadingTasks.length;
+    
+    if (successful === total) {
+      console.log("✅ Critical data preloaded successfully - All data types loaded");
+    } else if (successful > 0) {
+      console.log(`⚠️ Partial preload success - ${successful}/${total} data types loaded. App can still function.`);
+    } else {
+      console.warn("❌ No data was preloaded, but app will continue running. Data will be loaded on-demand.");
+    }
+    
   } catch (error) {
-    console.error("❌ Failed to preload critical data:", error);
+    // Even if everything fails, the app should continue
+    console.error("❌ Critical error in preload function, but app will continue:", 
+      error instanceof Error ? error.message : String(error));
+    console.log("🔄 App will function normally - data will be loaded on-demand");
   }
 }
