@@ -1,0 +1,4 @@
+Contact: mailto:admin@prayasadhayanchakra.com
+Expires: 2026-12-31T23:59:59.000Z
+Preferred-Languages: en, as
+Canonical: https://prayasadhayanchakra.com/.well-known/security.txt

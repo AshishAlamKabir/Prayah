@@ -13,6 +13,7 @@ import type { School, Book as BookType, CultureCategory } from "@shared/schema";
 import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
+import { StructuredData, organizationSchema, websiteSchema } from "@/components/seo/StructuredData";
 
 // Import leader images
 import ajantaPhoto from "@assets/Ajanta_Rajkhowa_1754924777601.jpg";
@@ -72,6 +73,10 @@ export default function Home() {
 
   return (
     <div className="w-full">
+      {/* SEO Structured Data */}
+      <StructuredData data={organizationSchema} />
+      <StructuredData data={websiteSchema} />
+      
       <HeroSection />
       <StatsSection />
       <FeaturesSection />
