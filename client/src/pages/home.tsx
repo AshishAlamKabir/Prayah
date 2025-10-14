@@ -223,9 +223,9 @@ export default function Home() {
             ) : (
               featuredSchools.map((school) => {
                 const getSchoolLogo = (schoolName: string) => {
-                  if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) return bokaghatLogo;
-                  if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
-                  if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
+                  if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokaghatLogo;
+                  if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
+                  if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
                   return bokaghatLogo; // default fallback
                 };
 
