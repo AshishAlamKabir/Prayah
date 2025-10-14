@@ -56,9 +56,9 @@ export default function Schools() {
   });
 
   const getSchoolLogo = (schoolName: string) => {
-    if (schoolName.includes('বকাঘাট') || schoolName.includes('Bokaghat')) return bokaghat_logo;
-    if (schoolName.includes('ব্রহ্মপুত্র') || schoolName.includes('Brahmaputra')) return brahmaputra_logo;
-    if (schoolName.includes('মহুরামুখ') || schoolName.includes('Mohuramukh')) return mohuramukh_logo;
+    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokaghat_logo;
+    if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputra_logo;
+    if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukh_logo;
     return bokaghat_logo; // default fallback
   };
 

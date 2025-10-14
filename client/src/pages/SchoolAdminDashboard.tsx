@@ -25,7 +25,7 @@ import StudentStatusManager from "@/components/school-admin/StudentStatusManager
 import PaymentSummary from "@/components/school-admin/PaymentSummary";
 
 export default function SchoolAdminDashboard() {
-  const [selectedSchool, setSelectedSchool] = useState<number>(1); // Default to Bokaghat Jatiya Vidyalay
+  const [selectedSchool, setSelectedSchool] = useState<number>(1); // Default to Bokakhat Jatiya Vidyalay
   const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch schools for admin
@@ -76,7 +76,7 @@ export default function SchoolAdminDashboard() {
                 School Administration Dashboard
               </h1>
               <p className="text-gray-600 mt-2">
-                {currentSchool?.name || "Bokaghat Jatiya Vidyalay"} - Complete Student Management System
+                {currentSchool?.name || "বোকাখাত জাতীয় বিদ্যালয়।"} - Complete Student Management System
               </p>
             </div>
             <div className="flex items-center space-x-4">

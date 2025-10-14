@@ -54,16 +54,11 @@ export default function SchoolDetail() {
   });
 
   const getSchoolLogo = (schoolName: string) => {
-    switch (schoolName) {
-      case "Mohuramukh Jatiya Vidyalai":
-        return mohuramukhtLogo;
-      case "Brahmaputra Jatiya Vidyalai":
-        return brahmaputraLogo;
-      case "Bokaghat Jatiya Vidyalai":
-        return bokaghatLogo;
-      default:
-        return null;
-    }
+    // Match against Assamese names
+    if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
+    if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
+    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokaghatLogo;
+    return null;
   };
 
   if (isLoading) {
