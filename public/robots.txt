@@ -1,0 +1,25 @@
+# robots.txt for PrayasAdhayanChakra
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://prayasadhayanchakra.com/sitemap.xml
+
+# Disallow admin pages from indexing
+Disallow: /admin
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+
+# Allow all other pages
+Allow: /
+Allow: /about
+Allow: /schools
+Allow: /culture-programs
+Allow: /books
+Allow: /community
+Allow: /publications
+
+# Crawl delay (optional - adjust if needed)
+Crawl-delay: 1

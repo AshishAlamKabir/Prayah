@@ -124,6 +124,17 @@ app.use((req, res, next) => {
     preloadCriticalData();
   }, 2000); // Wait 2 seconds for server to fully start
   
+  // Serve SEO files
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.sendFile('robots.txt', { root: './public' });
+  });
+
+  app.get('/sitemap.xml', (req, res) => {
+    res.type('application/xml');
+    res.sendFile('sitemap.xml', { root: './public' });
+  });
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
