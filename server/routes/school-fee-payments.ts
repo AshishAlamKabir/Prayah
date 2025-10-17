@@ -412,4 +412,165 @@ router.get('/receipt/:paymentId', authMiddleware, async (req, res) => {
   }
 });
 
+/**
+ * Create manual fee payment record (for cash/offline payments)
+ */
+router.post('/manual', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    const schoolPermissions = req.user.schoolPermissions || [];
+
+    // Validate user has permission for this school
+    const { schoolId } = req.body;
+    const hasPermission = userRole === 'admin' || schoolPermissions.includes(schoolId);
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to add fee payments for this school",
+      });
+    }
+
+    // Generate receipt number
+    const receiptNumber = `CASH_${schoolId}_${Date.now()}`;
+
+    const validatedData = insertSchoolFeePaymentSchema.parse({
+      ...req.body,
+      userId,
+      paymentStatus: 'completed',
+      paymentMethod: req.body.paymentMethod || 'cash',
+      receiptNumber,
+      paidAt: new Date(),
+      status: 'completed',
+    });
+
+    const payment = await storage.createSchoolFeePayment(validatedData);
+
+    res.json({
+      success: true,
+      payment,
+      message: 'Manual fee payment record created successfully',
+    });
+  } catch (error: any) {
+    console.error("Error creating manual fee payment:", error);
+    
+    if (error.name === "ZodError") {
+      const validationError = fromZodError(error);
+      return res.status(400).json({
+        success: false,
+        message: validationError.message,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to create manual fee payment",
+    });
+  }
+});
+
+/**
+ * Update fee payment record
+ */
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const paymentId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    const schoolPermissions = req.user.schoolPermissions || [];
+
+    if (isNaN(paymentId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid payment ID",
+      });
+    }
+
+    // Get existing payment to check permissions
+    const existingPayment = await storage.getSchoolFeePayment(paymentId);
+    if (!existingPayment) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment not found",
+      });
+    }
+
+    // Validate user has permission for this school
+    const hasPermission = userRole === 'admin' || schoolPermissions.includes(existingPayment.schoolId);
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to update this payment",
+      });
+    }
+
+    const updatedPayment = await storage.updateSchoolFeePayment(paymentId, req.body);
+
+    res.json({
+      success: true,
+      payment: updatedPayment,
+      message: 'Fee payment updated successfully',
+    });
+  } catch (error: any) {
+    console.error("Error updating fee payment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update fee payment",
+    });
+  }
+});
+
+/**
+ * Delete fee payment record
+ */
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const paymentId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    const schoolPermissions = req.user.schoolPermissions || [];
+
+    if (isNaN(paymentId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid payment ID",
+      });
+    }
+
+    // Get existing payment to check permissions
+    const existingPayment = await storage.getSchoolFeePayment(paymentId);
+    if (!existingPayment) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment not found",
+      });
+    }
+
+    // Validate user has permission for this school
+    const hasPermission = userRole === 'admin' || schoolPermissions.includes(existingPayment.schoolId);
+
+    if (!hasPermission) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to delete this payment",
+      });
+    }
+
+    await storage.deleteSchoolFeePayment(paymentId);
+
+    res.json({
+      success: true,
+      message: 'Fee payment deleted successfully',
+    });
+  } catch (error: any) {
+    console.error("Error deleting fee payment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete fee payment",
+    });
+  }
+});
+
 export default router;

@@ -244,6 +244,8 @@ export interface IStorage {
   updateSchoolFeePaymentStatus(id: number, updates: Partial<SchoolFeePayment>): Promise<SchoolFeePayment | undefined>;
   getSchoolFeePayments(schoolId?: number, userId?: number): Promise<SchoolFeePayment[]>;
   checkDuplicateFeePayment(schoolId: number, studentRollNo: string, feeMonth: string): Promise<SchoolFeePayment | undefined>;
+  updateSchoolFeePayment(id: number, updates: Partial<InsertSchoolFeePayment>): Promise<SchoolFeePayment | undefined>;
+  deleteSchoolFeePayment(id: number): Promise<boolean>;
 
   // Fee payment notification operations
   createFeePaymentNotification(notification: InsertFeePaymentNotification): Promise<FeePaymentNotification>;
@@ -1491,6 +1493,22 @@ export class DatabaseStorage implements IStorage {
         eq(schoolFeePayments.paymentStatus, "completed")
       ));
     return payment || undefined;
+  }
+
+  async updateSchoolFeePayment(id: number, updates: Partial<InsertSchoolFeePayment>): Promise<SchoolFeePayment | undefined> {
+    const [payment] = await db
+      .update(schoolFeePayments)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(schoolFeePayments.id, id))
+      .returning();
+    return payment || undefined;
+  }
+
+  async deleteSchoolFeePayment(id: number): Promise<boolean> {
+    const result = await db
+      .delete(schoolFeePayments)
+      .where(eq(schoolFeePayments.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Fee structure operations

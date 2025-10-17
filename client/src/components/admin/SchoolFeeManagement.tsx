@@ -1,20 +1,36 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
-import { CreditCard, Download, Search, Filter, Calendar, Users, DollarSign, TrendingUp } from "lucide-react";
+import { CreditCard, Download, Search, Filter, Calendar, Users, DollarSign, TrendingUp, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import AddManualFeePaymentDialog from "./AddManualFeePaymentDialog";
 
 export default function SchoolFeeManagement() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [selectedSchool, setSelectedSchool] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [paymentToDelete, setPaymentToDelete] = useState<number | null>(null);
 
   // Get schools that user has permission to manage
   const { data: schools = [] } = useQuery({
@@ -64,6 +80,42 @@ export default function SchoolFeeManagement() {
         return <Badge className="bg-red-100 text-red-800">Failed</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const deleteMutation = useMutation({
+    mutationFn: async (paymentId: number) => {
+      return await apiRequest({
+        url: `/api/fee-payments/${paymentId}`,
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/fee-payments"] });
+      toast({
+        title: "Success",
+        description: "Fee payment deleted successfully",
+      });
+      setDeleteDialogOpen(false);
+      setPaymentToDelete(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete fee payment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteClick = (paymentId: number) => {
+    setPaymentToDelete(paymentId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (paymentToDelete) {
+      deleteMutation.mutate(paymentToDelete);
     }
   };
 
@@ -186,12 +238,13 @@ export default function SchoolFeeManagement() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="pl-10"
+                      data-testid="input-search-payments"
                     />
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-40" data-testid="select-status-filter">
                       <Filter className="h-4 w-4 mr-2" />
                       <SelectValue />
                     </SelectTrigger>
@@ -202,6 +255,7 @@ export default function SchoolFeeManagement() {
                       <SelectItem value="failed">Failed</SelectItem>
                     </SelectContent>
                   </Select>
+                  <AddManualFeePaymentDialog schoolId={parseInt(selectedSchool)} />
                 </div>
               </div>
             </CardContent>
@@ -266,16 +320,29 @@ export default function SchoolFeeManagement() {
                             }
                           </TableCell>
                           <TableCell>
-                            {payment.paymentStatus === "completed" && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => downloadReceipt(payment.id)}
-                              >
-                                <Download className="h-4 w-4 mr-1" />
-                                Receipt
-                              </Button>
-                            )}
+                            <div className="flex gap-2">
+                              {payment.paymentStatus === "completed" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => downloadReceipt(payment.id)}
+                                  data-testid={`button-download-receipt-${payment.id}`}
+                                >
+                                  <Download className="h-4 w-4 mr-1" />
+                                  Receipt
+                                </Button>
+                              )}
+                              {payment.paymentMethod !== "razorpay" && payment.paymentMethod !== "stripe" && (
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleDeleteClick(payment.id)}
+                                  data-testid={`button-delete-${payment.id}`}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -287,6 +354,31 @@ export default function SchoolFeeManagement() {
           </Card>
         </>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Fee Payment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this fee payment record? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+              data-testid="button-confirm-delete"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
