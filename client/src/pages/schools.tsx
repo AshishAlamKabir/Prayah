@@ -9,7 +9,7 @@ import { Link } from "wouter";
 import type { School } from "@shared/schema";
 import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
 import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
-import bokaghat_logo from "@assets/bokaghat_logo_optimized.jpg";
+import bokakhat_logo from "@assets/bokakhat_logo_optimized.jpg";
 
 // Component to show fee payment button only if enabled
 function FeePaymentButton({ schoolId }: { schoolId: number }) {
@@ -55,10 +55,10 @@ export default function Schools() {
   });
 
   const getSchoolLogo = (schoolName: string) => {
-    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokaghat_logo;
+    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokakhat_logo;
     if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputra_logo;
     if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukh_logo;
-    return bokaghat_logo; // default fallback
+    return bokakhat_logo; // default fallback
   };
 
   const filteredSchools = schools?.filter((school) =>

@@ -8,7 +8,7 @@ import { Link } from "wouter";
 import type { School } from "@shared/schema";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
-import bokaghatLogo from "@assets/bokaghat_logo_optimized.jpg";
+import bokakhatLogo from "@assets/bokakhat_logo_optimized.jpg";
 
 // Component to show fee payment card only if enabled
 function FeePaymentCard({ schoolId }: { schoolId: number }) {
@@ -57,7 +57,7 @@ export default function SchoolDetail() {
     // Match against Assamese names
     if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
     if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
-    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokaghatLogo;
+    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokakhatLogo;
     return null;
   };
 
