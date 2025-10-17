@@ -80,11 +80,9 @@ export default function AddStudentForm({ schoolId, classHierarchy }: AddStudentF
     setIsSubmitting(true);
     try {
       await apiRequest("POST", `/api/schools/${schoolId}/students`, {
-        body: JSON.stringify({
-          ...data,
-          admissionDate: new Date().toISOString(),
-          status: "active",
-        }),
+        ...data,
+        admissionDate: new Date().toISOString(),
+        status: "active",
       });
 
       queryClient.invalidateQueries({ queryKey: ["/api/schools", schoolId, "students"] });
