@@ -20,7 +20,6 @@ function FeePaymentButton({ schoolId }: { schoolId: number }) {
   }>({
     queryKey: ["/api/schools", schoolId, "payment-status"],
     staleTime: 0, // Always fetch fresh data for payment status
-    cacheTime: 0, // Don't cache this critical security data
   });
 
   // Show loading state briefly

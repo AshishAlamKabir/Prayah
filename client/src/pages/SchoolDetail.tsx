@@ -166,7 +166,7 @@ export default function SchoolDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {school.mediaFiles.map((media: any, index: number) => (
+                    {(school.mediaFiles as any[]).map((media: any, index: number) => (
                       <div key={index} className="rounded-lg overflow-hidden shadow-md">
                         {media.type === 'image' ? (
                           <img
@@ -186,7 +186,7 @@ export default function SchoolDetail() {
                         {media.caption && (
                           <div className="p-3 bg-gray-50 dark:bg-gray-700">
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {media.caption}
+                              {String(media.caption)}
                             </p>
                           </div>
                         )}
