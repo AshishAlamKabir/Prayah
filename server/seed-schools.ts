@@ -8,7 +8,7 @@ async function seedSchools() {
       location: "Bokakhat, Assam",
       location_native: "বোকাখাত",
       description: "A progressive educational institution committed to providing quality education while fostering social consciousness and cultural identity among students.",
-      detailedDescription: "বোকাখাত জাতীয় বিদ্যালয়। (Bokakhat Jatiya Vidyalaya) stands as a beacon of progressive education in the Bokakhat region. Established with the vision of creating socially conscious citizens, the school combines academic excellence with revolutionary values. Our curriculum emphasizes critical thinking, cultural preservation, and community engagement. The institution serves as a model for educational transformation in rural Assam, preparing students to become agents of positive social change.",
+      detailedDescription: "বোকাখাত জাতীয় বিদ্যালয়। (Bokakhat Jatiya Vidyalaya) stands as a beacon of progressive education in the Bokakhat region. Established with the vision of creating socially conscious citizens, the school combines academic excellence with progressive values. Our curriculum emphasizes critical thinking, cultural preservation, and community engagement. The institution serves as a model for educational transformation in rural Assam, preparing students to become agents of positive social change.",
       programs: ["Primary Education", "Secondary Education", "Science Stream", "Arts Stream", "Cultural Programs", "Community Service"],
       facilities: ["Library", "Science Laboratory", "Computer Lab", "Sports Ground", "Cultural Hall", "Hostel Facilities", "Medical Room"],
       achievements: [
@@ -40,7 +40,7 @@ async function seedSchools() {
           type: "image",
           url: "/images/bokakhat-library.jpg", 
           caption: "School Library",
-          description: "Well-equipped library with revolutionary literature"
+          description: "Well-equipped library with progressive literature"
         }
       ]
     },
@@ -112,7 +112,7 @@ async function seedSchools() {
           type: "image",
           url: "/images/mohuramukh-entrance.jpg",
           caption: "School Entrance Gate", 
-          description: "Traditional entrance gate with revolutionary slogans"
+          description: "Traditional entrance gate with progressive slogans"
         },
         {
           type: "image",
