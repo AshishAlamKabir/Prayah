@@ -79,6 +79,7 @@ export default function BookManagement() {
     description: "",
     category: "",
     price: "",
+    stock: "",
     imageUrl: "",
     pdfUrl: "",
     featured: false,
@@ -116,6 +117,7 @@ export default function BookManagement() {
         ...bookData,
         tags: tagsArray,
         price: parseFloat(bookData.price),
+        stock: parseInt(bookData.stock) || 0,
         publishedYear: bookData.publishedYear ? parseInt(bookData.publishedYear) : null
       });
     },
@@ -137,6 +139,7 @@ export default function BookManagement() {
         description: "",
         category: "",
         price: "",
+        stock: "",
         imageUrl: "",
         pdfUrl: "",
         featured: false,
@@ -319,7 +322,7 @@ export default function BookManagement() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <Label htmlFor="category">Category</Label>
           <Input
@@ -327,6 +330,7 @@ export default function BookManagement() {
             value={book.category}
             onChange={(e) => onUpdate('category', e.target.value)}
             placeholder="Book category"
+            data-testid="input-category"
           />
         </div>
         <div>
@@ -337,6 +341,18 @@ export default function BookManagement() {
             value={book.price}
             onChange={(e) => onUpdate('price', e.target.value)}
             placeholder="0.00"
+            data-testid="input-price"
+          />
+        </div>
+        <div>
+          <Label htmlFor="stock">Stock</Label>
+          <Input
+            id="stock"
+            type="number"
+            value={book.stock || ''}
+            onChange={(e) => onUpdate('stock', e.target.value)}
+            placeholder="0"
+            data-testid="input-stock"
           />
         </div>
       </div>

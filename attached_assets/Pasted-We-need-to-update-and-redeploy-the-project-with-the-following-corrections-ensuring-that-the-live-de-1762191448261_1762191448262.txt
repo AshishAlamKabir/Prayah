@@ -1,0 +1,38 @@
+We need to update and redeploy the project with the following corrections, ensuring that the live deployed site reflects the changes:
+
+1. Fix Spelling/Name Correction:
+   Find wherever school data is stored (it may be in `schools.json`, `schoolsData.js`, `SchoolList.jsx`, `SchoolCard.jsx`, or a database fetch).
+   Change the spelling from:
+      "Bokaghat" → "Bokakhat"
+   And ensure the Assamese spelling is:
+      বোকাখাত 
+   Replace the old value everywhere in the data source, UI display components, and metadata.
+
+2. Confirm Data Source:
+   Identify where the school data is coming from:
+   - If it is a JSON/static file, ensure the corrected file is included in the build.
+   - If fetched from a database (Supabase/Firebase/MongoDB), update the record in the database.
+   Do not rely on previously bundled or cached values.
+
+3. Fix Book Form Issues in Admin Panel:
+   - Add a `Stock` input field (`type="number"`) to the form.
+   - Include `stock` field in the API submission payload.
+   - Fix cursor-jumping issue in the Title (and any other) field by ensuring state updates follow:
+         setBook(prev => ({ ...prev, title: e.target.value }));
+     Do not transform or reassign input values inside `onChange` other than direct update.
+
+4. Deployment Cache Reset (Important):
+   Completely remove any cached/dist build artifacts:
+      - Delete `dist` or `.next` or `build` folder depending on project type.
+   Then trigger a **full clean rebuild** and **republish** the app.
+   Do NOT use cached layers or incremental builds.
+
+5. Force Browser to Receive Fresh Bundle:
+   After deployment, modify the app build hash so the browser fetches the new code.
+   Then confirm that a hard refresh (`CTRL + SHIFT + R`) loads the corrected version.
+
+Goal:
+The live deployed version should show:
+   বোকাখাত, Assam
+instead of Bokaghat, and the Book Form should accept stock and no longer reset cursor position.
+Please carry out all changes and confirm when done.

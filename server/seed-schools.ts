@@ -4,10 +4,10 @@ import { schools } from "@shared/schema";
 async function seedSchools() {
   const schoolsData = [
     {
-      name: "Bokaghat Jatiya Vidyalai",
-      location: "Bokaghat, Assam",
+      name: "বোকাখাত জাতীয় বিদ্যালয়।",
+      location: "Bokakhat, Assam",
       description: "A revolutionary educational institution committed to providing quality education while fostering social consciousness and cultural identity among students.",
-      detailedDescription: "Bokaghat Jatiya Vidyalai stands as a beacon of progressive education in the Bokaghat region. Established with the vision of creating socially conscious citizens, the school combines academic excellence with revolutionary values. Our curriculum emphasizes critical thinking, cultural preservation, and community engagement. The institution serves as a model for educational transformation in rural Assam, preparing students to become agents of positive social change.",
+      detailedDescription: "বোকাখাত জাতীয় বিদ্যালয়। (Bokakhat Jatiya Vidyalaya) stands as a beacon of progressive education in the Bokakhat region. Established with the vision of creating socially conscious citizens, the school combines academic excellence with revolutionary values. Our curriculum emphasizes critical thinking, cultural preservation, and community engagement. The institution serves as a model for educational transformation in rural Assam, preparing students to become agents of positive social change.",
       programs: ["Primary Education", "Secondary Education", "Science Stream", "Arts Stream", "Cultural Programs", "Community Service"],
       facilities: ["Library", "Science Laboratory", "Computer Lab", "Sports Ground", "Cultural Hall", "Hostel Facilities", "Medical Room"],
       achievements: [
@@ -18,26 +18,26 @@ async function seedSchools() {
         "Community Literacy Program Success"
       ],
       studentCount: 450,
-      contactEmail: "info@bokaghatjatiyavidyalai.edu.in",
+      contactEmail: "info@bokakhatjatiyavidyalaya.edu.in",
       contactPhone: "+91-9876543210",
-      website: "https://bokaghatjatiyavidyalai.edu.in",
+      website: "https://bokakhatjatiyavidyalaya.edu.in",
       isActive: true,
       mediaFiles: [
         {
           type: "image",
-          url: "/images/bokaghat-school-building.jpg",
+          url: "/images/bokakhat-school-building.jpg",
           caption: "Main School Building",
-          description: "The iconic red-brick building of Bokaghat Jatiya Vidyalai"
+          description: "The iconic red-brick building of বোকাখাত জাতীয় বিদ্যালয়।"
         },
         {
           type: "image", 
-          url: "/images/bokaghat-students.jpg",
+          url: "/images/bokakhat-students.jpg",
           caption: "Students in Cultural Program",
           description: "Students performing traditional Assamese dance"
         },
         {
           type: "image",
-          url: "/images/bokaghat-library.jpg", 
+          url: "/images/bokakhat-library.jpg", 
           caption: "School Library",
           description: "Well-equipped library with revolutionary literature"
         }
