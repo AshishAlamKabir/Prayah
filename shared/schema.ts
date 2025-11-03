@@ -389,6 +389,10 @@ export const insertBookSchema = createInsertSchema(books).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  price: z.union([z.string(), z.number()]).transform(val => String(val)),
+  stock: z.union([z.string(), z.number()]).transform(val => Number(val)),
+  publishedYear: z.union([z.string(), z.number(), z.null(), z.undefined()]).optional().transform(val => val ? Number(val) : undefined),
 });
 
 export const insertPublishedWorkSchema = createInsertSchema(publishedWorks).omit({
