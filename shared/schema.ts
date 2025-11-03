@@ -60,6 +60,7 @@ export const schools = pgTable("schools", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   location: text("location").notNull(),
+  location_native: text("location_native"), // Native language location (e.g., বোকাখাত)
   description: text("description").notNull(),
   detailedDescription: text("detailed_description"),
   aboutUs: text("about_us"), // Detailed about section
