@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Book, GraduationCap, Palette, Users } from "lucide-react";
 import { Link } from "wouter";
 import type { School, Book as BookType, CultureCategory } from "@shared/schema";
-import bokakhatLogo from "@assets/bokakhat_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
 import { StructuredData, organizationSchema, websiteSchema } from "@/components/seo/StructuredData";
@@ -90,7 +89,7 @@ export default function Home() {
             <div className="text-left max-w-4xl mx-auto space-y-6">
               <p className="text-lg leading-relaxed">
                 PrayasAdhayanChakra (প্ৰয়াস অধ্যয়ন চক্ৰ, PADC) is a non-profit, non-governmental organization 
-                founded in 1996 in Bokakhat, Assam. Guided by the constitutional values of equality, justice, 
+                founded in 1996 in rural Assam. Guided by the constitutional values of equality, justice, 
                 and fraternity, PACB works to create an equitable society through education and cultural 
                 preservation, particularly focusing on marginalized communities.
               </p>
@@ -99,15 +98,14 @@ export default function Home() {
                 <div>
                   <h3 className="text-2xl font-semibold mb-4">Our Journey</h3>
                   <p className="text-lg leading-relaxed mb-4">
-                    PADC began as a grassroots study circle serving rural areas around Bokakhat, addressing 
+                    PADC began as a grassroots study circle serving rural areas of Assam, addressing 
                     the educational needs of economically disadvantaged children. Our early initiatives included 
                     awareness campaigns encouraging students to pursue formal education and textbook distribution 
                     drives for families unable to afford educational materials.
                   </p>
                   <p className="text-lg leading-relaxed">
-                    A significant milestone came in 2005 with the establishment of Bokakhat Jatiya Vidyalay, 
-                    which has since grown into a network of four schools serving impoverished communities in 
-                    remote and riverine areas.
+                    Over the years, PADC has established educational institutions serving impoverished communities in 
+                    remote and riverine areas across Assam, providing quality education to thousands of students.
                   </p>
                 </div>
                 <div>
@@ -129,7 +127,7 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
                     <h4 className="text-xl font-bold mb-3 text-green-400">Educational Network</h4>
-                    <p className="text-lg">Four schools affiliated to Assam Jatiya Bidyalay, Guwahati, implementing scientific and evidence-based educational practices</p>
+                    <p className="text-lg">Schools affiliated to Assam Jatiya Bidyalay, Guwahati, implementing scientific and evidence-based educational practices</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
                     <h4 className="text-xl font-bold mb-3 text-green-400">Cultural Programs</h4>
@@ -223,10 +221,9 @@ export default function Home() {
             ) : (
               featuredSchools.map((school) => {
                 const getSchoolLogo = (schoolName: string) => {
-                  if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokakhatLogo;
                   if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
                   if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
-                  return bokakhatLogo; // default fallback
+                  return brahmaputraLogo; // default fallback
                 };
 
                 return (

@@ -9,7 +9,6 @@ import { Link } from "wouter";
 import type { School } from "@shared/schema";
 import mohuramukh_logo from "@assets/mohuramukh_logo_optimized.jpg";
 import brahmaputra_logo from "@assets/brahmaputra_logo_optimized.jpg";
-import bokakhat_logo from "@assets/bokakhat_logo_optimized.jpg";
 
 // Component to show fee payment button only if enabled
 function FeePaymentButton({ schoolId }: { schoolId: number }) {

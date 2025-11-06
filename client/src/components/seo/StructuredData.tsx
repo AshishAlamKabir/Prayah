@@ -24,7 +24,7 @@ export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
   "name": "PrayasAdhayanChakra",
-  "description": "Comprehensive educational management platform serving schools in Bokakhat, Brahmaputra, and Mohuramukh. Features cultural programs, book publications, and community engagement in Assam.",
+  "description": "Comprehensive educational management platform serving schools in Brahmaputra and Mohuramukh. Features cultural programs, book publications, and community engagement in Assam.",
   "url": "https://prayasadhayanchakra.com",
   "logo": "https://prayasadhayanchakra.com/logo.png",
   "address": {
@@ -37,16 +37,6 @@ export const organizationSchema = {
     "https://twitter.com/prayasadhayan"
   ],
   "member": [
-    {
-      "@type": "EducationalOrganization",
-      "name": "বোকাখাত জাতীয় বিদ্যালয়",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Bokakhat",
-        "addressRegion": "Assam",
-        "addressCountry": "IN"
-      }
-    },
     {
       "@type": "EducationalOrganization",
       "name": "ব্ৰহ্মপুত্ৰ জাতীয় বিদ্যালয়",
