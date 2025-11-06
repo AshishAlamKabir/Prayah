@@ -972,7 +972,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ===== STUDENT MANAGEMENT SYSTEM ROUTES =====
-  // Based on Bokakhat Jatiya Vidyalay requirements
+  // Student lifecycle management for all schools
 
   // Get all students for a school (with optional filters)
   app.get("/api/schools/:schoolId/students", async (req, res) => {

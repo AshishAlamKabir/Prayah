@@ -4,47 +4,6 @@ import { schools } from "@shared/schema";
 async function seedSchools() {
   const schoolsData = [
     {
-      name: "বোকাখাত জাতীয় বিদ্যালয়।",
-      location: "Bokakhat, Assam",
-      location_native: "বোকাখাত",
-      description: "A progressive educational institution committed to providing quality education while fostering social consciousness and cultural identity among students.",
-      detailedDescription: "বোকাখাত জাতীয় বিদ্যালয়। (Bokakhat Jatiya Vidyalaya) stands as a beacon of progressive education in the Bokakhat region. Established with the vision of creating socially conscious citizens, the school combines academic excellence with progressive values. Our curriculum emphasizes critical thinking, cultural preservation, and community engagement. The institution serves as a model for educational transformation in rural Assam, preparing students to become agents of positive social change.",
-      programs: ["Primary Education", "Secondary Education", "Science Stream", "Arts Stream", "Cultural Programs", "Community Service"],
-      facilities: ["Library", "Science Laboratory", "Computer Lab", "Sports Ground", "Cultural Hall", "Hostel Facilities", "Medical Room"],
-      achievements: [
-        "Best Rural School Award 2023",
-        "100% Pass Rate in HSLC Examination",
-        "District Level Cultural Competition Winners",
-        "Environmental Conservation Project Recognition",
-        "Community Literacy Program Success"
-      ],
-      studentCount: 450,
-      contactEmail: "info@bokakhatjatiyavidyalaya.edu.in",
-      contactPhone: "+91-9876543210",
-      website: "https://bokakhatjatiyavidyalaya.edu.in",
-      isActive: true,
-      mediaFiles: [
-        {
-          type: "image",
-          url: "/images/bokakhat-school-building.jpg",
-          caption: "Main School Building",
-          description: "The iconic red-brick building of বোকাখাত জাতীয় বিদ্যালয়।"
-        },
-        {
-          type: "image", 
-          url: "/images/bokakhat-students.jpg",
-          caption: "Students in Cultural Program",
-          description: "Students performing traditional Assamese dance"
-        },
-        {
-          type: "image",
-          url: "/images/bokakhat-library.jpg", 
-          caption: "School Library",
-          description: "Well-equipped library with progressive literature"
-        }
-      ]
-    },
-    {
       name: "ব্ৰহ্মপুত্ৰ জাতীয় বিদ্যালয়।",
       location: "Brahmaputra Valley, Assam",
       location_native: "ব্ৰহ্মপুত্ৰ উপত্যকা",
