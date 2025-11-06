@@ -51,6 +51,9 @@ export default function Schools() {
   
   const { data: schools, isLoading } = useQuery<School[]>({
     queryKey: ["/api/schools"],
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const getSchoolLogo = (schoolName: string) => {
