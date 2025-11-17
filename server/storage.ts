@@ -502,26 +502,15 @@ export class DatabaseStorage implements IStorage {
 
   // School operations
   async getSchools(): Promise<(School & { studentCount: number })[]> {
-    const schoolsWithCounts = await db
+    const allSchools = await db
       .select()
       .from(schools)
-      .leftJoin(students, eq(students.schoolId, schools.id))
       .orderBy(desc(schools.createdAt));
 
-    // Group by school and count students
-    const schoolMap = new Map<number, School & { studentCount: number }>();
-    
-    for (const row of schoolsWithCounts) {
-      const school = row.schools;
-      if (!schoolMap.has(school.id)) {
-        schoolMap.set(school.id, { ...school, studentCount: 0 });
-      }
-      if (row.students) {
-        schoolMap.get(school.id)!.studentCount++;
-      }
-    }
-
-    return Array.from(schoolMap.values());
+    return allSchools.map(school => ({
+      ...school,
+      studentCount: school.studentCount || 0
+    }));
   }
 
   async getSchool(id: number): Promise<School | undefined> {
