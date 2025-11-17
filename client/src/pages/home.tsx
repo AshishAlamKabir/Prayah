@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Book, GraduationCap, Palette, Users } from "lucide-react";
 import { Link } from "wouter";
 import type { School, Book as BookType, CultureCategory } from "@shared/schema";
+import bokakhatLogo from "@assets/bokakhat_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
 import { StructuredData, organizationSchema, websiteSchema } from "@/components/seo/StructuredData";
@@ -221,6 +222,7 @@ export default function Home() {
             ) : (
               featuredSchools.map((school) => {
                 const getSchoolLogo = (schoolName: string) => {
+                  if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokakhatLogo;
                   if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
                   if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
                   return brahmaputraLogo; // default fallback

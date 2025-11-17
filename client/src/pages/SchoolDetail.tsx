@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Users, Phone, Mail, Globe, Star, Award, CreditCard } from "lucide-react";
 import { Link } from "wouter";
 import type { School } from "@shared/schema";
+import bokakhatLogo from "@assets/bokakhat_logo_optimized.jpg";
 import mohuramukhtLogo from "@assets/mohuramukh_logo_optimized.jpg";
 import brahmaputraLogo from "@assets/brahmaputra_logo_optimized.jpg";
 
@@ -54,6 +55,7 @@ export default function SchoolDetail() {
 
   const getSchoolLogo = (schoolName: string) => {
     // Match against Assamese names
+    if (schoolName.includes('বোকাখাত') || schoolName.includes('Bokakhat')) return bokakhatLogo;
     if (schoolName.includes('মহুৰামুখ') || schoolName.includes('Mohuramukh')) return mohuramukhtLogo;
     if (schoolName.includes('ব্ৰহ্মপুত্ৰ') || schoolName.includes('Brahmaputra')) return brahmaputraLogo;
     return brahmaputraLogo; // default fallback

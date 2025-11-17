@@ -19,7 +19,7 @@ async function createRoleBasedAdmins() {
         firstName: "Bokakhat",
         lastName: "Administrator",
         role: "school_admin", 
-        schoolPermissions: [1], // Bokakhat school ID
+        schoolPermissions: [4], // Bokakhat school ID
         culturePermissions: [],
         permissions: ["manage_school_content", "school_notifications", "school_activities"]
       },
