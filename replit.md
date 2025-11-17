@@ -21,9 +21,9 @@ The application employs a comprehensive educational management platform with rol
 - **PrayasAdhayanChakraAdmin**: Full system access - manages all schools, culture categories, users, and system settings
 
 **School Administrators (Limited to specific schools):**
-- **BokaghatAdmin**: Manages Bokaghat Jatiya Vidyalaya only
-- **BrahmaputraAdmin**: Manages Brahmaputra Jatiya Vidyalaya only  
-- **MohuramukhaAdmin**: Manages Mahuramukh Jatiya Vidyalaya only
+- **BokakhatAdmin**: Manages Bokakhat Jatiya Vidyalaya only (450 students)
+- **BrahmaputraAdmin**: Manages Brahmaputra Jatiya Vidyalaya only (158 students)
+- **MohuramukhaAdmin**: Manages Mahuramukh Jatiya Vidyalaya only (320 students)
 
 **Culture Administrators (Limited to specific categories):**
 - **MusicAdmin**: Manages Music programs and activities only
