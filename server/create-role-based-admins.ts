@@ -13,6 +13,17 @@ async function createRoleBasedAdmins() {
     // School admin accounts
     const schoolAdmins = [
       {
+        username: "BokakhatAdmin", 
+        email: "contact@bokakhatjatiyavidyalai.org",
+        password: passwordHash,
+        firstName: "Bokakhat",
+        lastName: "Administrator",
+        role: "school_admin", 
+        schoolPermissions: [1], // Bokakhat school ID
+        culturePermissions: [],
+        permissions: ["manage_school_content", "school_notifications", "school_activities"]
+      },
+      {
         username: "BrahmaputraAdmin", 
         email: "admin@brahmaputrajatiyavidyalai.org",
         password: passwordHash,
@@ -115,6 +126,7 @@ async function createRoleBasedAdmins() {
 
     console.log("\n=== Role-Based Admin Accounts Created ===");
     console.log("\nSchool Admins:");
+    console.log("- BokakhatAdmin / Admin2025! (Bokakhat School)"); 
     console.log("- BrahmaputraAdmin / Admin2025! (Brahmaputra School)"); 
     console.log("- MohuramukhaAdmin / Admin2025! (Mohuramukha School)");
     
